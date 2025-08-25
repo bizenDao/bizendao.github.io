@@ -7,7 +7,9 @@
   "scripts": {
     "dev": "sh deploy/build.sh dev",
     "stg": "sh deploy/build.sh stg",
-    "prd": "sh deploy/build.sh prd"
+    "prd": "sh deploy/build.sh prd",
+    "build": "webpack --config webpack.config.js",
+    "build:gh-pages": "sh build-gh-pages.sh"
   },
   "keywords": [],
   "author": "",
