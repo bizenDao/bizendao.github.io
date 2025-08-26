@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bundle Debug</title>
+    <script>
+        console.log('[1] Before env.js');
+    </script>
+    <script src="/js/env.js"></script>
+    <script>
+        console.log('[2] After env.js, window.ENV:', window.ENV);
+    </script>
+</head>
+<body>
+    <h1>Bundle Debug</h1>
+    <div id="results"></div>
+    
+    <script>
+        console.log('[3] Before main.bundle.js');
+        
+        // env.jsの内容を確認
+        if (window.ENV) {
+            document.getElementById('results').innerHTML += '<h2>window.ENV exists</h2>';
+            document.getElementById('results').innerHTML += '<pre>' + JSON.stringify(window.ENV, null, 2) + '</pre>';
+        } else {
+            document.getElementById('results').innerHTML += '<h2>window.ENV is undefined</h2>';
+        }
+    </script>
+    
+    <script src="/js/main.bundle.js?ver=test"></script>
+    
+    <script>
+        console.log('[4] After main.bundle.js');
+        
+        // CONSTの値を確認
+        setTimeout(() => {
+            if (window.CONST) {
+                console.log('window.CONST:', window.CONST);
+                document.getElementById('results').innerHTML += '<h2>Trying CONST.ARTICLE_REPO</h2>';
+                try {
+                    const repo = window.CONST.ARTICLE_REPO;
+                    document.getElementById('results').innerHTML += '<p>CONST.ARTICLE_REPO: ' + repo + '</p>';
+                } catch (e) {
+                    document.getElementById('results').innerHTML += '<p>Error: ' + e + '</p>';
+                }
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

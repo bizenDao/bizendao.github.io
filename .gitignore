@@ -1,7 +1,7 @@
 .env
 node_modules
 public/index.html
-public/js/*
-src/module/common/const.ts
-src/module/common/genrelist.ts
+public/js/*.bundle.js
+public/js/*.bundle.js.map
+public/js/*.bundle.js.LICENSE.txt
 deploy/settings/*

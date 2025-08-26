@@ -9,7 +9,7 @@
     "stg": "sh deploy/build.sh stg",
     "prd": "sh deploy/build.sh prd",
     "build": "webpack --config webpack.config.js",
-    "build:gh-pages": "sh build-gh-pages.sh"
+    "build:github-pages": "bash scripts/build-for-github-pages.sh"
   },
   "keywords": [],
   "author": "",

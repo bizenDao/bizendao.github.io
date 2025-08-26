@@ -13,30 +13,45 @@ const options = {
   breaks: true,
 };
 
-const apiUrl = CONST.ARTICLE_REPO + `smjson.php?n=${Date.now()}`;
-const contentsList = await fetch(apiUrl).then((response) => {
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
-  }
-  return response.json();
-});
+// 初期化処理を関数化
+let contentsList: any = null;
 
-if (contentsList.system?.setting) {
-  for (let contents of contentsList.system.setting) {
-    if (contents.setting?.page_dir) {
-      pageDir = contents.setting.page_dir;
-      console.log(`replace pageDir: ${JSON.stringify(pageDir)}`);
+const initializeArticle = async () => {
+  // デバッグ: 環境変数の状態を確認
+  console.log('[article.ts] window.ENV:', window.ENV);
+  console.log('[article.ts] CONST.ARTICLE_REPO:', CONST.ARTICLE_REPO);
+  
+  const apiUrl = CONST.ARTICLE_REPO + `smjson.php?n=${Date.now()}`;
+  console.log('[article.ts] apiUrl:', apiUrl);
+  
+  contentsList = await fetch(apiUrl).then((response) => {
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
     }
-    if (contents.setting?.exclude_dir) {
-      excludeDir = contents.setting.exclude_dir;
-      console.log(`replace excludeDir: ${JSON.stringify(excludeDir)}`);
+    return response.json();
+  });
+  
+  if (contentsList.system?.setting) {
+    for (let contents of contentsList.system.setting) {
+      if (contents.setting?.page_dir) {
+        pageDir = contents.setting.page_dir;
+        console.log(`replace pageDir: ${JSON.stringify(pageDir)}`);
+      }
+      if (contents.setting?.exclude_dir) {
+        excludeDir = contents.setting.exclude_dir;
+        console.log(`replace excludeDir: ${JSON.stringify(excludeDir)}`);
+      }
     }
   }
-}
+};
 
 marked.setOptions(options);
 
 const getMdSiteMap = async () => {
+  // 初期化されていない場合は初期化
+  if (!contentsList) {
+    await initializeArticle();
+  }
   const apiUrl = CONST.ARTICLE_REPO + `smjson.php?n=${Date.now()}`;
 
   const contentsDirArea = document.createElement("div");
@@ -130,6 +145,10 @@ const getMdSiteMap = async () => {
 };
 
 const getMdDir = async (dirname) => {
+  // 初期化されていない場合は初期化
+  if (!contentsList) {
+    await initializeArticle();
+  }
   const apiUrl = CONST.ARTICLE_REPO + `smjson.php?n=${Date.now()}`;
   const contentsDirArea = document.createElement("div");
   contentsDirArea.classList.add("contentsDirArea");
@@ -182,6 +201,10 @@ const getMdDir = async (dirname) => {
 };
 
 const getMdPath = async () => {
+  // 初期化されていない場合は初期化
+  if (!contentsList) {
+    await initializeArticle();
+  }
   const baseUrl = CONST.BOT_API_URL;
   const PATH = router.getParams();
   const lang = router.lang;
@@ -191,9 +214,13 @@ const getMdPath = async () => {
 };
 
 const getMdContents = async (path) => {
+  // 初期化されていない場合は初期化
+  if (!contentsList) {
+    await initializeArticle();
+  }
   try {
     const htmlContent = await fetch(
-      `${CONST.ARTICLE_REPO_URL}/${path}?n=${Date.now()}`
+      `${CONST.ARTICLE_REPO}bizen-article/md/${path}?n=${Date.now()}`
     )
       .then((response) => response.text())
       .then((markdown) => {
@@ -210,8 +237,12 @@ const getMdContents = async (path) => {
 };
 
 const parseMdPage = async (mdpath, path, parentElm?) => {
-  const editor = `${CONST.ARTICLE_REPO}edit.php?file=${path}`;
-  const viewer = `${CONST.ARTICLE_REPO}viewer.php?file=${path}`;
+  // 初期化されていない場合は初期化
+  if (!contentsList) {
+    await initializeArticle();
+  }
+  const editor = `${CONST.ARTICLE_REPO}edit.php?file=bizen-article/md/${path}`;
+  const viewer = `${CONST.ARTICLE_REPO}viewer.php?file=bizen-article/md/${path}`;
   const sectionElement = document.createElement("section");
   sectionElement.classList.add("articleSection");
 

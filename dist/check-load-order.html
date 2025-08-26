@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Load Order Check</title>
+    <script>
+        console.log('[1] Head start');
+    </script>
+    <script src="/js/env.js"></script>
+    <script>
+        console.log('[2] After env.js:', typeof window.ENV);
+    </script>
+</head>
+<body>
+    <h1>Check Load Order</h1>
+    <p>Check browser console</p>
+    <script>
+        console.log('[3] Body inline:', typeof window.ENV);
+    </script>
+    <script src="/js/main.bundle.js"></script>
+    <script>
+        console.log('[4] After main.bundle.js:', typeof window.ENV);
+        if (window.ENV) {
+            console.log('ENV content:', window.ENV);
+        }
+    </script>
+</body>
+</html>
