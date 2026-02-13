@@ -428,6 +428,18 @@
         .stats-row { gap: 10px; }
         .stat-card { min-width: 100px; padding: 12px; }
       }
+      .nickname-spinner {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(139,90,43,0.2);
+        border-top-color: #8B5A2B;
+        border-radius: 50%;
+        animation: nick-spin 0.6s linear infinite;
+        vertical-align: middle;
+        margin-left: 4px;
+      }
+      @keyframes nick-spin { to { transform: rotate(360deg); } }
     </style>
   </head>
   <body>
@@ -518,7 +530,7 @@
           <!-- 寄付フォーム -->
           <div v-else class="donate-form">
             <div class="wallet-row">
-              <span class="wallet-address">🦊 {{ shortAddress }}</span>
+              <span class="wallet-address">🦊 {{ nickname || shortAddress }} <span v-if="nicknameLoading" class="nickname-spinner"></span></span>
               <span class="wallet-balance">{{ balance }} POL</span>
             </div>
 
@@ -593,6 +605,8 @@
             sending: false,
             error: null,
             address: null,
+            nickname: null,
+            nicknameLoading: false,
             balance: '0',
             amount: null,
             detail: '',
@@ -636,6 +650,7 @@
             this.setupWalletCallbacks();
             await Wallet.ensurePolygon();
             this.loadWalletData();
+            this.nicknameLoading = true; NFTHelper.getNickname(this.address).then(nick => { this.nickname = nick; }).finally(() => { this.nicknameLoading = false; });
           }
         },
 
@@ -651,6 +666,7 @@
               this.address = address;
               this.connected = true;
               this.setupWalletCallbacks();
+              this.nicknameLoading = true; NFTHelper.getNickname(this.address).then(nick => { this.nickname = nick; }).finally(() => { this.nicknameLoading = false; });
               await this.loadWalletData();
             } catch (e) {
               this.error = e.message;

@@ -22,6 +22,9 @@ const CONFIG = {
   // ── BOT API ──
   botApi: 'https://bizendaobot-production.up.railway.app/',
 
+  // ── GAS (メンバーニックネーム検索) ──
+  gasApi: 'https://script.google.com/macros/s/AKfycbyTs_nmQbvKdwz2qtWdxbhXZ06pWHBctC4dzeHvS5jR7ms8BKCnB_mE92_E1tz-QV7u/exec',
+
   // ── コントラクト ──
   contracts: {
     // 作家NFT（ERC-721 Enumerable）

@@ -29,6 +29,7 @@
     <!-- BizenDAO 共通モジュール -->
     <script src="js/config.js"></script>
     <script src="js/cache.js"></script>
+    <script src="js/wallet.js"></script>
     <script src="js/nft.js"></script>
 
     <style>
@@ -506,6 +507,84 @@
       .fade-leave-to {
         opacity: 0;
       }
+      /* Owner actions */
+      .owner-actions { margin-top: 12px; display: flex; gap: 10px; }
+      .btn-send { background: #4a7c59; color: #fff; }
+      .btn-send:hover { background: #3d6b4a; }
+      .btn-burn { background: #c0392b; color: #fff; }
+      .btn-burn:hover { background: #a93226; }
+      .tx-message { margin-top: 8px; padding: 8px 12px; border-radius: 6px; font-size: 0.9em; }
+      .tx-pending { background: #fef5e7; color: #8B5A2B; }
+      .tx-success { background: #eafaf1; color: #27ae60; }
+      .tx-error { background: #fdedec; color: #c0392b; }
+
+      /* Send modal */
+      .send-modal-overlay {
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;
+      }
+      .send-modal {
+        background: #fff; border-radius: 12px; padding: 24px; max-width: 420px; width: 90%;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      }
+      .send-modal h3 { margin: 0 0 8px; color: #5D4037; }
+      .send-token-info { color: #8B5A2B; font-size: 0.9em; margin-bottom: 16px; }
+      .send-input {
+        width: 100%; padding: 10px 12px; border: 2px solid #D7CCC8; border-radius: 8px;
+        font-size: 0.95em; font-family: monospace; box-sizing: border-box; margin-bottom: 16px;
+      }
+      .send-input:focus { border-color: #8B5A2B; outline: none; }
+      .send-to-nick { margin: -8px 0 12px; font-size: 0.9em; color: #4a7c59; }
+      .send-to-nick.unknown { color: #999; }
+      .send-modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+      /* 属性メディア表示 */
+      .attr-media-img {
+        max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 6px; display: block;
+        object-fit: contain;
+      }
+      .attr-media-video {
+        max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 6px; display: block;
+      }
+      .attr-link, .attr-3d-link {
+        color: #8B5A2B; text-decoration: underline; word-break: break-all;
+      }
+      .attr-3d-link {
+        display: inline-block; padding: 4px 10px; background: #f5f0eb; border-radius: 6px;
+        text-decoration: none; font-weight: 500;
+      }
+      .attr-3d-link:hover { background: #e8ddd3; }
+      .metadata-value { overflow: hidden; }
+
+      .contract-info-toggle {
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .contract-info-toggle:hover { opacity: 1; }
+      .toggle-arrow {
+        display: inline-block;
+        font-size: 12px;
+        transition: transform 0.2s ease;
+      }
+      .toggle-arrow.open { transform: rotate(90deg); }
+      .contract-info-section { margin-top: 16px; align-self: stretch; }
+      .contract-info-body { margin-top: 12px; }
+
+      .nickname-spinner {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(139,90,43,0.2);
+        border-top-color: #8B5A2B;
+        border-radius: 50%;
+        animation: nick-spin 0.6s linear infinite;
+        vertical-align: middle;
+        margin-left: 4px;
+      }
+      @keyframes nick-spin { to { transform: rotate(360deg); } }
     </style>
   </head>
   <body>
@@ -604,8 +683,35 @@
                 <a :href="'contract.html?ca=' + contractAddress" class="contract-link">Contract Token List</a>
                 <p class="nft-token-id">Token ID: #{{ nft.tokenId }}</p>
                 <p v-if="ownerAddress" class="nft-owner">
-                  Owner: <a :href="'account.html?address=' + ownerAddress" class="contract-link">{{ shortAddr(ownerAddress) }}</a>
+                  Owner: <a :href="'account.html?address=' + ownerAddress" class="contract-link">{{ ownerDisplayName || shortAddr(ownerAddress) }}</a> <span v-if="ownerNicknameLoading" class="nickname-spinner"></span>
                 </p>
+
+                <!-- オーナー操作ボタン -->
+                <div v-if="isOwner" class="owner-actions">
+                  <button class="btn btn-send" @click="showSendModal = true" :disabled="sendingTx">📤 Send</button>
+                  <button class="btn btn-burn" @click="confirmBurn" :disabled="sendingTx">🔥 Burn</button>
+                </div>
+                <div v-if="txMessage" :class="['tx-message', txClass]">{{ txMessage }}</div>
+
+                <!-- Send モーダル -->
+                <div v-if="showSendModal" class="send-modal-overlay" @click.self="showSendModal = false">
+                  <div class="send-modal">
+                    <h3>NFTを送信</h3>
+                    <p class="send-token-info">{{ nft.name }} #{{ nft.tokenId }}</p>
+                    <input v-model="sendTo" class="send-input" placeholder="送信先アドレス (0x...)" @input="lookupSendToNickname" />
+                    <p v-if="sendToNicknameLoading" class="send-to-nick"><span class="nickname-spinner"></span> 検索中...</p>
+                    <p v-else-if="sendToNickname" class="send-to-nick">👤 {{ sendToNickname }}</p>
+                    <p v-else-if="sendTo && sendToLookedUp" class="send-to-nick unknown">未登録のアドレスです</p>
+                    <div class="send-modal-actions">
+                      <button class="btn btn-send" @click="sendNft" :disabled="sendingTx || !sendTo">
+                        <span v-if="sendingTx">送信中...</span>
+                        <span v-else>送信</span>
+                      </button>
+                      <button class="btn" @click="showSendModal = false" :disabled="sendingTx">キャンセル</button>
+                    </div>
+                  </div>
+                </div>
+
               </div>
 
               <div class="nft-layout">
@@ -619,15 +725,50 @@
                   <a v-if="nft.animation_url" :href="animationLinkUrl(nft)" target="_blank" class="animation-link">
                     Animation URL <span v-if="nft.animation_mime_type" class="mime-badge">{{ formatMimeType(nft.animation_mime_type) }}</span>
                   </a>
-                </div>
 
-                <div class="nft-metadata">
                   <!-- 説明 -->
-                  <div v-if="nft.description" class="metadata-section">
+                  <div v-if="nft.description" class="metadata-section" style="align-self: stretch;">
                     <h3 class="metadata-title">説明</h3>
                     <p class="metadata-description">{{ nft.description }}</p>
                   </div>
 
+                  <!-- コントラクト情報 -->
+                  <div class="metadata-section contract-info-section">
+                    <h3 class="metadata-title contract-info-toggle" @click="contractInfoOpen = !contractInfoOpen">
+                      <span class="toggle-arrow" :class="{ open: contractInfoOpen }">▶</span>
+                      コントラクト情報
+                    </h3>
+                    <div v-show="contractInfoOpen" class="contract-info-body">
+                      <div class="metadata-grid">
+                        <div class="metadata-item">
+                          <span class="metadata-label">Contract</span>
+                          <span class="metadata-value">{{ contractAddress.slice(0, 6) }}...{{ contractAddress.slice(-4) }}</span>
+                        </div>
+                        <div class="metadata-item">
+                          <span class="metadata-label">Token ID</span>
+                          <span class="metadata-value">{{ nft.tokenId }}</span>
+                        </div>
+                        <div class="metadata-item">
+                          <span class="metadata-label">Token URI</span>
+                          <span class="metadata-value">{{ nft.tokenURI || 'N/A' }}</span>
+                        </div>
+                        <div class="metadata-item">
+                          <span class="metadata-label">Token Standard</span>
+                          <span class="metadata-value">{{ tokenStandard }}</span>
+                        </div>
+                        <div class="metadata-item">
+                          <span class="metadata-label">Network</span>
+                          <span class="metadata-value">Polygon</span>
+                        </div>
+                      </div>
+                      <button class="btn" @click="viewOnPolygonScan(nft.tokenId)" style="margin-top: 16px;">
+                        PolygonScanで確認
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="nft-metadata">
                   <!-- 属性 -->
                   <div
                     v-if="nft.attributes && nft.attributes.length > 0"
@@ -643,56 +784,27 @@
                         <span class="metadata-label"
                           >{{ attr.trait_type }}</span
                         >
-                        <span class="metadata-value">{{ attr.value }}</span>
+                        <span class="metadata-value">
+                          <template v-if="isMediaUrl(attr.value)">
+                            <img v-if="getMediaType(attr.value) === 'image'" :src="resolveUrl(attr.value)" class="attr-media-img" loading="lazy" />
+                            <video v-else-if="getMediaType(attr.value) === 'video'" :src="resolveUrl(attr.value)" class="attr-media-video" controls preload="metadata"></video>
+                            <audio v-else-if="getMediaType(attr.value) === 'audio'" :src="resolveUrl(attr.value)" controls></audio>
+                            <a v-else-if="getMediaType(attr.value) === '3d'" :href="resolveUrl(attr.value)" target="_blank" class="attr-3d-link">🎮 3Dモデルを表示</a>
+                            <img v-else :src="resolveUrl(attr.value)" class="attr-media-img" loading="lazy" />
+                          </template>
+                          <template v-else>{{ attr.value }}</template>
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  <!-- コントラクト情報 -->
-                  <div class="metadata-section">
-                    <h3 class="metadata-title">コントラクト情報</h3>
-                    <div class="metadata-grid">
-                      <div class="metadata-item">
-                        <span class="metadata-label">Contract</span>
-                        <span class="metadata-value"
-                          >{{ contractAddress.slice(0, 6) }}...{{
-                          contractAddress.slice(-4) }}</span
-                        >
-                      </div>
-                      <div class="metadata-item">
-                        <span class="metadata-label">Token ID</span>
-                        <span class="metadata-value">{{ nft.tokenId }}</span>
-                      </div>
-                      <div class="metadata-item">
-                        <span class="metadata-label">Token URI</span>
-                        <span class="metadata-value"
-                          >{{ nft.tokenURI || 'N/A' }}</span
-                        >
-                      </div>
-                      <div class="metadata-item">
-                        <span class="metadata-label">Token Standard</span>
-                        <span class="metadata-value">{{ tokenStandard }}</span>
-                      </div>
-                      <div class="metadata-item">
-                        <span class="metadata-label">Network</span>
-                        <span class="metadata-value">Polygon</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- 外部リンク -->
-                  <div class="metadata-section">
-                    <button class="btn" @click="viewOnPolygonScan(nft.tokenId)">
-                      PolygonScanで確認
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- TBA (Token Bound Account) セクション -->
-          <div v-if="nfts.length > 0" class="tba-section">
+          <!-- TBA (Token Bound Account) セクション — アセットがある時のみ表示 -->
+          <div v-if="nfts.length > 0 && !tbaLoading && tbaAssets.length > 0" class="tba-section">
             <div class="tba-header">
               <h3>📦 Token Bound Account</h3>
               <div v-if="tbaAddress" class="tba-address">
@@ -700,20 +812,7 @@
               </div>
             </div>
 
-            <div v-if="tbaLoading" class="tba-loading">
-              <div class="loading-spinner"></div>
-              <p>TBA内のアセットを取得中...</p>
-            </div>
-
-            <div v-else-if="!tbaAddress" class="tba-empty">
-              TBAアドレスを取得できませんでした
-            </div>
-
-            <div v-else-if="tbaAssets.length === 0" class="tba-empty">
-              この作品のTBAにはまだアセットがありません
-            </div>
-
-            <template v-else>
+            <template>
               <!-- 箱書き（SBT） -->
               <div v-if="tbaSbtAssets.length > 0" class="tba-subsection">
                 <h4>📜 箱書き（SBT）</h4>
@@ -810,6 +909,19 @@
             tbaAssets: [],
             tbaLoading: false,
             ownerAddress: null,
+            ownerDisplayName: null,
+            ownerNicknameLoading: false,
+            contractInfoOpen: false,
+            // ウォレット（send/burn用）
+            connectedAddress: null,
+            sendTo: '',
+            sendToNickname: null,
+            sendToNicknameLoading: false,
+            sendToLookedUp: false,
+            sendingTx: false,
+            showSendModal: false,
+            txMessage: '',
+            txClass: '',
           };
         },
         computed: {
@@ -819,8 +931,23 @@
           tbaNftAssets() {
             return this.tbaAssets.filter(a => a.type === 'nft');
           },
+          isOwner() {
+            if (!this.connectedAddress || !this.ownerAddress) return false;
+            return this.connectedAddress.toLowerCase() === this.ownerAddress.toLowerCase();
+          },
         },
-        mounted() {
+        async mounted() {
+          // ウォレット自動再接続
+          const result = await Wallet.reconnect();
+          if (result) this.connectedAddress = result.address;
+
+          // ウォレット変更監視
+          if (window.ethereum) {
+            window.ethereum.on('accountsChanged', (accs) => {
+              this.connectedAddress = accs[0] || null;
+            });
+          }
+
           // Web3の初期化
           this.initializeEthers();
 
@@ -923,9 +1050,105 @@
             try {
               const contract = NFTHelper.getContract(this.contractAddress);
               this.ownerAddress = await contract.methods.ownerOf(tokenId).call();
+              this.ownerNicknameLoading = true;
+              NFTHelper.getNickname(this.ownerAddress).then(nick => { this.ownerDisplayName = nick; }).finally(() => { this.ownerNicknameLoading = false; });
             } catch (e) {
               console.error('fetchOwner error:', e);
             }
+          },
+
+          // ── 属性値のメディア判定 ──
+
+          isMediaUrl(val) {
+            if (typeof val !== 'string') return false;
+            return /^(https?:\/\/|ipfs:\/\/|ar:\/\/)/.test(val);
+          },
+
+          resolveUrl(url) {
+            if (!url) return '';
+            return url.replace('ipfs://', 'https://ipfs.io/ipfs/').replace('ar://', 'https://arweave.net/');
+          },
+
+          getMediaType(url) {
+            if (!url) return 'other';
+            const u = url.toLowerCase().split('?')[0];
+            if (/\.(jpg|jpeg|png|gif|webp|svg|bmp|avif)$/.test(u)) return 'image';
+            if (/\.(mp4|webm|ogv|mov|avi)$/.test(u)) return 'video';
+            if (/\.(mp3|wav|ogg|flac|aac)$/.test(u)) return 'audio';
+            if (/\.(glb|gltf|obj|fbx|stl|usdz)$/.test(u)) return '3d';
+            return 'other';
+          },
+
+          // ── ニックネーム検索（送信先） ──
+
+          lookupSendToNickname() {
+            this.sendToNickname = null;
+            this.sendToLookedUp = false;
+            if (!/^0x[0-9a-fA-F]{40}$/.test(this.sendTo)) return;
+            this.sendToNicknameLoading = true;
+            NFTHelper.getNickname(this.sendTo).then(nick => {
+              this.sendToNickname = nick;
+              this.sendToLookedUp = true;
+            }).finally(() => { this.sendToNicknameLoading = false; });
+          },
+
+          // ── Send / Burn ──
+
+          async sendNft() {
+            if (!this.sendTo || !this.isOwner) return;
+            if (!/^0x[0-9a-fA-F]{40}$/.test(this.sendTo)) {
+              this.txMessage = '無効なアドレスです';
+              this.txClass = 'tx-error';
+              return;
+            }
+            const dest = this.sendToNickname ? `${this.sendToNickname} (${this.shortAddr(this.sendTo)})` : this.sendTo;
+            if (!confirm(`${dest} に送信しますか？`)) return;
+            this.sendingTx = true;
+            this.txMessage = 'トランザクション送信中...';
+            this.txClass = 'tx-pending';
+            try {
+              const web3 = new Web3(window.ethereum);
+              const contract = new web3.eth.Contract(
+                [{ "inputs": [{"name":"from","type":"address"},{"name":"to","type":"address"},{"name":"tokenId","type":"uint256"}], "name": "transferFrom", "outputs": [], "stateMutability": "nonpayable", "type": "function" }],
+                this.contractAddress
+              );
+              await contract.methods.transferFrom(this.connectedAddress, this.sendTo, this.tokenId || 1)
+                .send({ from: this.connectedAddress });
+              this.txMessage = '送信完了！';
+              this.txClass = 'tx-success';
+              this.showSendModal = false;
+              this.sendTo = '';
+              // Owner再取得
+              this.fetchOwner(this.tokenId || 1);
+            } catch (e) {
+              this.txMessage = e.message?.includes('denied') ? 'キャンセルされました' : `エラー: ${e.message}`;
+              this.txClass = 'tx-error';
+            }
+            this.sendingTx = false;
+          },
+
+          async confirmBurn() {
+            if (!confirm('このNFTをBurn（焼却）しますか？この操作は取り消せません。')) return;
+            this.sendingTx = true;
+            this.txMessage = 'Burn トランザクション送信中...';
+            this.txClass = 'tx-pending';
+            try {
+              const web3 = new Web3(window.ethereum);
+              const contract = new web3.eth.Contract(
+                [{ "inputs": [{"name":"from","type":"address"},{"name":"to","type":"address"},{"name":"tokenId","type":"uint256"}], "name": "transferFrom", "outputs": [], "stateMutability": "nonpayable", "type": "function" }],
+                this.contractAddress
+              );
+              const DEAD = '0x000000000000000000000000000000000000dEaD';
+              await contract.methods.transferFrom(this.connectedAddress, DEAD, this.tokenId || 1)
+                .send({ from: this.connectedAddress });
+              this.txMessage = 'Burn完了';
+              this.txClass = 'tx-success';
+              this.fetchOwner(this.tokenId || 1);
+            } catch (e) {
+              this.txMessage = e.message?.includes('denied') ? 'キャンセルされました' : `エラー: ${e.message}`;
+              this.txClass = 'tx-error';
+            }
+            this.sendingTx = false;
           },
 
           async loadTba(tokenId) {

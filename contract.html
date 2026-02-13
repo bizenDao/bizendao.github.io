@@ -371,17 +371,8 @@
                         </div>
                     </div>
 
-                    <div class="input-field">
-                        <label>NFTコントラクトアドレス</label>
-                        <input type="text" v-model="contractAddress" placeholder="0x..." @keyup.enter="loadContract" />
-                    </div>
-                    
-                    <div class="action-buttons">
-                        <button class="btn btn-primary" @click="loadContract" :disabled="loading || !contractAddress">
-                            <span v-if="loading" class="loading-spinner"></span>
-                            <span v-else>トークン一覧を取得</span>
-                        </button>
-                        <button class="btn" @click="clearData">クリア</button>
+                    <div v-if="loading" style="text-align:center; margin-top:12px;">
+                        <span class="loading-spinner"></span>
                     </div>
                     
                     <div v-if="statusMessage" :class="['status-message', statusClass]">

@@ -1,7 +1,7 @@
 RewriteEngine On
-RewriteBase /dao/
+RewriteBase /bizendao/
 
-# /dao/regist/:discordId/:secret → /dao/regist/?discord=:discordId&secret=:secret
+# /bizendao/regist/:discordId/:secret → /bizendao/regist/?discord=:discordId&secret=:secret
 RewriteRule ^regist/([0-9]+)/(.+)$ regist/?discord=$1&secret=$2 [L,R=302]
 
 # /dao/regist/:discordId → /dao/regist/?discord=:discordId

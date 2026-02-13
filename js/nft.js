@@ -204,4 +204,29 @@ const NFTHelper = {
   polygonscanAddressUrl(address) {
     return `${CONFIG.chain.explorer}/address/${address}`;
   },
+
+  // ── ニックネーム取得（GAS経由） ──
+  async getNickname(eoa) {
+    if (!eoa) return null;
+    const cached = Cache.getNickname(eoa);
+    if (cached !== null) return cached || null; // 空文字 = 未登録キャッシュ
+    try {
+      const res = await fetch(`${CONFIG.gasApi}?eoa=${eoa}`);
+      const data = await res.json();
+      const nick = data.nickname || null;
+      Cache.setNickname(eoa, nick || ''); // 未登録も空文字でキャッシュ
+      return nick;
+    } catch (e) {
+      console.error('getNickname error:', e);
+      return null;
+    }
+  },
+
+  // ニックネーム or 短縮アドレス
+  async displayName(eoa) {
+    const nick = await this.getNickname(eoa);
+    if (nick) return nick;
+    if (!eoa) return '';
+    return eoa.slice(0, 6) + '...' + eoa.slice(-4);
+  },
 };

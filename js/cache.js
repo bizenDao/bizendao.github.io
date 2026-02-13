@@ -24,6 +24,10 @@ const Cache = {
     return `${this.PREFIX}owned:${contractAddress.toLowerCase()}:${ownerAddress.toLowerCase()}`;
   },
 
+  nicknameKey(eoa) {
+    return `${this.PREFIX}nickname:${eoa.toLowerCase()}`;
+  },
+
   // ── 汎用 get/set/remove ──
 
   get(key) {
@@ -100,6 +104,15 @@ const Cache = {
 
   setOwned(contractAddress, ownerAddress, tokenIds) {
     this.set(this.ownedKey(contractAddress, ownerAddress), tokenIds, 2 * 60 * 1000);
+  },
+
+  // ニックネーム（変動あり → 5分TTL）
+  getNickname(eoa) {
+    return this.get(this.nicknameKey(eoa));
+  },
+
+  setNickname(eoa, nickname) {
+    this.set(this.nicknameKey(eoa), nickname, 5 * 60 * 1000);
   },
 
   // 全キャッシュクリア（bizen:プレフィックスのみ）
