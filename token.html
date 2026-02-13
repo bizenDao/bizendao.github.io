@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BizenDAO - NFT Token Viewer</title>
+
+    <!-- 既存のCSS -->
+    <link rel="stylesheet" href="css/style.css" />
+
+    <!-- Web3.js CDN -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- axios CDN (IPFS metadata取得用) -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Vue 3 CDN -->
+    <script
+      src="https://unpkg.com/vue@3/dist/vue.global.js"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- BizenDAO 共通モジュール -->
+    <script src="js/config.js"></script>
+    <script src="js/cache.js"></script>
+    <script src="js/nft.js"></script>
+
+    <style>
+      /* NFTビューア固有のスタイル */
+      main {
+        padding-top: 100px;
+        min-height: 100vh;
+      }
+
+      .nft-viewer {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 5px 20px;
+      }
+
+      /* コントロールパネル */
+      .control-panel {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 40px;
+      }
+
+      .input-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      .input-field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .input-field label {
+        font-size: 14px;
+        opacity: 0.8;
+      }
+
+      .input-field input {
+        padding: 12px 16px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.05);
+        color: #f6f6f6;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: monospace;
+      }
+
+      .input-field input:focus {
+        outline: none;
+        border-color: rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 16px;
+        margin-top: 20px;
+      }
+
+      .btn {
+        padding: 12px 24px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: transparent;
+        color: #f6f6f6;
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+
+      .btn-primary {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* ステータス表示 */
+      .status-message {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-top: 20px;
+        font-size: 14px;
+      }
+
+      .status-info {
+        background: rgba(0, 100, 255, 0.1);
+        border: 1px solid rgba(0, 100, 255, 0.3);
+        color: #6bb6ff;
+      }
+
+      .status-success {
+        background: rgba(0, 255, 100, 0.1);
+        border: 1px solid rgba(0, 255, 100, 0.3);
+        color: #66ff99;
+      }
+
+      .status-error {
+        background: rgba(255, 0, 0, 0.1);
+        border: 1px solid rgba(255, 0, 0, 0.3);
+        color: #ff6666;
+      }
+
+      /* NFT詳細表示 */
+      .nft-details {
+        margin-top: 40px;
+      }
+
+      .nft-display {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 40px;
+      }
+
+      .nft-header {
+        padding: 30px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .nft-title {
+        font-size: 28px;
+        margin-bottom: 10px;
+      }
+
+      .contract-link {
+        display: inline-block;
+        margin-bottom: 8px;
+        color: #6bb6ff;
+        font-size: 14px;
+        text-decoration: none;
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+      }
+
+      .contract-link:hover {
+        opacity: 1;
+        text-decoration: underline;
+      }
+
+      .nft-token-id {
+        font-size: 16px;
+        opacity: 0.7;
+        margin: 0;
+        font-family: monospace;
+      }
+
+      .nft-owner {
+        font-size: 14px;
+        opacity: 0.7;
+        margin: 6px 0 0;
+        font-family: monospace;
+      }
+
+      .nft-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        padding: 40px;
+      }
+
+      @media (max-width: 768px) {
+        .nft-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .nft-image-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .animation-link {
+        display: inline-block;
+        margin-top: 12px;
+        padding: 8px 16px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        color: #6bb6ff;
+        font-size: 14px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+
+      .animation-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(107, 182, 255, 0.5);
+      }
+
+      .mime-badge {
+        display: inline-block;
+        margin-left: 6px;
+        padding: 2px 8px;
+        background: rgba(107, 182, 255, 0.15);
+        border-radius: 4px;
+        font-size: 12px;
+      }
+
+      .nft-main-image {
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+        border-radius: 12px;
+        background: #222;
+      }
+
+      .nft-metadata {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+      }
+
+      .metadata-description {
+        line-height: 1.6;
+        opacity: 0.9;
+        margin: 0;
+      }
+
+      /* ローディング */
+      .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .loading-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .loading-content {
+        text-align: center;
+      }
+
+      .loading-content .loading-spinner {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 20px;
+      }
+
+      .metadata-section {
+        margin-bottom: 30px;
+      }
+
+      .metadata-title {
+        font-size: 16px;
+        margin-bottom: 16px;
+        opacity: 0.8;
+      }
+
+      .metadata-grid {
+        display: grid;
+        gap: 12px;
+      }
+
+      .metadata-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .metadata-label {
+        opacity: 0.6;
+        font-size: 14px;
+      }
+
+      .metadata-value {
+        font-weight: 500;
+        text-align: right;
+        word-break: break-all;
+        max-width: 60%;
+      }
+
+      /* ネットワーク表示 */
+      .network-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 16px;
+        background: rgba(138, 43, 226, 0.1);
+        border: 1px solid rgba(138, 43, 226, 0.3);
+        border-radius: 20px;
+        font-size: 14px;
+        margin-bottom: 20px;
+      }
+
+      .network-dot {
+        width: 8px;
+        height: 8px;
+        background: #8a2be2;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      /* TBAセクション */
+      .tba-section {
+        margin-top: 40px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 30px;
+      }
+
+      .tba-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .tba-header h3 {
+        font-size: 20px;
+        margin: 0;
+      }
+
+      .tba-address {
+        font-family: monospace;
+        font-size: 13px;
+        opacity: 0.6;
+      }
+
+      .tba-address a {
+        color: #6bb6ff;
+        text-decoration: none;
+      }
+
+      .tba-address a:hover {
+        text-decoration: underline;
+      }
+
+      .tba-loading {
+        text-align: center;
+        padding: 20px;
+        opacity: 0.6;
+      }
+
+      .tba-empty {
+        text-align: center;
+        padding: 20px;
+        opacity: 0.5;
+        font-style: italic;
+      }
+
+      .tba-subsection {
+        margin-bottom: 24px;
+      }
+
+      .tba-subsection:last-child {
+        margin-bottom: 0;
+      }
+
+      .tba-subsection h4 {
+        font-size: 16px;
+        margin-bottom: 16px;
+        opacity: 0.8;
+      }
+
+      .tba-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+      }
+
+      .tba-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+      }
+
+      .tba-card:hover {
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+      }
+
+      .tba-card-image {
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: cover;
+        background: rgba(0, 0, 0, 0.2);
+      }
+
+      .tba-card-info {
+        padding: 12px;
+      }
+
+      .tba-card-name {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .tba-card-artist {
+        font-size: 12px;
+        opacity: 0.6;
+      }
+
+      .tba-card-type {
+        display: inline-block;
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 4px;
+        margin-top: 6px;
+      }
+
+      .tba-card-type.sbt {
+        background: rgba(255, 200, 50, 0.15);
+        color: #ffcc44;
+        border: 1px solid rgba(255, 200, 50, 0.3);
+      }
+
+      .tba-card-type.nft {
+        background: rgba(100, 180, 255, 0.15);
+        color: #6bb6ff;
+        border: 1px solid rgba(100, 180, 255, 0.3);
+      }
+
+      /* フェードアニメーション */
+      .fade-enter-active,
+      .fade-leave-active {
+        transition: opacity 0.3s ease;
+      }
+
+      .fade-enter-from,
+      .fade-leave-to {
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <!-- ヘッダー -->
+      <header class="site-header">
+        <div class="container header-inner">
+          <a href="index.html" class="logo"><img src="./img/349F5603-389E-48C6-81C9-1515A338A59B.png" alt="ロゴ"> </a>
+
+          <div class="header-right">
+            <button class="lang-toggle" type="button">EN/JP</button>
+            <button
+              class="nav-toggle"
+              type="button"
+              aria-label="メニューを開閉"
+              @click="toggleMenu"
+            >
+              <span></span><span></span>
+            </button>
+          </div>
+        </div>
+
+        <div
+          class="nav-overlay"
+          :class="{ 'is-open': menuOpen }"
+          @click="closeMenu"
+        ></div>
+        <aside
+          class="nav-drawer"
+          :class="{ 'is-open': menuOpen }"
+          aria-label="サイトメニュー"
+        >
+          <ul class="drawer-nav">
+            <li><a href="./index.html">トップページ</a></li>
+            <li><a href="./artist-list.html">作家紹介</a></li>
+            <li><a href="./index.html#company">会社概要</a></li>
+            <li><a href="./index.html#discord">Discordリンク</a></li>
+            <li><a href="./index.html#meta">作品使用歴作成</a></li>
+            <li><a href="./index.html#donate">寄付ポイント</a></li>
+            <li><a href="./account.html">マイページ</a></li>
+          </ul>
+        </aside>
+      </header>
+
+      <main>
+        <div class="nft-viewer">
+          <!-- コントロールパネル -->
+          <div v-if="showControlPanel" class="control-panel">
+            <div class="input-group">
+              <div class="input-field">
+                <label>NFTコントラクトアドレス</label>
+                <input
+                  type="text"
+                  v-model="contractAddress"
+                  placeholder="0x..."
+                  @keyup.enter="loadContract"
+                />
+              </div>
+              <div class="input-field">
+                <label>トークンID（オプション）</label>
+                <input
+                  type="text"
+                  v-model="tokenId"
+                  placeholder="特定のトークンIDを表示"
+                  @keyup.enter="loadContract"
+                />
+              </div>
+            </div>
+
+            <div class="action-buttons">
+              <button
+                class="btn btn-primary"
+                @click="loadContract"
+                :disabled="loading || !contractAddress"
+              >
+                <span v-if="loading" class="loading-spinner"></span>
+                <span v-else>NFT情報を取得</span>
+              </button>
+              <button class="btn" @click="loadSampleContract">
+                サンプルNFTを表示
+              </button>
+              <button class="btn" @click="clearData">クリア</button>
+            </div>
+
+            <!-- ステータスメッセージ -->
+            <div v-if="statusMessage" :class="['status-message', statusClass]">
+              {{ statusMessage }}
+            </div>
+          </div>
+
+          <!-- NFT詳細表示 -->
+          <div v-if="nfts.length > 0" class="nft-details">
+            <div v-for="nft in nfts" :key="nft.tokenId" class="nft-display">
+              <div class="nft-header">
+                <h2 class="nft-title">{{ nft.name || 'Unnamed NFT' }}</h2>
+                <a :href="'contract.html?ca=' + contractAddress" class="contract-link">Contract Token List</a>
+                <p class="nft-token-id">Token ID: #{{ nft.tokenId }}</p>
+                <p v-if="ownerAddress" class="nft-owner">
+                  Owner: <a :href="'account.html?address=' + ownerAddress" class="contract-link">{{ shortAddr(ownerAddress) }}</a>
+                </p>
+              </div>
+
+              <div class="nft-layout">
+                <div class="nft-image-container">
+                  <img
+                    :src="nft.image || 'https://via.placeholder.com/400x400?text=No+Image'"
+                    :alt="nft.name"
+                    class="nft-main-image"
+                    @error="handleImageError"
+                  />
+                  <a v-if="nft.animation_url" :href="animationLinkUrl(nft)" target="_blank" class="animation-link">
+                    Animation URL <span v-if="nft.animation_mime_type" class="mime-badge">{{ formatMimeType(nft.animation_mime_type) }}</span>
+                  </a>
+                </div>
+
+                <div class="nft-metadata">
+                  <!-- 説明 -->
+                  <div v-if="nft.description" class="metadata-section">
+                    <h3 class="metadata-title">説明</h3>
+                    <p class="metadata-description">{{ nft.description }}</p>
+                  </div>
+
+                  <!-- 属性 -->
+                  <div
+                    v-if="nft.attributes && nft.attributes.length > 0"
+                    class="metadata-section"
+                  >
+                    <h3 class="metadata-title">属性</h3>
+                    <div class="metadata-grid">
+                      <div
+                        v-for="(attr, index) in nft.attributes"
+                        :key="index"
+                        class="metadata-item"
+                      >
+                        <span class="metadata-label"
+                          >{{ attr.trait_type }}</span
+                        >
+                        <span class="metadata-value">{{ attr.value }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- コントラクト情報 -->
+                  <div class="metadata-section">
+                    <h3 class="metadata-title">コントラクト情報</h3>
+                    <div class="metadata-grid">
+                      <div class="metadata-item">
+                        <span class="metadata-label">Contract</span>
+                        <span class="metadata-value"
+                          >{{ contractAddress.slice(0, 6) }}...{{
+                          contractAddress.slice(-4) }}</span
+                        >
+                      </div>
+                      <div class="metadata-item">
+                        <span class="metadata-label">Token ID</span>
+                        <span class="metadata-value">{{ nft.tokenId }}</span>
+                      </div>
+                      <div class="metadata-item">
+                        <span class="metadata-label">Token URI</span>
+                        <span class="metadata-value"
+                          >{{ nft.tokenURI || 'N/A' }}</span
+                        >
+                      </div>
+                      <div class="metadata-item">
+                        <span class="metadata-label">Token Standard</span>
+                        <span class="metadata-value">{{ tokenStandard }}</span>
+                      </div>
+                      <div class="metadata-item">
+                        <span class="metadata-label">Network</span>
+                        <span class="metadata-value">Polygon</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 外部リンク -->
+                  <div class="metadata-section">
+                    <button class="btn" @click="viewOnPolygonScan(nft.tokenId)">
+                      PolygonScanで確認
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TBA (Token Bound Account) セクション -->
+          <div v-if="nfts.length > 0" class="tba-section">
+            <div class="tba-header">
+              <h3>📦 Token Bound Account</h3>
+              <div v-if="tbaAddress" class="tba-address">
+                <a :href="polygonscanAddress(tbaAddress)" target="_blank">{{ shortAddr(tbaAddress) }}</a>
+              </div>
+            </div>
+
+            <div v-if="tbaLoading" class="tba-loading">
+              <div class="loading-spinner"></div>
+              <p>TBA内のアセットを取得中...</p>
+            </div>
+
+            <div v-else-if="!tbaAddress" class="tba-empty">
+              TBAアドレスを取得できませんでした
+            </div>
+
+            <div v-else-if="tbaAssets.length === 0" class="tba-empty">
+              この作品のTBAにはまだアセットがありません
+            </div>
+
+            <template v-else>
+              <!-- 箱書き（SBT） -->
+              <div v-if="tbaSbtAssets.length > 0" class="tba-subsection">
+                <h4>📜 箱書き（SBT）</h4>
+                <div class="tba-grid">
+                  <a v-for="asset in tbaSbtAssets" :key="asset.contractAddress + '-' + asset.tokenId"
+                     :href="'token.html?ca=' + asset.contractAddress + '&id=' + asset.tokenId"
+                     class="tba-card">
+                    <img v-if="asset.metadata.image" :src="asset.metadata.image" :alt="asset.metadata.name"
+                         class="tba-card-image" @error="handleImageError" />
+                    <div class="tba-card-info">
+                      <div class="tba-card-name">{{ asset.metadata.name }}</div>
+                      <div class="tba-card-artist">{{ asset.artistName }}</div>
+                      <span class="tba-card-type sbt">SBT</span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+
+              <!-- 所有NFT -->
+              <div v-if="tbaNftAssets.length > 0" class="tba-subsection">
+                <h4>🏺 所有NFT</h4>
+                <div class="tba-grid">
+                  <a v-for="asset in tbaNftAssets" :key="asset.contractAddress + '-' + asset.tokenId"
+                     :href="'token.html?ca=' + asset.contractAddress + '&id=' + asset.tokenId"
+                     class="tba-card">
+                    <img v-if="asset.metadata.image" :src="asset.metadata.image" :alt="asset.metadata.name"
+                         class="tba-card-image" @error="handleImageError" />
+                    <div class="tba-card-info">
+                      <div class="tba-card-name">{{ asset.metadata.name }}</div>
+                      <div class="tba-card-artist">{{ asset.artistName }}</div>
+                      <span class="tba-card-type nft">NFT #{{ asset.tokenId }}</span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <!-- ネットワーク表示 -->
+          <div class="network-badge">
+            <span class="network-dot"></span>
+            <span>Polygon Mainnet</span>
+          </div>
+
+          <!-- ローディングオーバーレイ -->
+          <transition name="fade">
+            <div v-if="loading" class="loading-overlay">
+              <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <p>NFT情報を読み込み中...</p>
+              </div>
+            </div>
+          </transition>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const { createApp } = Vue;
+
+      // ERC721 ABI (Web3.js用)
+      const ERC721_ABI = [
+        {
+          inputs: [{ name: "tokenId", type: "uint256" }],
+          name: "tokenURI",
+          outputs: [{ name: "", type: "string" }],
+          type: "function",
+        },
+      ];
+
+      // ERC1155 ABI (必要最小限)
+      const ERC1155_ABI = [
+        "function uri(uint256 id) view returns (string)",
+        "function balanceOf(address account, uint256 id) view returns (uint256)",
+        "function supportsInterface(bytes4 interfaceId) view returns (bool)",
+      ];
+
+      createApp({
+        data() {
+          return {
+            contractAddress: "",
+            tokenId: "",
+            nfts: [],
+            loading: false,
+            statusMessage: "",
+            statusClass: "",
+            web3: null,
+            contract: null,
+            tokenStandard: "ERC721",
+            menuOpen: false,
+            showControlPanel: true,
+            // TBA
+            tbaAddress: null,
+            tbaAssets: [],
+            tbaLoading: false,
+            ownerAddress: null,
+          };
+        },
+        computed: {
+          tbaSbtAssets() {
+            return this.tbaAssets.filter(a => a.type === 'sbt');
+          },
+          tbaNftAssets() {
+            return this.tbaAssets.filter(a => a.type === 'nft');
+          },
+        },
+        mounted() {
+          // Web3の初期化
+          this.initializeEthers();
+
+          // URLパラメータから値を取得
+          this.loadFromUrlParams();
+
+          // ESCキーイベント
+          window.addEventListener("keydown", this.handleEscape);
+        },
+
+        methods: {
+          initializeEthers() {
+            this.web3 = new Web3(CONFIG.chain.rpc);
+            this.showStatus("接続完了", "success");
+          },
+
+          loadFromUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const ca = urlParams.get("ca");
+            const id = urlParams.get("id");
+
+            if (ca) {
+              this.contractAddress = ca;
+              this.showControlPanel = false;
+              if (id) {
+                this.tokenId = id;
+              }
+              // 自動で読み込み
+              this.loadContract();
+            }
+          },
+          async loadContract() {
+            if (!this.contractAddress) return;
+
+            this.loading = true;
+            this.tbaAddress = null;
+            this.tbaAssets = [];
+            try {
+              this.contract = new this.web3.eth.Contract(
+                ERC721_ABI,
+                this.contractAddress
+              );
+              const nft = await this.fetchTokenMetadata(this.tokenId || 1);
+              if (nft) this.nfts = [nft];
+              this.showStatus("取得完了", "success");
+
+              // Owner取得
+              this.fetchOwner(this.tokenId || 1);
+
+              // TBA取得（NFT読み込み成功後）
+              this.loadTba(this.tokenId || 1);
+            } catch (error) {
+              this.showStatus(`エラー: ${error.message}`, "error");
+            }
+            this.loading = false;
+          },
+
+          async fetchTokenMetadata(tokenId) {
+            try {
+              const uri = await this.contract.methods.tokenURI(tokenId).call();
+              console.log("Original URI:", uri);
+
+              const response = await axios.get(
+                uri.replace("ipfs://", "https://ipfs.io/ipfs/")
+              );
+              const metadata = response.data;
+
+              const result = {
+                tokenId: tokenId.toString(),
+                name: metadata.name || "NFT",
+                description: metadata.description || "",
+                image: (metadata.image || "").replace(
+                  "ipfs://",
+                  "https://ipfs.io/ipfs/"
+                ),
+                animation_url: metadata.animation_url
+                  ? metadata.animation_url.replace("ipfs://", "https://ipfs.io/ipfs/")
+                  : "",
+                animation_mime_type: "",
+                attributes: metadata.attributes || [],
+                tokenURI: uri,
+              };
+
+              if (result.animation_url) {
+                result.animation_mime_type = await this.detectMimeType(
+                  result.animation_url,
+                  metadata.animation_url_mime_type || metadata.mime_type
+                );
+              }
+
+              console.log("NFT result:", result);
+              return result;
+            } catch (error) {
+              console.error("fetchTokenMetadata error:", error);
+              return null;
+            }
+          },
+
+          async fetchOwner(tokenId) {
+            try {
+              const contract = NFTHelper.getContract(this.contractAddress);
+              this.ownerAddress = await contract.methods.ownerOf(tokenId).call();
+            } catch (e) {
+              console.error('fetchOwner error:', e);
+            }
+          },
+
+          async loadTba(tokenId) {
+            this.tbaLoading = true;
+            try {
+              // TBAアドレス算出
+              const tbaAddr = await NFTHelper.getTbaAddress(this.contractAddress, tokenId);
+              this.tbaAddress = tbaAddr;
+              console.log('TBA address:', tbaAddr);
+
+              if (tbaAddr) {
+                // TBA内のアセット取得
+                const assets = await NFTHelper.getTbaAssets(tbaAddr);
+                this.tbaAssets = assets;
+                console.log('TBA assets:', assets);
+              }
+            } catch (e) {
+              console.error('TBA load error:', e);
+            }
+            this.tbaLoading = false;
+          },
+
+          shortAddr(addr) {
+            if (!addr) return '';
+            return addr.slice(0, 6) + '...' + addr.slice(-4);
+          },
+
+          polygonscanAddress(addr) {
+            return CONFIG.chain.explorer + '/address/' + addr;
+          },
+
+          loadSampleContract() {
+            // 最初の作家の最初のトークンをサンプルとして表示
+            const first = CONFIG.contracts.nfts[0];
+            this.contractAddress = first.address;
+            this.tokenId = "1";
+            this.loadContract();
+          },
+
+          clearData() {
+            this.contractAddress = "";
+            this.tokenId = "";
+            this.nfts = [];
+            this.statusMessage = "";
+            this.showControlPanel = true;
+          },
+
+          viewOnPolygonScan(tokenId) {
+            const url = `${CONFIG.chain.explorer}/token/${this.contractAddress}?a=${tokenId}`;
+            window.open(url, "_blank");
+          },
+
+          is3dMime(mime) {
+            return mime && (mime.startsWith('model/') || mime === 'application/octet-stream');
+          },
+
+          animationLinkUrl(nft) {
+            if (this.is3dMime(nft.animation_mime_type)) {
+              return 'viewer/?src=' + encodeURIComponent(nft.animation_url);
+            }
+            return nft.animation_url;
+          },
+
+          async detectMimeType(url, metadataMime) {
+            // メタデータにmime_typeがあればそれを使う
+            if (metadataMime) return metadataMime;
+
+            // URL拡張子から判定
+            const extMap = {
+              '.mp4': 'video/mp4',
+              '.webm': 'video/webm',
+              '.ogv': 'video/ogg',
+              '.mp3': 'audio/mpeg',
+              '.wav': 'audio/wav',
+              '.ogg': 'audio/ogg',
+              '.glb': 'model/gltf-binary',
+              '.gltf': 'model/gltf+json',
+              '.html': 'text/html',
+              '.svg': 'image/svg+xml',
+              '.png': 'image/png',
+              '.jpg': 'image/jpeg',
+              '.jpeg': 'image/jpeg',
+              '.gif': 'image/gif',
+              '.webp': 'image/webp',
+            };
+            try {
+              const pathname = new URL(url).pathname.toLowerCase();
+              for (const [ext, mime] of Object.entries(extMap)) {
+                if (pathname.endsWith(ext)) return mime;
+              }
+            } catch {}
+
+            // HEADリクエストで判定
+            try {
+              const res = await axios.head(url);
+              const ct = res.headers['content-type'];
+              if (ct) return ct.split(';')[0].trim();
+            } catch {}
+
+            return '';
+          },
+
+          formatMimeType(mime) {
+            if (!mime) return '';
+            const labels = {
+              'video/mp4': 'MP4',
+              'video/webm': 'WebM',
+              'video/ogg': 'OGG Video',
+              'audio/mpeg': 'MP3',
+              'audio/wav': 'WAV',
+              'audio/ogg': 'OGG Audio',
+              'model/gltf-binary': 'GLB (3D)',
+              'model/gltf+json': 'glTF (3D)',
+              'text/html': 'HTML',
+              'image/svg+xml': 'SVG',
+              'image/png': 'PNG',
+              'image/jpeg': 'JPEG',
+              'image/gif': 'GIF',
+              'image/webp': 'WebP',
+            };
+            return labels[mime] || mime;
+          },
+
+          handleImageError(event) {
+            event.target.src =
+              "https://via.placeholder.com/300x300?text=Image+Load+Error";
+          },
+
+          showStatus(message, type) {
+            this.statusMessage = message;
+            this.statusClass = `status-${type}`;
+
+            if (type !== "info") {
+              setTimeout(() => {
+                if (this.statusMessage === message) {
+                  this.statusMessage = "";
+                }
+              }, 5000);
+            }
+          },
+
+          handleEscape(e) {
+            if (e.key === "Escape" && this.menuOpen) {
+              this.closeMenu();
+            }
+          },
+
+          toggleMenu() {
+            this.menuOpen = !this.menuOpen;
+            document.body.style.overflow = this.menuOpen ? "hidden" : "";
+          },
+
+          closeMenu() {
+            this.menuOpen = false;
+            document.body.style.overflow = "";
+          },
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>
