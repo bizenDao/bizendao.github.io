@@ -489,7 +489,12 @@
               }
             }
 
-            this.mintableContracts = list;
+            // 一般ユーザーはSBTのみ
+            if (this.userType === 'admin' || this.userType === 'creator') {
+              this.mintableContracts = list;
+            } else {
+              this.mintableContracts = list.filter(c => c.type === 'SBT');
+            }
             this.contractsLoading = false;
           },
 
