@@ -13,6 +13,51 @@
     <script src="../../js/wallet.js"></script>
     <script src="../../js/manager.js"></script>
     <link rel="stylesheet" href="setting.css" />
+    <style>
+      .diff-alert {
+        margin-bottom: 24px;
+        padding: 16px 20px;
+        background: rgba(255, 165, 0, 0.08);
+        border: 1px solid rgba(255, 165, 0, 0.3);
+        border-radius: 10px;
+      }
+
+      .diff-alert h3 {
+        font-size: 15px;
+        color: #ffaa33;
+        margin-bottom: 12px;
+      }
+
+      .diff-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        font-size: 13px;
+        flex-wrap: wrap;
+      }
+
+      .diff-item:last-child { border-bottom: none; }
+
+      .diff-badge {
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .diff-badge.config_only {
+        background: rgba(107, 182, 255, 0.15);
+        color: #6bb6ff;
+      }
+
+      .diff-badge.manager_only {
+        background: rgba(255, 107, 107, 0.15);
+        color: #ff6b6b;
+      }
+    </style>
   </head>
   <body>
     <div id="app">
@@ -56,6 +101,17 @@
 
             <div v-if="error" class="error-message">{{ error }}</div>
             <div v-if="success" class="success-message">{{ success }}</div>
+
+            <!-- Config Diff Alert -->
+            <div v-if="configDiffs.length > 0" class="diff-alert">
+              <h3>config.js / Manager 差分検出</h3>
+              <div v-for="(d, i) in configDiffs" :key="i" class="diff-item">
+                <span class="diff-badge" :class="d.type">{{ d.type === 'config_only' ? 'config.js のみ' : 'Manager のみ' }}</span>
+                <span class="mono" style="font-size:12px;">{{ d.address.slice(0,6) + '...' + d.address.slice(-4) }}</span>
+                <span>{{ d.name }} ({{ d.entryType }})</span>
+                <span style="opacity:0.6; font-size:12px;">{{ d.msg }}</span>
+              </div>
+            </div>
 
             <!-- コントラクト一覧 -->
             <div class="section-card">
@@ -136,6 +192,7 @@
             error: null, success: null,
             userType: 'none',
             contracts: [],
+            configDiffs: [],
             form: { address: '', name: '', type: 'nft' },
             editMode: false,
             CONFIG,
@@ -167,8 +224,38 @@
             this.userType = await Manager.checkUser();
             if (this.userType === 'admin') {
               this.contracts = await Manager.getAllContracts();
+              this.checkConfigDiff();
             }
             this.loading = false;
+          },
+
+          checkConfigDiff() {
+            const diffs = [];
+            const managerAddrs = new Set(this.contracts.map(c => c.address.toLowerCase()));
+
+            // config.jsにあってManagerにないもの
+            const configEntries = [
+              ...CONFIG.contracts.nfts.map(n => ({ address: n.address, name: n.name, type: 'nft', source: 'config.nfts' })),
+            ];
+            if (CONFIG.contracts.sbt?.address) {
+              configEntries.push({ address: CONFIG.contracts.sbt.address, name: 'SBT', type: 'sbt', source: 'config.sbt' });
+            }
+
+            for (const entry of configEntries) {
+              if (!managerAddrs.has(entry.address.toLowerCase())) {
+                diffs.push({ type: 'config_only', address: entry.address, name: entry.name, entryType: entry.type, msg: 'config.js にあるが Manager に未登録' });
+              }
+            }
+
+            // Managerにあってconfigにないもの (nft/sbt type only)
+            const configAddrs = new Set(configEntries.map(e => e.address.toLowerCase()));
+            for (const c of this.contracts) {
+              if ((c.type === 'nft' || c.type === 'sbt') && c.visible && !configAddrs.has(c.address.toLowerCase())) {
+                diffs.push({ type: 'manager_only', address: c.address, name: c.name, entryType: c.type, msg: 'Manager に登録済みだが config.js に未反映' });
+              }
+            }
+
+            this.configDiffs = diffs;
           },
           shortAddr(a) { return a ? a.slice(0,6) + '...' + a.slice(-4) : ''; },
           startEdit(c) {
