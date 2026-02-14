@@ -35,8 +35,6 @@ const WalletHeader = {
     </div>
   `,
 
-  emits: ['disconnect'],
-
   props: {
     address: { type: String, default: '' },
     nickname: { type: String, default: null },
@@ -59,13 +57,8 @@ const WalletHeader = {
   methods: {
     t(key) { return window.i18n ? window.i18n.t(key) : key; },
     doDisconnect() {
-      if (this.$attrs.onDisconnect) {
-        // 親がハンドル
-        this.$emit('disconnect');
-      } else {
-        // デフォルト: リロード
-        window.location.reload();
-      }
+      this.$emit('disconnect');
+      window.location.reload();
     },
     copyEoa() {
       if (!this.address) return;
