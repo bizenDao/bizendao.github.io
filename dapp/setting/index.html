@@ -895,17 +895,15 @@
             this.nftLoading = true;
             this.ownedNfts = [];
             try {
-              const allContracts = await Manager.getAllContracts();
-              const nftContracts = allContracts.filter(c => c.visible);
-              for (const c of nftContracts) {
-                const parsed = Manager.parseName(c.name);
-                const tokenIds = await NFTHelper.getOwnedTokenIds(c.address, this.address);
+              const nftContracts = CONFIG.contracts.nfts;
+              for (const artist of nftContracts) {
+                const tokenIds = await NFTHelper.getOwnedTokenIds(artist.address, this.address);
                 for (const tokenId of tokenIds) {
-                  const metadata = await NFTHelper.getTokenMetadata(c.address, tokenId);
+                  const metadata = await NFTHelper.getTokenMetadata(artist.address, tokenId);
                   this.ownedNfts.push({
-                    contractAddress: c.address,
-                    artistName: parsed.ja || c.name,
-                    artistNameEn: parsed.en || c.name,
+                    contractAddress: artist.address,
+                    artistName: artist.name,
+                    artistNameEn: artist.nameEn,
                     tokenId,
                     name: metadata ? metadata.name : 'NFT #' + tokenId,
                     image: metadata ? metadata.image : '',
