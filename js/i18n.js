@@ -49,6 +49,8 @@
       confirm: '確認',
       close: '閉じる',
       tba_title: '箱書（TBA）',
+      tba_hakogaki: 'TBA (箱書き)',
+      unit_pieces: '点',
       tba_empty: 'このNFTにはまだ箱書がありません。',
       attributes: '属性',
       owner: '所有者',
@@ -115,6 +117,13 @@
       hidden: '非公開',
       edit: '編集',
 
+      // Loading
+      loading_nft: 'NFTを検索中...',
+      loading_membership: 'メンバーシップを確認中...',
+      loading_owned: '所有NFTを検索中...',
+      loading_metadata: 'メタデータを取得中...',
+      loading_error: 'ポートフォリオの読み込みに失敗しました: ',
+
       // Common
       loading: '読み込み中...',
       error: 'エラーが発生しました。',
@@ -153,6 +162,8 @@
       confirm: 'Confirm',
       close: 'Close',
       tba_title: 'Hakogaki (TBA)',
+      tba_hakogaki: 'TBA (Hakogaki)',
+      unit_pieces: ' pcs',
       tba_empty: 'No Hakogaki for this NFT yet.',
       attributes: 'Attributes',
       owner: 'Owner',
@@ -218,6 +229,13 @@
       visible: 'Visible',
       hidden: 'Hidden',
       edit: 'Edit',
+
+      // Loading
+      loading_nft: 'Searching NFTs...',
+      loading_membership: 'Checking membership...',
+      loading_owned: 'Searching owned NFTs...',
+      loading_metadata: 'Fetching metadata...',
+      loading_error: 'Failed to load portfolio: ',
 
       // Common
       loading: 'Loading...',

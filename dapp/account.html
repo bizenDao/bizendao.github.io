@@ -497,15 +497,15 @@
                 </div>
                 <div class="summary-card">
                   <div class="summary-number">{{ totalTbas }}</div>
-                  <div class="summary-label">TBA (箱書き)</div>
+                  <div class="summary-label" data-i18n="tba_hakogaki">TBA (箱書き)</div>
                 </div>
               </div>
 
               <!-- 作家別セクション -->
               <div v-for="artist in artists" v-show="artist.tokens.length > 0" :key="artist.key" class="artist-section">
                 <div class="artist-header">
-                  <h3 class="artist-name">{{ artist.name }}</h3>
-                  <span class="artist-count">{{ artist.tokens.length }}点</span>
+                  <h3 class="artist-name">{{ lang === 'en' && artist.nameEn ? artist.nameEn : artist.name }}</h3>
+                  <span class="artist-count">{{ artist.tokens.length }}{{ t('unit_pieces') }}</span>
                 </div>
 
                 <div class="nft-grid">
@@ -681,7 +681,7 @@
           async loadPortfolio() {
             this.loading = true;
             this.error = null;
-            this.loadingMessage = 'NFTを検索中...';
+            this.loadingMessage = this.t('loading_nft');
 
             // ニックネーム取得（非同期、表示をブロックしない）
             this.nicknameLoading = true;
@@ -694,13 +694,13 @@
 
             try {
               // 1. SBT確認
-              this.loadingMessage = 'メンバーシップを確認中...';
+              this.loadingMessage = this.t('loading_membership');
               const sbtIds = await NFTHelper.getOwnedTokenIds(CONFIG.contracts.sbt.address, this.address);
               this.hasSbt = sbtIds.length > 0;
               this.currentStep++;
 
               // 2. 全作家のNFT所有チェック（並列）
-              this.loadingMessage = '所有NFTを検索中...';
+              this.loadingMessage = this.t('loading_owned');
               const ownershipResults = await Promise.all(
                 nftContracts.map(async (artist) => {
                   const tokenIds = await NFTHelper.getOwnedTokenIds(artist.address, this.address);
@@ -714,7 +714,7 @@
               this.totalSteps = this.currentStep + (totalTokens * 2); // metadata + tba per token
 
               // 3. メタデータ & TBA prefetch（作家ごとに並列）
-              this.loadingMessage = 'メタデータを取得中...';
+              this.loadingMessage = this.t('loading_metadata');
               const artistResults = await Promise.all(
                 ownershipResults.map(async (result) => {
                   const tokens = await Promise.all(
@@ -740,6 +740,7 @@
                   return {
                     key: result.key,
                     name: result.name,
+                    nameEn: result.nameEn,
                     address: result.address,
                     tokens,
                   };
@@ -749,7 +750,7 @@
               this.artists = artistResults;
             } catch (e) {
               console.error('loadPortfolio error:', e);
-              this.error = 'ポートフォリオの読み込みに失敗しました: ' + (e.message || '');
+              this.error = this.t('loading_error') + (e.message || '');
             }
 
             this.loading = false;
