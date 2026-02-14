@@ -395,8 +395,8 @@
                 <div v-if="contractInfo.needPoint > 0" class="status-item">{{ t('mint_need_points') }}: {{ contractInfo.needPoint }} pt</div>
                 <div v-else class="status-item">{{ t('mint_no_points_needed') }}</div>
                 <div v-if="contractInfo.creatorOnly" class="status-item">{{ t('mint_creator_only_label') }}</div>
-                <div v-if="!contractInfo.mintable" class="status-item status-error">{{ contractInfo.reason }}</div>
-                <div v-else class="status-item status-success">{{ t('mint_mintable') }}</div>
+                <div v-else class="status-item">{{ t('mint_open_label') }}</div>
+                <div class="status-item" :class="contractInfo.mintable ? 'status-success' : 'status-error'">{{ contractInfo.reason }}</div>
               </div>
             </div>
 
@@ -602,12 +602,26 @@
               // mintable check
               const addr = this.address.toLowerCase();
               if (info.creatorOnly) {
-                info.mintable = (info.creator && info.creator.toLowerCase() === addr)
-                             || (info.owner && info.owner.toLowerCase() === addr);
-                info.reason = info.mintable ? '' : this.t('mint_creator_only');
+                const isCreator = info.creator && info.creator.toLowerCase() === addr;
+                const isOwner = info.owner && info.owner.toLowerCase() === addr;
+                const isAdmin = this.userType === 'admin';
+                if (isCreator) {
+                  info.mintable = true;
+                  info.reason = this.t('mint_you_are_creator');
+                } else if (isOwner) {
+                  info.mintable = true;
+                  info.reason = this.t('mint_you_are_owner');
+                } else if (isAdmin) {
+                  info.mintable = true;
+                  info.reason = this.t('mint_admin_override');
+                } else {
+                  info.mintable = false;
+                  info.reason = this.t('mint_creator_only_detail')
+                    .replace('{creator}', info.creator ? info.creator.slice(0,6) + '...' + info.creator.slice(-4) : '?');
+                }
               } else {
                 info.mintable = true;
-                info.reason = '';
+                info.reason = this.t('mint_open');
               }
 
               // points check
