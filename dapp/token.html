@@ -715,8 +715,8 @@
 
                 <!-- オーナー操作ボタン -->
                 <div v-if="isOwner" class="owner-actions">
-                  <button class="btn btn-send" @click="showSendModal = true" :disabled="sendingTx">{{ t('send') }}</button>
-                  <button class="btn btn-burn" @click="confirmBurn" :disabled="sendingTx">{{ t('burn') }}</button>
+                  <button v-if="!isSbt" class="btn btn-send" @click="showSendModal = true" :disabled="sendingTx">{{ t('send') }}</button>
+                  <button v-if="burnable" class="btn btn-burn" @click="confirmBurn" :disabled="sendingTx">{{ t('burn') }}</button>
                 </div>
                 <div v-if="txMessage" :class="['tx-message', txClass]">{{ txMessage }}</div>
 
@@ -941,6 +941,7 @@
             sendToLookedUp: false,
             sendingTx: false,
             showSendModal: false,
+            burnable: false,
             txMessage: '',
             txClass: '',
           };
@@ -955,6 +956,10 @@
           lang() { return window.i18n ? window.i18n.lang() : 'ja'; },
           contentBase() { return window.i18n ? window.i18n.contentBase() : '../ja'; },
           homeUrl() { return this.contentBase + '/index.html'; },
+          isSbt() {
+            return CONFIG.contracts.sbt && this.contractAddress &&
+              this.contractAddress.toLowerCase() === CONFIG.contracts.sbt.address.toLowerCase();
+          },
           isOwner() {
             if (!this.connectedAddress || !this.ownerAddress) return false;
             return this.connectedAddress.toLowerCase() === this.ownerAddress.toLowerCase();
@@ -1033,6 +1038,12 @@
 
               // Owner取得
               this.fetchOwner(this.tokenId || 1);
+
+              // Burnable check
+              try {
+                await this.contract.methods.burnable().call();
+                this.burnable = true;
+              } catch (e) { this.burnable = false; }
 
               // TBA取得（NFT読み込み成功後）
               this.loadTba(this.tokenId || 1);
