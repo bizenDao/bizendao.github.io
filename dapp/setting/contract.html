@@ -69,8 +69,23 @@
           <a href="../../ja/index.html" class="logo"><img src="../../img/349F5603-389E-48C6-81C9-1515A338A59B.png" :alt="t('logo_alt')"></a>
           <div class="header-right">
             <span class="lang-switch"><a class="lang-btn" data-lang="en" href="#">EN</a> / <a class="lang-btn" data-lang="ja" href="#">JP</a></span>
+            <button class="nav-toggle" type="button" :aria-label="t('toggle_menu')" @click="toggleMenu">
+              <span></span><span></span>
+            </button>
           </div>
         </div>
+        <div class="nav-overlay" :class="{ 'is-open': menuOpen }" @click="closeMenu"></div>
+        <aside class="nav-drawer" :class="{ 'is-open': menuOpen }" :aria-label="t('site_menu')">
+          <ul class="drawer-nav">
+            <li><a href="#" data-nav="top">{{ t('nav_top') }}</a></li>
+            <li><a href="#" data-nav="artists">{{ t('nav_artists') }}</a></li>
+            <li><a href="#" data-nav="company">{{ t('nav_company') }}</a></li>
+            <li><a href="#" data-nav="discord">{{ t('nav_discord') }}</a></li>
+            <li><a href="#" data-nav="meta">{{ t('nav_meta') }}</a></li>
+            <li><a href="#" data-dapp="../donation.html">{{ t('nav_donate') }}</a></li>
+            <li><a href="#" data-dapp="../account.html">{{ t('nav_mypage') }}</a></li>
+          </ul>
+        </aside>
       </header>
 
       <main>
@@ -196,6 +211,7 @@
             configDiffs: [],
             form: { address: '', name: '', type: 'nft' },
             editMode: false,
+            menuOpen: false,
             CONFIG,
           };
         },
@@ -210,6 +226,8 @@
         },
         methods: {
           t(key) { return window.i18n ? window.i18n.t(key) : key; },
+          toggleMenu() { this.menuOpen = !this.menuOpen; document.body.style.overflow = this.menuOpen ? 'hidden' : ''; },
+          closeMenu() { this.menuOpen = false; document.body.style.overflow = ''; },
           async connectWallet() {
             this.connecting = true;
             try {
