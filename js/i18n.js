@@ -597,6 +597,16 @@
    * @returns {string} '../ja' or '../en'
    */
   function contentBase() {
+    // Detect depth: /dapp/setting/*.html → ../../, /dapp/*.html → ../
+    var path = window.location.pathname;
+    var dappIdx = path.indexOf('/dapp/');
+    if (dappIdx !== -1) {
+      var after = path.substring(dappIdx + 6); // after "/dapp/"
+      var slashes = (after.match(/\//g) || []).length;
+      var prefix = '../';
+      for (var i = 0; i < slashes; i++) prefix += '../';
+      return prefix + LANG;
+    }
     return '../' + LANG;
   }
 

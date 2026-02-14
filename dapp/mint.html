@@ -287,7 +287,7 @@
     <div id="app">
       <header class="site-header">
         <div class="container header-inner">
-          <a href="../ja/index.html" class="logo"><img src="../img/349F5603-389E-48C6-81C9-1515A338A59B.png" :alt="t('logo_alt')"></a>
+          <a :href="(window.i18n ? window.i18n.contentBase() : '../ja') + '/index.html'" class="logo"><img src="../img/349F5603-389E-48C6-81C9-1515A338A59B.png" :alt="t('logo_alt')"></a>
           <div class="header-right">
             <span class="lang-switch"><a class="lang-btn" data-lang="en" href="#">EN</a> / <a class="lang-btn" data-lang="ja" href="#">JP</a></span>
             <button class="nav-toggle" type="button" :aria-label="t('toggle_menu')" @click="toggleMenu">
