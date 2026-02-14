@@ -195,23 +195,23 @@
         <div class="nav-overlay" :class="{ 'is-open': menuOpen }" @click="closeMenu"></div>
         <aside class="nav-drawer" :class="{ 'is-open': menuOpen }" aria-label="サイトメニュー">
           <ul class="drawer-nav">
-            <li><a href="#" data-nav="top" data-i18n="nav_top">トップページ</a></li>
-            <li><a href="#" data-nav="artists" data-i18n="nav_artists">作家紹介</a></li>
-            <li><a href="#" data-dapp="../donation.html" data-i18n="nav_donate">寄付</a></li>
-            <li><a href="#" data-dapp="../account.html" data-i18n="nav_mypage">マイページ</a></li>
+            <li><a href="#" data-nav="top">{{ t('nav_top') }}</a></li>
+            <li><a href="#" data-nav="artists">{{ t('nav_artists') }}</a></li>
+            <li><a href="#" data-dapp="../donation.html">{{ t('nav_donate') }}</a></li>
+            <li><a href="#" data-dapp="../account.html">{{ t('nav_mypage') }}</a></li>
           </ul>
         </aside>
       </header>
 
       <main>
         <div class="disconnect-page">
-          <h1 class="page-title" data-i18n="disconnect_title">ウォレット接続解除</h1>
+          <h1 class="page-title">{{ t('disconnect_title') }}</h1>
 
           <!-- 未接続 -->
           <div v-if="!connected" class="connect-prompt">
-            <p style="margin-bottom: 24px; opacity: 0.7;" data-i18n="connect_wallet_please">ウォレットを接続してください</p>
+            <p style="margin-bottom: 24px; opacity: 0.7;">{{ t('connect_wallet_please') }}</p>
             <button v-if="metamaskAvailable" class="btn btn-connect" @click="connectWallet" :disabled="connecting">
-              {{ connecting ? '接続中...' : '🦊 ウォレットを接続' }}
+              {{ connecting ? t('connecting') : '🦊 ' + t('connect_wallet') }}
             </button>
             <p v-else style="opacity:0.5;">{{ t('no_metamask') }}</p>
           </div>
@@ -225,24 +225,24 @@
 
               <!-- 解除完了 -->
               <div v-if="disconnected" class="success-card">
-                <h3 data-i18n="disconnect_done">✅ 接続解除が完了しました</h3>
-                <p style="opacity:0.7;" data-i18n="discord_disconnected">Discord連携が解除されました。</p>
-                <a href="index.html" class="btn" style="margin-top:12px;">トップへ戻る</a>
+                <h3>✅ {{ t('disconnect_done') }}</h3>
+                <p style="opacity:0.7;">{{ t('discord_disconnected') }}</p>
+                <a href="index.html" class="btn" style="margin-top:12px;">{{ t('back_to_top') }}</a>
               </div>
 
               <template v-else>
                 <!-- 状態表示 -->
                 <div class="section-card">
-                  <h2>現在の状態</h2>
+                  <h2>{{ t('dc_current_status') }}</h2>
                   <div class="info-row">
                     <span class="info-label">EOA</span>
                     <span class="info-value">{{ address }}</span>
                   </div>
                   <div class="info-row">
-                    <span class="info-label">メンバーSBT</span>
+                    <span class="info-label">{{ t('dc_member_sbt') }}</span>
                     <span>
-                      <span v-if="hasSbt" class="status-badge has-sbt">所有あり</span>
-                      <span v-else class="status-badge no-sbt">なし</span>
+                      <span v-if="hasSbt" class="status-badge has-sbt">{{ t('dc_owned') }}</span>
+                      <span v-else class="status-badge no-sbt">{{ t('dc_none') }}</span>
                     </span>
                   </div>
                   <div class="info-row">
@@ -250,42 +250,42 @@
                     <span v-if="discordId">
                       <span class="status-badge discord">{{ discordId }}</span>
                     </span>
-                    <span v-else style="opacity:0.5;">未連携</span>
+                    <span v-else style="opacity:0.5;">{{ t('dc_not_linked') }}</span>
                   </div>
                 </div>
 
                 <!-- SBTがある場合：BURNが先 -->
                 <div v-if="hasSbt" class="section-card">
-                  <h2>📜 メンバーカードのBURN</h2>
-                  <p>ウォレット解除を行うためにはメンバーカード（SBT）のBURNが必要です。</p>
+                  <h2>📜 {{ t('dc_burn_title') }}</h2>
+                  <p>{{ t('dc_burn_desc') }}</p>
                   <p>
-                    <a :href="'account.html?address=' + address" class="link">
-                      こちらからメンバーカードのSBTを開き、BURNを行なってください →
+                    <a :href="'account.html?address=' + address + '&lang=' + lang" class="link">
+                      {{ t('dc_burn_link') }} →
                     </a>
                   </p>
                 </div>
 
                 <!-- SBTがない場合：Discord解除可能 -->
                 <div v-else-if="discordId" class="section-card">
-                  <h2>🔌 Discord連携解除</h2>
+                  <h2>🔌 {{ t('dc_disconnect_title') }}</h2>
                   <p>
                     DiscordID: <strong>{{ discordId }}</strong><br>
-                    こちらのウォレット接続を解除します。
+                    {{ t('dc_disconnect_desc') }}
                   </p>
                   <p class="warning-text">
-                    ⚠ この操作は取り消せません。再度連携するにはDiscordで /regist コマンドを実行してください。
+                    ⚠ {{ t('dc_disconnect_warn') }}
                   </p>
                   <button class="btn btn-danger" @click="executeDisconnect" :disabled="sending" style="margin-top: 12px;">
-                    <span v-if="sending"><span class="loading-spinner" style="width:16px;height:16px;border-width:2px;"></span> 処理中...</span>
+                    <span v-if="sending"><span class="loading-spinner" style="width:16px;height:16px;border-width:2px;"></span> {{ t('dc_processing') }}</span>
                     <span v-else>DISCONNECT</span>
                   </button>
                 </div>
 
                 <!-- Discord未連携 & SBTなし -->
                 <div v-else class="section-card">
-                  <h2>登録可能</h2>
-                  <p>{{ address }} は登録可能です。</p>
-                  <p>Discordにて <strong>/regist</strong> コマンドを実行してください。</p>
+                  <h2>{{ t('dc_registerable') }}</h2>
+                  <p>{{ address }} {{ t('dc_registerable_desc') }}</p>
+                  <p>{{ t('dc_regist_prompt') }}</p>
                 </div>
               </template>
             </template>
@@ -362,13 +362,13 @@
                 this.discordId = null;
               }
             } catch (e) {
-              this.error = '状態確認に失敗しました: ' + e.message;
+              this.error = this.t('dc_check_failed') + ': ' + e.message;
             }
             this.loading = false;
           },
 
           async executeDisconnect() {
-            if (!confirm('本当に接続解除しますか？')) return;
+            if (!confirm(this.t('disconnect_confirm'))) return;
             this.sending = true; this.error = null;
             try {
               const res = await fetch(CONFIG.botApi + 'disconnect', {
@@ -383,7 +383,7 @@
               console.log('disconnect result:', result);
               this.disconnected = true;
             } catch (e) {
-              this.error = '解除に失敗しました: ' + e.message;
+              this.error = this.t('dc_disconnect_failed') + ': ' + e.message;
             }
             this.sending = false;
           },

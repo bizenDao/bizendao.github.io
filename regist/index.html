@@ -186,15 +186,12 @@
       <main>
         <div class="regist-page">
           <h1 class="page-title">Regist EOA</h1>
-          <p class="page-desc">
-            Discordアカウントとウォレットアドレスを紐付けます。<br>
-            Discordで <strong>/regist</strong> コマンドを実行して取得したSECRETを入力してください。
-          </p>
+          <p class="page-desc" v-html="t('regist_desc')"></p>
 
           <!-- 未接続 -->
           <div v-if="!connected" class="connect-prompt">
             <button v-if="metamaskAvailable" class="btn btn-connect" @click="connectWallet" :disabled="connecting">
-              {{ connecting ? '接続中...' : '🦊 ウォレットを接続' }}
+              {{ connecting ? t('connecting') : '🦊 ' + t('connect_wallet') }}
             </button>
             <p v-else style="opacity:0.5;">{{ t('no_metamask') }}</p>
           </div>
@@ -205,14 +202,14 @@
 
             <!-- 登録完了 -->
             <div v-if="registered" class="success-card">
-              <h3 data-i18n="register_done">✅ 登録が完了しました</h3>
-              <p style="opacity:0.7;" data-i18n="register_linked">ウォレットとDiscordが紐付けられました。</p>
-              <a href="../ja/index.html" class="btn" style="margin-top:12px;" data-i18n="back_to_top">トップへ戻る</a>
+              <h3>✅ {{ t('register_done') }}</h3>
+              <p style="opacity:0.7;">{{ t('register_linked') }}</p>
+              <a :href="contentBase + '/index.html'" class="btn" style="margin-top:12px;">{{ t('back_to_top') }}</a>
             </div>
 
             <!-- 登録フォーム -->
             <div v-else class="section-card">
-              <h2 data-i18n="register_title">ウォレット連携</h2>
+              <h2>{{ t('register_title') }}</h2>
 
               <div class="wallet-display">🦊 {{ address }}</div>
 
@@ -220,13 +217,13 @@
                 <label>Discord ID</label>
                 <input type="text" v-model="discordId" class="form-input" placeholder="123456789012345678"
                        :disabled="discordIdFromUrl" />
-                <p class="hint" data-i18n="regist_discord_id">Discordの /regist コマンドで表示されたID</p>
+                <p class="hint">{{ t('regist_discord_id') }}</p>
               </div>
 
               <div class="form-field">
                 <label>SECRET</label>
-                <input type="text" v-model="secret" class="form-input" placeholder="SECRETコード" />
-                <p class="hint" data-i18n="regist_secret">Discordの /regist コマンドで表示されたSECRETコード</p>
+                <input type="text" v-model="secret" class="form-input" :placeholder="t('regist_secret_placeholder')" />
+                <p class="hint">{{ t('regist_secret') }}</p>
               </div>
 
               <button class="btn btn-primary" @click="executeRegist"
@@ -330,10 +327,10 @@
               if (result.result) {
                 this.registered = true;
               } else {
-                this.error = result.message || '登録に失敗しました';
+                this.error = result.message || this.t('regist_failed');
               }
             } catch (e) {
-              this.error = '登録に失敗しました: ' + e.message;
+              this.error = this.t('regist_failed') + ': ' + e.message;
             }
             this.sending = false;
           },
