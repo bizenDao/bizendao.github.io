@@ -325,7 +325,7 @@
               <select v-else v-model="selectedContract" class="form-select" @change="onContractChange">
                 <option :value="null" disabled>-- {{ t('mint_select_contract') }} --</option>
                 <option v-for="c in mintableContracts" :key="c.address" :value="c.address">
-                  [{{ c.type }}] {{ c.name }} ({{ c.symbol }})
+                  [{{ c.type }}] {{ lang === 'en' ? (c.nameEn || c.name) : c.name }} ({{ c.symbol }})
                 </option>
               </select>
               <div v-if="selectedContract" class="contract-info">{{ selectedContract }}</div>
@@ -408,6 +408,7 @@
 
         computed: {
           metamaskAvailable() { return Wallet.isAvailable(); },
+          lang() { return window.i18n ? window.i18n.lang() : 'ja'; },
           shortAddress() { return Wallet.shortAddress(this.address); },
           canMint() {
             return this.selectedContract
@@ -463,37 +464,37 @@
 
           async loadContracts() {
             this.contractsLoading = true;
-            const web3 = NFTHelper.getWeb3();
-            const list = [];
+            try {
+              const allContracts = await Manager.getAllContracts();
+              const web3 = NFTHelper.getWeb3();
+              const list = [];
 
-            // NFT contracts from config
-            for (const nft of CONFIG.contracts.nfts) {
-              try {
-                const contract = new web3.eth.Contract(ABI.ERC721, nft.address);
-                const symbol = await contract.methods.symbol().call();
-                list.push({ address: nft.address, name: nft.name, nameEn: nft.nameEn, symbol, type: 'NFT' });
-              } catch (e) {
-                list.push({ address: nft.address, name: nft.name, nameEn: nft.nameEn, symbol: '?', type: 'NFT' });
+              for (const c of allContracts) {
+                if (!c.visible) continue;
+                const parsed = Manager.parseName(c.name);
+                let symbol = '?';
+                try {
+                  const contract = new web3.eth.Contract(ABI.ERC721, c.address);
+                  symbol = await contract.methods.symbol().call();
+                } catch (e) {}
+                list.push({
+                  address: c.address,
+                  name: parsed.ja || c.name,
+                  nameEn: parsed.en || c.name,
+                  symbol,
+                  type: c.type.toUpperCase(),
+                });
               }
-            }
 
-            // SBT from config
-            if (CONFIG.contracts.sbt?.address) {
-              try {
-                const contract = new web3.eth.Contract(ABI.ERC721, CONFIG.contracts.sbt.address);
-                const name = await contract.methods.name().call();
-                const symbol = await contract.methods.symbol().call();
-                list.push({ address: CONFIG.contracts.sbt.address, name, symbol, type: 'SBT' });
-              } catch (e) {
-                list.push({ address: CONFIG.contracts.sbt.address, name: 'SBT', symbol: '?', type: 'SBT' });
+              // 一般ユーザーはSBTのみ
+              if (this.userType === 'admin' || this.userType === 'creator') {
+                this.mintableContracts = list;
+              } else {
+                this.mintableContracts = list.filter(c => c.type === 'SBT');
               }
-            }
-
-            // 一般ユーザーはSBTのみ
-            if (this.userType === 'admin' || this.userType === 'creator') {
-              this.mintableContracts = list;
-            } else {
-              this.mintableContracts = list.filter(c => c.type === 'SBT');
+            } catch (e) {
+              console.error('loadContracts error:', e);
+              this.error = 'Failed to load contracts';
             }
             this.contractsLoading = false;
           },

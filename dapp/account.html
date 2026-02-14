@@ -771,25 +771,45 @@
               } catch (e) { this.userType = 'user'; }
             }
 
-            const nftContracts = CONFIG.contracts.nfts;
-            // Steps: SBT check + (per contract: getOwned) + (per token: metadata + tba)
+            // Managerからコントラクト一覧取得
+            let allContracts = [];
+            try {
+              allContracts = await Manager.getAllContracts();
+            } catch (e) {
+              console.warn('Manager.getAllContracts failed, falling back to config', e);
+              allContracts = CONFIG.contracts.nfts.map(n => ({ address: n.address, name: n.name, type: 'nft', visible: true }));
+            }
+            const visibleContracts = allContracts.filter(c => c.visible);
+            const nftContracts = visibleContracts.filter(c => c.type !== 'sbt');
+            const sbtContracts = visibleContracts.filter(c => c.type === 'sbt');
+
             this.currentStep = 0;
-            this.totalSteps = 1 + nftContracts.length; // rough estimate, refined later
+            this.totalSteps = 1 + nftContracts.length;
 
             try {
               // 1. SBT確認
               this.loadingMessage = this.t('loading_membership');
-              const sbtIds = await NFTHelper.getOwnedTokenIds(CONFIG.contracts.sbt.address, this.address);
-              this.hasSbt = sbtIds.length > 0;
+              let hasSbt = false;
+              for (const sbt of sbtContracts) {
+                const sbtIds = await NFTHelper.getOwnedTokenIds(sbt.address, this.address);
+                if (sbtIds.length > 0) { hasSbt = true; break; }
+              }
+              // fallback: config SBT
+              if (!hasSbt && CONFIG.contracts.sbt?.address) {
+                const sbtIds = await NFTHelper.getOwnedTokenIds(CONFIG.contracts.sbt.address, this.address);
+                if (sbtIds.length > 0) hasSbt = true;
+              }
+              this.hasSbt = hasSbt;
               this.currentStep++;
 
-              // 2. 全作家のNFT所有チェック（並列）
+              // 2. 全NFTコントラクトの所有チェック（並列）
               this.loadingMessage = this.t('loading_owned');
               const ownershipResults = await Promise.all(
-                nftContracts.map(async (artist) => {
-                  const tokenIds = await NFTHelper.getOwnedTokenIds(artist.address, this.address);
+                nftContracts.map(async (c) => {
+                  const tokenIds = await NFTHelper.getOwnedTokenIds(c.address, this.address);
                   this.currentStep++;
-                  return { ...artist, tokenIds };
+                  const parsed = Manager.parseName(c.name);
+                  return { address: c.address, name: parsed.ja || c.name, nameEn: parsed.en || c.name, key: c.address, tokenIds };
                 })
               );
 
@@ -822,7 +842,7 @@
                   );
 
                   return {
-                    key: result.key,
+                    key: result.key || result.address,
                     name: result.name,
                     nameEn: result.nameEn,
                     address: result.address,

@@ -108,6 +108,60 @@ const Manager = {
   async hiddenCreator(address) { return this.sendTx('hiddenCreator', [address]); },
   async publicCreator(address) { return this.sendTx('publicCreator', [address]); },
 
+  // ── Utility: コントラクト一覧をリッチ情報付きで取得 ──
+  // Returns [{address, name, type, visible, symbol, contractName}]
+  async getContractsWithMeta() {
+    const contracts = await this.getAllContracts();
+    const web3 = NFTHelper.getWeb3();
+    const results = [];
+    for (const c of contracts) {
+      let symbol = '';
+      let contractName = c.name;
+      try {
+        const contract = new web3.eth.Contract(ABI.ERC721, c.address);
+        symbol = await contract.methods.symbol().call();
+        contractName = await contract.methods.name().call();
+      } catch (e) { /* skip */ }
+
+      // Parse i18n name JSON
+      let nameJa = c.name, nameEn = c.name;
+      try {
+        const parsed = JSON.parse(c.name);
+        nameJa = parsed.ja || c.name;
+        nameEn = parsed.en || c.name;
+      } catch (e) { /* plain string, use as-is */ }
+
+      results.push({
+        address: c.address,
+        name: nameJa,
+        nameEn: nameEn,
+        nameRaw: c.name,
+        type: c.type,
+        visible: c.visible,
+        symbol,
+        contractName,
+      });
+    }
+    return results;
+  },
+
+  // name の i18n パースヘルパー
+  parseName(name) {
+    try {
+      const obj = JSON.parse(name);
+      return obj;
+    } catch (e) {
+      return { ja: name, en: name };
+    }
+  },
+
+  // 言語に応じた名前を返す
+  getLocalizedName(name) {
+    const parsed = this.parseName(name);
+    const lang = window.i18n ? window.i18n.lang() : 'ja';
+    return lang === 'en' ? (parsed.en || parsed.ja || name) : (parsed.ja || parsed.en || name);
+  },
+
   // Contract
   async setContract(address, name, type) { return this.sendTx('setContract', [address, name, type]); },
   async setContractInfo(address, name, type) { return this.sendTx('setContractInfo', [address, name, type]); },
