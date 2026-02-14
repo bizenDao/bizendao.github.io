@@ -194,41 +194,41 @@ const WalletHeader = {
 
     /* 共通 balance-row / balance-card スタイル */
     .balance-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      display: flex;
       gap: 12px;
       margin-bottom: 20px;
     }
 
     .balance-card {
-      padding: 16px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.08);
+      flex: 1;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
       border-radius: 10px;
       text-align: center;
     }
 
     .balance-value {
-      font-size: 24px;
+      font-size: 20px;
       font-weight: 700;
       font-family: monospace;
-      margin-bottom: 4px;
     }
 
     .balance-value small {
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 400;
-      opacity: 0.7;
+      opacity: 0.6;
     }
 
     .balance-label {
-      font-size: 12px;
+      font-size: 11px;
       opacity: 0.5;
+      margin-top: 2px;
     }
 
     @media (max-width: 480px) {
       .balance-row {
-        grid-template-columns: 1fr;
+        flex-direction: column;
       }
     }
   `;
