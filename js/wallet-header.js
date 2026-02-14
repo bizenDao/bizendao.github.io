@@ -14,6 +14,7 @@ const WalletHeader = {
           <span v-if="viewMode" class="wh-badge wh-badge-view">{{ t('view_mode') }}</span>
           <a v-if="userType === 'admin'" :href="settingLink" class="wh-role wh-role-admin">admin</a>
           <a v-else-if="userType === 'creator'" :href="settingLink" class="wh-role wh-role-creator">creator</a>
+          <slot></slot>
         </div>
       </div>
     </div>
