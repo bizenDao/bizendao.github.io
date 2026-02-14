@@ -122,6 +122,7 @@
 
       .role-admin { color: #ff6b6b; }
       .role-creator { color: #ffaa33; }
+      .role-user { color: rgba(255,255,255,0.5); }
 
       /* Mint to */
       .mint-to-row {
@@ -310,12 +311,6 @@
             <div v-else style="text-align:center; opacity:0.6;">{{ t('no_metamask') }}</div>
           </div>
 
-          <!-- No permission -->
-          <div v-else-if="userType !== 'admin' && userType !== 'creator'" class="access-denied">
-            <p>{{ t('mint_no_permission') }}</p>
-            <p style="font-family:monospace; font-size:13px;">{{ shortAddress }} ({{ userType }})</p>
-          </div>
-
           <!-- Mint Form -->
           <div v-else class="mint-form">
             <div class="wallet-row">
@@ -330,7 +325,7 @@
               <select v-else v-model="selectedContract" class="form-select" @change="onContractChange">
                 <option :value="null" disabled>-- {{ t('mint_select_contract') }} --</option>
                 <option v-for="c in mintableContracts" :key="c.address" :value="c.address">
-                  {{ c.name }} ({{ c.symbol }})
+                  [{{ c.type }}] {{ c.name }} ({{ c.symbol }})
                 </option>
               </select>
               <div v-if="selectedContract" class="contract-info">{{ selectedContract }}</div>
@@ -456,59 +451,45 @@
           },
 
           async init() {
-            this.userType = await Manager.checkUser();
             this.nicknameLoading = true;
             NFTHelper.getNickname(this.address).then(n => { this.nickname = n; }).finally(() => { this.nicknameLoading = false; });
 
-            if (this.userType === 'admin' || this.userType === 'creator') {
-              await this.loadMintableContracts();
-            }
+            try {
+              this.userType = await Manager.checkUser();
+            } catch (e) { this.userType = 'user'; }
+
+            this.loadContracts();
           },
 
-          async loadMintableContracts() {
+          async loadContracts() {
             this.contractsLoading = true;
-            try {
-              const contracts = await Manager.getAllContracts();
-              const web3 = NFTHelper.getWeb3();
-              const mintable = [];
+            const web3 = NFTHelper.getWeb3();
+            const list = [];
 
-              for (const c of contracts) {
-                try {
-                  const contract = new web3.eth.Contract(
-                    [...ABI.ERC721, ...ABI.ERC721Mint],
-                    c.address
-                  );
-                  // Check if this address can mint
-                  let canMint = false;
-                  try {
-                    const creatorOnly = await contract.methods.creatorOnly().call();
-                    if (!creatorOnly) {
-                      canMint = true;
-                    } else {
-                      const creator = await contract.methods.creator().call();
-                      const owner = await contract.methods.owner().call();
-                      canMint = (creator.toLowerCase() === this.address.toLowerCase())
-                             || (owner.toLowerCase() === this.address.toLowerCase());
-                    }
-                  } catch (e) {
-                    // If creatorOnly doesn't exist, admin can mint
-                    if (this.userType === 'admin') canMint = true;
-                  }
-
-                  if (canMint) {
-                    const name = await contract.methods.name().call();
-                    const symbol = await contract.methods.symbol().call();
-                    mintable.push({ address: c.address, name, symbol });
-                  }
-                } catch (e) {
-                  console.warn('Skip contract', c.address, e.message);
-                }
+            // NFT contracts from config
+            for (const nft of CONFIG.contracts.nfts) {
+              try {
+                const contract = new web3.eth.Contract(ABI.ERC721, nft.address);
+                const symbol = await contract.methods.symbol().call();
+                list.push({ address: nft.address, name: nft.name, nameEn: nft.nameEn, symbol, type: 'NFT' });
+              } catch (e) {
+                list.push({ address: nft.address, name: nft.name, nameEn: nft.nameEn, symbol: '?', type: 'NFT' });
               }
-              this.mintableContracts = mintable;
-            } catch (e) {
-              console.error('loadMintableContracts error:', e);
-              this.error = 'Failed to load contracts';
             }
+
+            // SBT from config
+            if (CONFIG.contracts.sbt?.address) {
+              try {
+                const contract = new web3.eth.Contract(ABI.ERC721, CONFIG.contracts.sbt.address);
+                const name = await contract.methods.name().call();
+                const symbol = await contract.methods.symbol().call();
+                list.push({ address: CONFIG.contracts.sbt.address, name, symbol, type: 'SBT' });
+              } catch (e) {
+                list.push({ address: CONFIG.contracts.sbt.address, name: 'SBT', symbol: '?', type: 'SBT' });
+              }
+            }
+
+            this.mintableContracts = list;
             this.contractsLoading = false;
           },
 
