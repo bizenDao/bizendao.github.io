@@ -354,7 +354,7 @@
             <!-- Mint Form -->
             <div class="mint-form">
             <!-- Contract Select -->
-            <div class="form-group">
+            <div class="form-group" v-if="!caFromUrl">
               <label class="form-label">1. {{ t('mint_select_contract') }}</label>
               <div v-if="contractsLoading" class="meta-loading"><span class="loading-spinner"></span> Loading contracts...</div>
               <select v-else v-model="selectedContract" class="form-select" @change="onContractChange">
@@ -363,7 +363,11 @@
                   [{{ c.type }}] {{ lang === 'en' ? (c.nameEn || c.name) : c.name }} ({{ c.address.slice(0,6) + '...' + c.address.slice(-4) }})
                 </option>
               </select>
-              <div v-if="selectedContract" class="contract-info">{{ selectedContract }}</div>
+            </div>
+            <!-- Contract Info (always visible when selected) -->
+            <div class="form-group" v-if="selectedContract">
+              <label v-if="caFromUrl" class="form-label">1. {{ t('mint_contract') }}</label>
+              <div class="contract-info">{{ selectedContract }}</div>
               <div v-if="contractInfoLoading" class="meta-loading" style="margin-top:8px;"><span class="loading-spinner"></span></div>
               <div v-else-if="contractInfo" class="contract-status" :class="{ 'status-ok': contractInfo.mintable, 'status-ng': !contractInfo.mintable }">
                 <div v-if="contractInfo.needPoint > 0" class="status-item">{{ t('mint_need_points') }}: {{ contractInfo.needPoint }} pt</div>
@@ -434,6 +438,7 @@
             mintableContracts: [],
             contractsLoading: false,
             selectedContract: null,
+            caFromUrl: false,
             // Mint params
             tokenUri: '',
             mintTo: '',
@@ -513,7 +518,14 @@
             } catch (e) { this.userType = 'user'; }
 
             this.loadBalances();
-            this.loadContracts();
+            await this.loadContracts();
+            // Auto-select contract from URL ?ca= param
+            const ca = new URLSearchParams(window.location.search).get('ca');
+            if (ca && this.mintableContracts.find(c => c.address.toLowerCase() === ca.toLowerCase())) {
+              this.selectedContract = this.mintableContracts.find(c => c.address.toLowerCase() === ca.toLowerCase()).address;
+              this.caFromUrl = true;
+              await this.onContractChange();
+            }
           },
 
           async loadBalances() {

@@ -17,6 +17,8 @@
     <script src="../js/config.js"></script>
     <script src="../js/cache.js"></script>
     <script src="../js/nft.js"></script>
+    <script src="../js/wallet.js"></script>
+    <script src="../js/manager.js"></script>
     <script src="../js/i18n.js"></script>
     <script src="../js/lang-toggle.js"></script>
     
@@ -194,6 +196,25 @@
             opacity: 0.6;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+        }
+
+        .mint-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 20px;
+            background: rgba(107, 182, 255, 0.15);
+            border: 1px solid rgba(107, 182, 255, 0.3);
+            border-radius: 8px;
+            color: #6bb6ff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .mint-link-btn:hover {
+            background: rgba(107, 182, 255, 0.25);
+            border-color: rgba(107, 182, 255, 0.5);
         }
 
         .info-value {
@@ -389,10 +410,6 @@
                         <span class="info-value">{{ contractInfo.name }}</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">{{ t('symbol') }}</span>
-                        <span class="info-value">{{ contractInfo.symbol }}</span>
-                    </div>
-                    <div class="info-item">
                         <span class="info-label">{{ t('total_supply') }}</span>
                         <span class="info-value">{{ contractInfo.totalSupply }}</span>
                     </div>
@@ -404,6 +421,10 @@
                                 {{ contractAddress.slice(0, 10) }}...{{ contractAddress.slice(-6) }}
                             </a>
                         </span>
+                    </div>
+                    <div v-if="mintable" class="info-item" style="justify-content: center;">
+                        <a :href="'mint.html?ca=' + contractAddress + (lang !== 'ja' ? '&lang=' + lang : '')" 
+                           class="mint-link-btn">{{ t('mint') }}</a>
                     </div>
                 </div>
                 
@@ -450,13 +471,20 @@
                     menuOpen: false,
                     artists: CONFIG.contracts.nfts,
                     CONFIG: CONFIG,
+                    mintable: false,
+                    walletAddress: null,
                 };
             },
             computed: {
               homeUrl() { return (window.i18n ? window.i18n.contentBase() : "../ja") + "/index.html"; },
                 lang() { return window.i18n ? window.i18n.lang() : 'ja'; },
             },
-            mounted() {
+            async mounted() {
+                // Silent wallet reconnect for mintable check
+                try {
+                    const result = await Wallet.reconnect();
+                    if (result) this.walletAddress = result.address;
+                } catch (e) {}
                 this.loadFromUrlParams();
                 window.addEventListener('keydown', this.handleEscape);
                 if (window.i18n) window.i18n.apply();
@@ -492,6 +520,14 @@
                         // コントラクト情報
                         const info = await NFTHelper.getContractInfo(this.contractAddress);
                         this.contractInfo = info;
+
+                        // Mintable check
+                        this.mintable = false;
+                        if (this.walletAddress) {
+                            try {
+                                await this.checkMintable();
+                            } catch (e) { console.warn('mintable check:', e); }
+                        }
 
                         if (info.totalSupply === 0) {
                             this.showStatus(this.t('no_tokens'), 'info');
@@ -552,6 +588,35 @@
                         this.showStatus(`エラー: ${error.message}`, 'error');
                         this.loading = false;
                     }
+                },
+
+                async checkMintable() {
+                    const web3 = NFTHelper.getWeb3();
+                    const contract = new web3.eth.Contract([...ABI.ERC721, ...ABI.ERC721Mint], this.contractAddress);
+                    const addr = this.walletAddress.toLowerCase();
+
+                    let creatorOnly = false;
+                    try { creatorOnly = await contract.methods._creatorOnly().call(); } catch (e) {}
+
+                    if (!creatorOnly) {
+                        this.mintable = true;
+                        return;
+                    }
+
+                    // creatorOnly: check if user is creator/owner/admin
+                    let creator = null, owner = null;
+                    try { creator = await contract.methods.creator().call(); } catch (e) {}
+                    try { owner = await contract.methods.owner().call(); } catch (e) {}
+
+                    if ((creator && creator.toLowerCase() === addr) || (owner && owner.toLowerCase() === addr)) {
+                        this.mintable = true;
+                        return;
+                    }
+
+                    try {
+                        const userType = await Manager.checkUser();
+                        if (userType === 'admin') this.mintable = true;
+                    } catch (e) {}
                 },
 
                 clearData() {
