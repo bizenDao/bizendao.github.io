@@ -34,6 +34,7 @@ const CONFIG = {
       { key: 'hozangama',     name: '宝山窯',  nameEn: 'Hozangama',     address: '0xd84d7A7FE688a1CC40a931cab2aaF189eB3ceEcB' },
       { key: 'fujita-syo',    name: '藤田 祥', nameEn: 'Syo Fujita',    address: '0x6C8b4094809CE7e5Ec1a44F7553Cf51b969C2aEb' },
       { key: 'test',          name: 'TEST',    nameEn: 'TEST',          address: '0xdAe2725b249DF763DF8390cc27B1f5f70b626966' },
+      { key: 'niya',          name: 'NIYA',    nameEn: 'NIYA',          address: '0xa15ea22d4893b73787171a86477a69e02b071bb7' },
     ],
 
     // SBT — 箱書き・メンバーシップ（non-transferable）
