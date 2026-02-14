@@ -154,7 +154,7 @@ ABI.ERC721Mint = [
   { "inputs": [{ "name": "to", "type": "address" }, { "name": "metaUrl", "type": "string" }], "name": "mint", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
   { "constant": true, "inputs": [], "name": "owner", "outputs": [{ "name": "", "type": "address" }], "type": "function" },
   { "constant": true, "inputs": [], "name": "creator", "outputs": [{ "name": "", "type": "address" }], "type": "function" },
-  { "constant": true, "inputs": [], "name": "creatorOnly", "outputs": [{ "name": "", "type": "bool" }], "type": "function" },
+  { "constant": true, "inputs": [], "name": "_creatorOnly", "outputs": [{ "name": "", "type": "bool" }], "type": "function" },
   { "constant": true, "inputs": [], "name": "_usePoint", "outputs": [{ "name": "", "type": "uint256" }], "type": "function" },
 ];
 
