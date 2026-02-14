@@ -120,6 +120,35 @@
       .wallet-address { font-family: monospace; font-size: 14px; }
       .wallet-role { font-size: 13px; opacity: 0.7; }
 
+      .balance-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .balance-card {
+        flex: 1;
+        padding: 12px 16px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 10px;
+        text-align: center;
+      }
+
+      .balance-value {
+        font-size: 20px;
+        font-weight: 700;
+        font-family: monospace;
+      }
+
+      .balance-value small { font-size: 12px; font-weight: 400; opacity: 0.6; }
+
+      .balance-label {
+        font-size: 11px;
+        opacity: 0.5;
+        margin-top: 2px;
+      }
+
       .role-admin { color: #ff6b6b; }
       .role-creator { color: #ffaa33; }
       .role-user { color: rgba(255,255,255,0.5); }
@@ -318,6 +347,17 @@
               <span class="wallet-role" :class="'role-' + userType">{{ userType }}</span>
             </div>
 
+            <div class="balance-row">
+              <div class="balance-card">
+                <div class="balance-value">{{ polBalance }} <small>POL</small></div>
+                <div class="balance-label">{{ t('mint_pol_balance') }}</div>
+              </div>
+              <div class="balance-card">
+                <div class="balance-value">{{ donatePoints }} <small>pt</small></div>
+                <div class="balance-label">{{ t('mint_donate_points') }}</div>
+              </div>
+            </div>
+
             <!-- Contract Select -->
             <div class="form-group">
               <label class="form-label">1. {{ t('mint_select_contract') }}</label>
@@ -399,6 +439,9 @@
             metadata: null,
             metaLoading: false,
             metaDebounce: null,
+            // Balance
+            polBalance: '...',
+            donatePoints: '...',
             // Tx
             minting: false,
             txHash: null,
@@ -459,7 +502,24 @@
               this.userType = await Manager.checkUser();
             } catch (e) { this.userType = 'user'; }
 
+            this.loadBalances();
             this.loadContracts();
+          },
+
+          async loadBalances() {
+            try {
+              const web3 = NFTHelper.getWeb3();
+              // POL balance
+              const bal = await web3.eth.getBalance(this.address);
+              this.polBalance = parseFloat(web3.utils.fromWei(bal, 'ether')).toFixed(4);
+
+              // Donate points
+              const contract = new web3.eth.Contract(ABI.Donate, CONFIG.contracts.donation.address);
+              const points = await contract.methods.balanceOf(this.address).call();
+              this.donatePoints = (Number(points) / 1e18).toFixed(4);
+            } catch (e) {
+              console.warn('loadBalances error:', e);
+            }
           },
 
           async loadContracts() {

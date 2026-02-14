@@ -188,6 +188,8 @@
       mint_button: 'Mint',
       mint_minting: 'ミント中...',
       mint_success: 'ミント完了',
+      mint_pol_balance: 'POL 残高',
+      mint_donate_points: '寄付ポイント',
       mint_no_permission: 'Admin または Creator 権限が必要です',
 
       // Setting - Proxy Donate
@@ -399,6 +401,8 @@
       mint_button: 'Mint',
       mint_minting: 'Minting...',
       mint_success: 'Mint Complete',
+      mint_pol_balance: 'POL Balance',
+      mint_donate_points: 'Donate Points',
       mint_no_permission: 'Admin or Creator permission required',
 
       // Setting - Proxy Donate
