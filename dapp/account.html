@@ -138,6 +138,34 @@
         color: #6bb6ff;
       }
 
+      .copyable {
+        cursor: pointer;
+      }
+
+      .copyable:hover {
+        opacity: 0.8;
+      }
+
+      .copied-toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 8px 20px;
+        background: rgba(111, 207, 138, 0.9);
+        color: #1a1a2e;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        z-index: 9999;
+        animation: toast-fade 1.5s ease forwards;
+      }
+
+      @keyframes toast-fade {
+        0%, 70% { opacity: 1; }
+        100% { opacity: 0; }
+      }
+
       .admin-badge {
         display: inline-flex;
         align-items: center;
@@ -471,7 +499,7 @@
             <!-- ウォレットヘッダー -->
             <div class="wallet-header">
               <div class="wallet-info">
-                <span class="wallet-address">
+                <span class="wallet-address copyable" @click="copyEoa" :title="address">
                   <template v-if="isViewMode"></template>
                   <template v-else></template>
                   {{ nickname || shortAddress }} <span v-if="nicknameLoading" class="nickname-spinner"></span>
@@ -654,6 +682,17 @@
 
         methods: {
           t(key) { return window.i18n ? window.i18n.t(key) : key; },
+
+          copyEoa() {
+            if (!this.address) return;
+            navigator.clipboard.writeText(this.address).then(() => {
+              const toast = document.createElement('div');
+              toast.className = 'copied-toast';
+              toast.textContent = 'Copied!';
+              document.body.appendChild(toast);
+              setTimeout(() => toast.remove(), 1500);
+            });
+          },
 
           // ── ウォレット接続 ──
 
