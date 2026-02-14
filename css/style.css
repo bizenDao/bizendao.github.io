@@ -86,6 +86,10 @@ main {
     display: inline-flex;
     align-items: center;
     gap: 2px;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
 }
 a.lang-btn {
     text-decoration: none;
@@ -94,6 +98,11 @@ a.lang-btn {
     transition: color 0.2s;
     font-size: 13px;
     font-weight: 400;
+    background: none;
+    border: none;
+    padding: 8px 2px;
+    -webkit-appearance: none;
+    appearance: none;
 }
 a.lang-btn.active {
     color: #fff;
@@ -1053,7 +1062,6 @@ a.lang-btn.active {
 .bizen-btn,
 .outline-btn,
 .outline-btn--large,
-.lang-switch,
 .nav-toggle {
     min-height: 48px;
 }
