@@ -1,0 +1,50 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link "ロゴ" [ref=e5] [cursor=pointer]:
+        - /url: ../ja/index.html
+        - img "ロゴ" [ref=e6]
+      - generic [ref=e7]:
+        - generic [ref=e8]:
+          - link "EN" [ref=e9] [cursor=pointer]:
+            - /url: /bizendao/dapp/contract.html?lang=en
+          - text: /
+          - link "JP" [ref=e10] [cursor=pointer]:
+            - /url: /bizendao/dapp/contract.html?lang=ja
+        - button "メニューを開閉" [ref=e11] [cursor=pointer]
+    - complementary "サイトメニュー" [ref=e14]:
+      - list [ref=e15]:
+        - listitem [ref=e16]:
+          - link "トップページ" [ref=e17] [cursor=pointer]:
+            - /url: ../ja/index.html
+        - listitem [ref=e18]:
+          - link "作家紹介" [ref=e19] [cursor=pointer]:
+            - /url: ../ja/artist-list.html
+        - listitem [ref=e20]:
+          - link "会社概要" [ref=e21] [cursor=pointer]:
+            - /url: ../ja/index.html#company
+        - listitem [ref=e22]:
+          - link "Discordリンク" [ref=e23] [cursor=pointer]:
+            - /url: ../ja/index.html#discord
+        - listitem [ref=e24]:
+          - link "作品使用歴作成" [ref=e25] [cursor=pointer]:
+            - /url: ../ja/index.html#meta
+        - listitem [ref=e26]:
+          - link "寄付ポイント" [ref=e27] [cursor=pointer]:
+            - /url: ./donation.html?lang=ja
+        - listitem [ref=e28]:
+          - link "マイページ" [ref=e29] [cursor=pointer]:
+            - /url: ./account.html?lang=ja
+  - main [ref=e30]:
+    - generic [ref=e31]:
+      - heading "コントラクト トークン一覧" [level=1] [ref=e32]
+      - paragraph [ref=e33]: NFTコントラクトのトークン一覧
+      - generic [ref=e35]:
+        - text: 作家で選ぶ
+        - generic [ref=e36]:
+          - button "森 敏彰" [ref=e37] [cursor=pointer]
+          - button "森 大雅" [ref=e38] [cursor=pointer]
+          - button "宝山窯" [ref=e39] [cursor=pointer]
+          - button "藤田 祥" [ref=e40] [cursor=pointer]
+          - button "TEST" [ref=e41] [cursor=pointer]
+      - generic [ref=e44]: Polygon Mainnet
