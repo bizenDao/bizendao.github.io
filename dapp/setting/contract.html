@@ -83,21 +83,18 @@
 
           <div v-if="!connected" class="connect-prompt">
             <button v-if="metamaskAvailable" class="btn btn-connect" @click="connectWallet" :disabled="connecting">
-              {{ connecting ? '接続中...' : '🦊 ウォレットを接続' }}
+              {{ connecting ? '{{ t('connecting') }}' : '{{ t('connect_wallet') }}' }}
             </button>
             <p v-else>{{ t('no_metamask') }}</p>
           </div>
 
           <div v-else-if="userType !== 'admin'" class="access-denied">
-            <p>⚠ Admin権限が必要です ({{ userType }})</p>
+            <p>{{ t('admin_only') }} ({{ userType }})</p>
             <p class="wallet-info-small">{{ shortAddress }}</p>
           </div>
 
           <template v-else>
-            <div class="wallet-bar">
-              <span>🦊 {{ shortAddress }}</span>
-              <span class="user-badge admin">admin</span>
-            </div>
+            <wallet-header :address="address" user-type="admin"></wallet-header>
 
             <div v-if="error" class="error-message">{{ error }}</div>
             <div v-if="success" class="success-message">{{ success }}</div>
@@ -190,6 +187,7 @@
           return {
             connected: false, connecting: false, sending: false, loading: false,
             error: null, success: null,
+            address: null,
             userType: 'none',
             contracts: [],
             configDiffs: [],
@@ -204,7 +202,7 @@
         },
         async mounted() {
           const r = await Wallet.reconnect();
-          if (r) { this.connected = true; await this.init(); }
+          if (r) { this.connected = true; this.address = Wallet.getAddress(); await this.init(); }
           if (window.i18n) { window.i18n.apply(); }
         },
         methods: {
@@ -215,6 +213,7 @@
               await Wallet.connect();
               await Wallet.ensurePolygon();
               this.connected = true;
+              this.address = Wallet.getAddress();
               await this.init();
             } catch (e) { this.error = e.message; }
             this.connecting = false;
@@ -302,9 +301,10 @@
             this.sending = false;
           },
         },
-      }).mount('#app');
+      }).component('wallet-header', WalletHeader).mount('#app');
     </script>
-  <script src="../../js/i18n.js"></script>
+  <script src="../../js/wallet-header.js"></script>
+<script src="../../js/i18n.js"></script>
   <script src="../../js/lang-toggle.js"></script>
 </body>
 </html>

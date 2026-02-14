@@ -30,6 +30,7 @@
     <script src="../js/config.js"></script>
     <script src="../js/cache.js"></script>
     <script src="../js/wallet.js"></script>
+    <script src="../js/wallet-header.js"></script>
     <script src="../js/i18n.js"></script>
     <script src="../js/lang-toggle.js"></script>
     <script src="../js/nft.js"></script>
@@ -1349,7 +1350,7 @@
             document.body.style.overflow = "";
           },
         },
-      }).mount("#app");
+      }).component('wallet-header', WalletHeader).mount("#app");
     </script>
 </body>
 </html>
