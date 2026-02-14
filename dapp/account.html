@@ -768,7 +768,7 @@
               });
               const dc = new web3.eth.Contract(ABI.Donate, CONFIG.contracts.donation.address);
               dc.methods.latestPoint(this.address).call().then(pt => {
-                this.donatePoints = web3.utils.fromWei(pt, 'ether');
+                this.donatePoints = parseFloat(web3.utils.fromWei(pt, 'ether')).toFixed(4);
               }).catch(() => { this.donatePoints = '0'; });
             } catch (e) { /* ignore */ }
 

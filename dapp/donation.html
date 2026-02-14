@@ -722,7 +722,7 @@
             try {
               const contract = new web3.eth.Contract(ABI.Donate, CONFIG.contracts.donation.address);
               const pt = await contract.methods.latestPoint(this.address).call();
-              this.donatePoints = web3.utils.fromWei(pt, 'ether');
+              this.donatePoints = parseFloat(web3.utils.fromWei(pt, 'ether')).toFixed(4);
             } catch (e) { this.donatePoints = '0'; }
 
             // 寄付履歴
