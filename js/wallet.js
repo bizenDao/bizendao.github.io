@@ -125,7 +125,7 @@ const Wallet = {
             chainId: targetChainId,
             chainName: CONFIG.chain.name,
             nativeCurrency: CONFIG.chain.currency,
-            rpcUrls: [CONFIG.chain.rpc],
+            rpcUrls: CONFIG.chain.rpcs,
             blockExplorerUrls: [CONFIG.chain.explorer],
           }],
         });

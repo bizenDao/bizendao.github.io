@@ -8,7 +8,11 @@ const CONFIG = {
   chain: {
     id: 137,
     name: 'Polygon Mainnet',
-    rpc: 'https://polygon-rpc.com',
+    rpc: 'https://polygon-rpc.com',  // primary (kept for backward compat)
+    rpcs: [
+      'https://polygon-rpc.com',
+      'https://polygon-mainnet.g.alchemy.com/v2/xC3e6wo2qP_Qm-nnBjamoTXUkNSh-kbV',
+    ],
     explorer: 'https://polygonscan.com',
     currency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
   },
@@ -160,3 +164,40 @@ ABI.ERC721Mint = [
 ];
 
 ABI.ERC721Full = [...ABI.ERC721, ...ABI.ERC721Enumerable];
+
+// =================================================
+// RPC — ラウンドロビン + リトライ
+// =================================================
+const RPC = {
+  _idx: 0,
+
+  // 次のRPC URLを返す（ラウンドロビン）
+  next() {
+    const urls = CONFIG.chain.rpcs;
+    const url = urls[this._idx % urls.length];
+    this._idx++;
+    return url;
+  },
+
+  // Web3インスタンスを生成（次のRPCで）
+  createWeb3() {
+    return new Web3(this.next());
+  },
+
+  // リトライ付きRPCコール（失敗時に次のRPCへフォールオーバー）
+  async call(fn, maxRetries) {
+    const urls = CONFIG.chain.rpcs;
+    maxRetries = maxRetries || urls.length;
+    let lastErr;
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        const web3 = new Web3(this.next());
+        return await fn(web3);
+      } catch (e) {
+        lastErr = e;
+        console.warn(`RPC failed (${i + 1}/${maxRetries}):`, e.message);
+      }
+    }
+    throw lastErr;
+  },
+};
