@@ -594,14 +594,14 @@
       <!-- ヘッダー -->
       <header class="site-header">
         <div class="container header-inner">
-          <a href="../ja/index.html" class="logo"><img src="../img/349F5603-389E-48C6-81C9-1515A338A59B.png" alt="ロゴ"> </a>
+          <a href="../ja/index.html" class="logo"><img src="../img/349F5603-389E-48C6-81C9-1515A338A59B.png" :alt="t('logo_alt')"> </a>
 
           <div class="header-right">
             <span class="lang-switch"><a class="lang-btn" data-lang="en" href="#">EN</a> / <a class="lang-btn" data-lang="ja" href="#">JP</a></span>
             <button
               class="nav-toggle"
               type="button"
-              aria-label="メニューを開閉"
+              :aria-label="t('toggle_menu')"
               @click="toggleMenu"
             >
               <span></span><span></span>
@@ -617,7 +617,7 @@
         <aside
           class="nav-drawer"
           :class="{ 'is-open': menuOpen }"
-          aria-label="サイトメニュー"
+          :aria-label="t('site_menu')"
         >
           <ul class="drawer-nav">
             <li><a href="#" data-nav="top">{{ t('nav_top') }}</a></li>
@@ -650,7 +650,7 @@
                 <input
                   type="text"
                   v-model="tokenId"
-                  placeholder="特定のトークンIDを表示"
+                  :placeholder="t('token_id_placeholder')"
                   @keyup.enter="loadContract"
                 />
               </div>
@@ -666,9 +666,9 @@
                 <span v-else>{{ t('token_fetch') }}</span>
               </button>
               <button class="btn" @click="loadSampleContract">
-                サンプルNFTを表示
+                {{ t('show_sample') }}
               </button>
-              <button class="btn" @click="clearData">クリア</button>
+              <button class="btn" @click="clearData">{{ t('clear') }}</button>
             </div>
 
             <!-- ステータスメッセージ -->
@@ -698,12 +698,12 @@
                 <!-- Send モーダル -->
                 <div v-if="showSendModal" class="send-modal-overlay" @click.self="showSendModal = false">
                   <div class="send-modal">
-                    <h3>NFTを送信</h3>
+                    <h3>{{ t('send_nft') }}</h3>
                     <p class="send-token-info">{{ nft.name }} #{{ nft.tokenId }}</p>
                     <input v-model="sendTo" class="send-input" :placeholder="t('send_to')" @input="lookupSendToNickname" />
-                    <p v-if="sendToNicknameLoading" class="send-to-nick"><span class="nickname-spinner"></span> 検索中...</p>
+                    <p v-if="sendToNicknameLoading" class="send-to-nick"><span class="nickname-spinner"></span> {{ t('searching') }}</p>
                     <p v-else-if="sendToNickname" class="send-to-nick">👤 {{ sendToNickname }}</p>
-                    <p v-else-if="sendTo && sendToLookedUp" class="send-to-nick unknown">未登録のアドレスです</p>
+                    <p v-else-if="sendTo && sendToLookedUp" class="send-to-nick unknown">{{ t('unregistered_address') }}</p>
                     <div class="send-modal-actions">
                       <button class="btn btn-send" @click="sendNft" :disabled="sendingTx || !sendTo">
                         <span v-if="sendingTx">{{ t('sending') }}</span>
@@ -730,7 +730,7 @@
 
                   <!-- 説明 -->
                   <div v-if="nft.description" class="metadata-section" style="align-self: stretch;">
-                    <h3 class="metadata-title">説明</h3>
+                    <h3 class="metadata-title">{{ t('description') }}</h3>
                     <p class="metadata-description">{{ nft.description }}</p>
                   </div>
 
@@ -738,7 +738,7 @@
                   <div class="metadata-section contract-info-section">
                     <h3 class="metadata-title contract-info-toggle" @click="contractInfoOpen = !contractInfoOpen">
                       <span class="toggle-arrow" :class="{ open: contractInfoOpen }">▶</span>
-                      コントラクト情報
+                      {{ t('contract_info') }}
                     </h3>
                     <div v-show="contractInfoOpen" class="contract-info-body">
                       <div class="metadata-grid">
@@ -764,7 +764,7 @@
                         </div>
                       </div>
                       <button class="btn" @click="viewOnPolygonScan(nft.tokenId)" style="margin-top: 16px;">
-                        PolygonScanで確認
+                        {{ t('view_on_polygonscan') }}
                       </button>
                     </div>
                   </div>
@@ -791,7 +791,7 @@
                             <img v-if="getMediaType(attr.value) === 'image'" :src="resolveUrl(attr.value)" class="attr-media-img" loading="lazy" />
                             <video v-else-if="getMediaType(attr.value) === 'video'" :src="resolveUrl(attr.value)" class="attr-media-video" controls preload="metadata"></video>
                             <audio v-else-if="getMediaType(attr.value) === 'audio'" :src="resolveUrl(attr.value)" controls></audio>
-                            <a v-else-if="getMediaType(attr.value) === '3d'" :href="resolveUrl(attr.value)" target="_blank" class="attr-3d-link">🎮 3Dモデルを表示</a>
+                            <a v-else-if="getMediaType(attr.value) === '3d'" :href="resolveUrl(attr.value)" target="_blank" class="attr-3d-link">🎮 {{ t('view_3d') }}</a>
                             <img v-else :src="resolveUrl(attr.value)" class="attr-media-img" loading="lazy" />
                           </template>
                           <template v-else>{{ attr.value }}</template>
@@ -817,7 +817,7 @@
             <template>
               <!-- 箱書き（SBT） -->
               <div v-if="tbaSbtAssets.length > 0" class="tba-subsection">
-                <h4>📜 箱書き（SBT）</h4>
+                <h4>📜 {{ t('tba_hakogaki') }}</h4>
                 <div class="tba-grid">
                   <a v-for="asset in tbaSbtAssets" :key="asset.contractAddress + '-' + asset.tokenId"
                      :href="'token.html?ca=' + asset.contractAddress + '&id=' + asset.tokenId + '&lang=' + lang"
@@ -835,7 +835,7 @@
 
               <!-- 所有NFT -->
               <div v-if="tbaNftAssets.length > 0" class="tba-subsection">
-                <h4>🏺 所有NFT</h4>
+                <h4>🏺 {{ t('owned_nft') }}</h4>
                 <div class="tba-grid">
                   <a v-for="asset in tbaNftAssets" :key="asset.contractAddress + '-' + asset.tokenId"
                      :href="'token.html?ca=' + asset.contractAddress + '&id=' + asset.tokenId + '&lang=' + lang"
@@ -972,7 +972,7 @@
 
           initializeEthers() {
             this.web3 = new Web3(CONFIG.chain.rpc);
-            this.showStatus("接続完了", "success");
+            this.showStatus(this.t("status_connected"), "success");
           },
 
           loadFromUrlParams() {
@@ -1003,7 +1003,7 @@
               );
               const nft = await this.fetchTokenMetadata(this.tokenId || 1);
               if (nft) this.nfts = [nft];
-              this.showStatus("取得完了", "success");
+              this.showStatus(this.t("status_loaded"), "success");
 
               // Owner取得
               this.fetchOwner(this.tokenId || 1);
@@ -1011,7 +1011,7 @@
               // TBA取得（NFT読み込み成功後）
               this.loadTba(this.tokenId || 1);
             } catch (error) {
-              this.showStatus(`エラー: ${error.message}`, "error");
+              this.showStatus(this.t("error") + ": " + error.message, "error");
             }
             this.loading = false;
           },
@@ -1113,7 +1113,7 @@
               return;
             }
             const dest = this.sendToNickname ? `${this.sendToNickname} (${this.shortAddr(this.sendTo)})` : this.sendTo;
-            if (!confirm(`${dest} に送信しますか？`)) return;
+            if (!confirm(this.t('send_confirm').replace('{dest}', dest))) return;
             this.sendingTx = true;
             this.txMessage = this.t('tx_sending');
             this.txClass = 'tx-pending';

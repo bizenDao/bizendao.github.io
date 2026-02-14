@@ -55,7 +55,7 @@
       attributes: '属性',
       owner: '所有者',
       send_to: '送り先アドレス',
-      send_confirm: 'このNFTを送信しますか？',
+      send_confirm: '{dest} に送信しますか？',
       burn_confirm: 'このNFTを燃焼（削除）しますか？この操作は取り消せません。',
 
       // Donation
@@ -152,6 +152,24 @@
       hidden: '非公開',
       edit: '編集',
 
+      // UI Common
+      logo_alt: 'ロゴ',
+      toggle_menu: 'メニューを開閉',
+      site_menu: 'サイトメニュー',
+      view_on_polygonscan: 'PolygonScanで確認',
+      description: '説明',
+      contract_info: 'コントラクト情報',
+      view_3d: '3Dモデルを表示',
+      show_sample: 'サンプルNFTを表示',
+      clear: 'クリア',
+      searching: '検索中...',
+      unregistered_address: '未登録のアドレスです',
+      send_nft: 'NFTを送信',
+      token_id_placeholder: '特定のトークンIDを表示',
+      status_connected: '接続完了',
+      status_loaded: '取得完了',
+      sending: '送信中...',
+
       // Transaction
       tx_invalid_address: '無効なアドレスです',
       tx_sending: 'トランザクション送信中...',
@@ -212,7 +230,7 @@
       attributes: 'Attributes',
       owner: 'Owner',
       send_to: 'Recipient Address',
-      send_confirm: 'Send this NFT?',
+      send_confirm: 'Send to {dest}?',
       burn_confirm: 'Burn (destroy) this NFT? This action cannot be undone.',
 
       // Donation
@@ -308,6 +326,24 @@
       visible: 'Visible',
       hidden: 'Hidden',
       edit: 'Edit',
+
+      // UI Common
+      logo_alt: 'Logo',
+      toggle_menu: 'Toggle menu',
+      site_menu: 'Site menu',
+      view_on_polygonscan: 'View on PolygonScan',
+      description: 'Description',
+      contract_info: 'Contract Info',
+      view_3d: 'View 3D Model',
+      show_sample: 'Show Sample NFT',
+      clear: 'Clear',
+      searching: 'Searching...',
+      unregistered_address: 'Unregistered address',
+      send_nft: 'Send NFT',
+      token_id_placeholder: 'Enter a specific Token ID',
+      status_connected: 'Connected',
+      status_loaded: 'Loaded',
+      sending: 'Sending...',
 
       // Transaction
       tx_invalid_address: 'Invalid address',
