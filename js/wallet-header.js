@@ -15,10 +15,27 @@ const WalletHeader = {
           <a v-if="userType === 'admin'" :href="settingLink" class="wh-role wh-role-admin">admin</a>
           <a v-else-if="userType === 'creator'" :href="settingLink" class="wh-role wh-role-creator">creator</a>
           <slot></slot>
+          <button class="wh-disconnect" @click="doDisconnect" :title="t('disconnect')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <!-- プラグ側（右上） -->
+              <line x1="18" y1="3" x2="18" y2="7"/>
+              <line x1="21" y1="3" x2="21" y2="7"/>
+              <rect x="15" y="7" width="9" height="4" rx="1"/>
+              <line x1="19.5" y1="11" x2="19.5" y2="14"/>
+              <!-- コンセント側（左下） -->
+              <rect x="1" y="14" width="10" height="8" rx="2"/>
+              <line x1="4" y1="17" x2="4" y2="19"/>
+              <line x1="8" y1="17" x2="8" y2="19"/>
+              <!-- 切断線 -->
+              <line x1="2" y1="2" x2="15" y2="15" stroke="#ff6b6b" stroke-width="2.5"/>
+            </svg>
+          </button>
         </div>
       </div>
     </div>
   `,
+
+  emits: ['disconnect'],
 
   props: {
     address: { type: String, default: '' },
@@ -41,6 +58,15 @@ const WalletHeader = {
 
   methods: {
     t(key) { return window.i18n ? window.i18n.t(key) : key; },
+    doDisconnect() {
+      if (this.$attrs.onDisconnect) {
+        // 親がハンドル
+        this.$emit('disconnect');
+      } else {
+        // デフォルト: リロード
+        window.location.reload();
+      }
+    },
     copyEoa() {
       if (!this.address) return;
       navigator.clipboard.writeText(this.address).then(() => {
@@ -131,6 +157,25 @@ const WalletHeader = {
 
     .wh-role-creator:hover {
       background: rgba(255,165,0,0.25);
+    }
+
+    .wh-disconnect {
+      background: none;
+      border: 1px solid rgba(255,107,107,0.2);
+      border-radius: 8px;
+      padding: 5px 7px;
+      cursor: pointer;
+      color: rgba(255,255,255,0.4);
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wh-disconnect:hover {
+      background: rgba(255,107,107,0.1);
+      border-color: rgba(255,107,107,0.4);
+      color: #ff6b6b;
     }
 
     .wh-toast {
