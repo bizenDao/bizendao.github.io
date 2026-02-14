@@ -184,35 +184,43 @@ const RPC = {
     return new Web3(this.next());
   },
 
-  // リトライ付きRPCコール（ラウンドロビン + 指数バックオフ）
+  // リトライ付きRPCコール（ラウンドロビン + 指数バックオフ + モニタ）
   // 全RPCを一巡 = 1ラウンド。ラウンドごとにバックオフ増加
+  // opts: { rounds, baseMs, maxMs, label }
   async call(fn, opts) {
     opts = opts || {};
     const urls = CONFIG.chain.rpcs;
-    const rounds = opts.rounds || 3;           // 最大ラウンド数
-    const baseMs = opts.baseMs || 1000;        // 初回バックオフ
-    const maxMs  = opts.maxMs  || 10000;       // バックオフ上限
+    const rounds = opts.rounds || 3;
+    const baseMs = opts.baseMs || 1000;
+    const maxMs  = opts.maxMs  || 10000;
+    const label  = opts.label  || '';
     let lastErr;
 
-    for (let r = 0; r < rounds; r++) {
-      // ラウンド間バックオフ（初回ラウンドはなし）
-      if (r > 0) {
-        const delay = Math.min(baseMs * Math.pow(2, r - 1), maxMs);
-        const jitter = delay * (0.5 + Math.random() * 0.5); // 50-100% jitter
-        console.warn(`RPC backoff: ${Math.round(jitter)}ms before round ${r + 1}`);
-        await new Promise(resolve => setTimeout(resolve, jitter));
-      }
-      // 各RPCを順番に試す
-      for (let i = 0; i < urls.length; i++) {
-        try {
-          const web3 = new Web3(this.next());
-          return await fn(web3);
-        } catch (e) {
-          lastErr = e;
-          console.warn(`RPC failed [round ${r + 1}, endpoint ${i + 1}/${urls.length}]:`, e.message);
+    // RPCモニタ表示
+    if (typeof RPCMonitor !== 'undefined') RPCMonitor.show('RPC', label);
+
+    try {
+      for (let r = 0; r < rounds; r++) {
+        if (r > 0) {
+          const delay = Math.min(baseMs * Math.pow(2, r - 1), maxMs);
+          const jitter = delay * (0.5 + Math.random() * 0.5);
+          console.warn(`RPC backoff: ${Math.round(jitter)}ms before round ${r + 1}`);
+          if (typeof RPCMonitor !== 'undefined') RPCMonitor.show('Retrying...', label);
+          await new Promise(resolve => setTimeout(resolve, jitter));
+        }
+        for (let i = 0; i < urls.length; i++) {
+          try {
+            const web3 = new Web3(this.next());
+            return await fn(web3);
+          } catch (e) {
+            lastErr = e;
+            console.warn(`RPC failed [round ${r + 1}, endpoint ${i + 1}/${urls.length}]:`, e.message);
+          }
         }
       }
+      throw lastErr;
+    } finally {
+      if (typeof RPCMonitor !== 'undefined') RPCMonitor.hide();
     }
-    throw lastErr;
   },
 };
