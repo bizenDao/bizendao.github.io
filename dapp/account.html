@@ -412,13 +412,13 @@
         <div class="nav-overlay" :class="{ 'is-open': menuOpen }" @click="closeMenu"></div>
         <aside class="nav-drawer" :class="{ 'is-open': menuOpen }" aria-label="サイトメニュー">
           <ul class="drawer-nav">
-            <li><a href="../ja/index.html">トップページ</a></li>
-            <li><a href="../ja/artist-list.html">作家紹介</a></li>
-            <li><a href="../ja/index.html#company">会社概要</a></li>
-            <li><a href="../ja/index.html#discord">Discordリンク</a></li>
-            <li><a href="../ja/index.html#meta">作品使用歴作成</a></li>
-            <li><a href="./donation.html">寄付ポイント</a></li>
-            <li><a href="./account.html">マイページ</a></li>
+            <li><a href="#" data-nav="top" data-i18n="nav_top">トップページ</a></li>
+            <li><a href="#" data-nav="artists" data-i18n="nav_artists">作家紹介</a></li>
+            <li><a href="#" data-nav="company" data-i18n="nav_company">会社概要</a></li>
+            <li><a href="#" data-nav="discord" data-i18n="nav_discord">Discordリンク</a></li>
+            <li><a href="#" data-nav="meta" data-i18n="nav_meta">作品使用歴作成</a></li>
+            <li><a href="#" data-dapp="./donation.html" data-i18n="nav_donate">寄付ポイント</a></li>
+            <li><a href="#" data-dapp="./account.html" data-i18n="nav_mypage">マイページ</a></li>
           </ul>
         </aside>
       </header>
@@ -429,11 +429,11 @@
           <!-- ===== 未接続状態 ===== -->
           <div v-if="!connected" class="connect-area">
             <h2>Account</h2>
-            <p>ウォレットを接続して、備前焼NFTコレクションを確認しましょう。</p>
+            <p data-i18n="wallet_prompt">ウォレットを接続して、備前焼NFTコレクションを確認しましょう。</p>
 
             <button v-if="metamaskAvailable" class="btn btn-connect" @click="connectWallet" :disabled="connecting">
-              <span v-if="connecting">接続中...</span>
-              <span v-else>🦊 ウォレットを接続</span>
+              <span v-if="connecting" data-i18n="connecting">接続中...</span>
+              <span v-else data-i18n="connect_wallet">🦊 ウォレットを接続</span>
             </button>
 
             <div v-else class="no-metamask">
@@ -463,8 +463,8 @@
                   <span class="network-dot"></span>
                   <span>Polygon</span>
                 </div>
-                <button v-if="!isViewMode" class="btn btn-disconnect" @click="disconnectWallet">切断</button>
-                <a v-else class="btn btn-disconnect" href="account.html">自分のウォレットで接続</a>
+                <button v-if="!isViewMode" class="btn btn-disconnect" @click="disconnectWallet" data-i18n="disconnect">切断</button>
+                <a v-else class="btn btn-disconnect" href="account.html" data-i18n="connect_own">自分のウォレットで接続</a>
               </div>
             </div>
 
@@ -487,11 +487,11 @@
               <div class="summary">
                 <div class="summary-card">
                   <div class="summary-number">{{ totalNfts }}</div>
-                  <div class="summary-label">所有NFT</div>
+                  <div class="summary-label" data-i18n="owned_nft">所有NFT</div>
                 </div>
                 <div class="summary-card">
                   <div class="summary-number">{{ artistsWithNfts }}</div>
-                  <div class="summary-label">作家</div>
+                  <div class="summary-label" data-i18n="artists">作家</div>
                 </div>
                 <div class="summary-card">
                   <div class="summary-number">{{ totalTbas }}</div>
@@ -530,8 +530,8 @@
 
               <!-- 全くNFTがない場合 -->
               <div v-if="totalNfts === 0 && !loading" class="connect-area" style="padding: 40px 20px;">
-                <p>まだ備前焼NFTを所有していません。</p>
-                <a href="../ja/artist-list.html" class="btn">作家紹介を見る</a>
+                <p data-i18n="no_nft">まだ備前焼NFTを所有していません。</p>
+                <a href="../ja/artist-list.html" class="btn" data-i18n="view_artists">作家紹介を見る</a>
               </div>
 
             </template>
@@ -764,6 +764,7 @@
         },
       }).mount('#app');
     </script>
+  <script src="../js/i18n.js"></script>
   <script src="../js/lang-toggle.js"></script>
 </body>
 </html>

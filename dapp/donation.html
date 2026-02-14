@@ -458,20 +458,20 @@
         <div class="nav-overlay" :class="{ 'is-open': menuOpen }" @click="closeMenu"></div>
         <aside class="nav-drawer" :class="{ 'is-open': menuOpen }" aria-label="サイトメニュー">
           <ul class="drawer-nav">
-            <li><a href="../ja/index.html">トップページ</a></li>
-            <li><a href="../ja/artist-list.html">作家紹介</a></li>
-            <li><a href="../ja/index.html#company">会社概要</a></li>
-            <li><a href="../ja/index.html#discord">Discordリンク</a></li>
-            <li><a href="../ja/index.html#meta">作品使用歴作成</a></li>
-            <li><a href="./donation.html">寄付</a></li>
-            <li><a href="./account.html">マイページ</a></li>
+            <li><a href="#" data-nav="top" data-i18n="nav_top">トップページ</a></li>
+            <li><a href="#" data-nav="artists" data-i18n="nav_artists">作家紹介</a></li>
+            <li><a href="#" data-nav="company" data-i18n="nav_company">会社概要</a></li>
+            <li><a href="#" data-nav="discord" data-i18n="nav_discord">Discordリンク</a></li>
+            <li><a href="#" data-nav="meta" data-i18n="nav_meta">作品使用歴作成</a></li>
+            <li><a href="#" data-dapp="./donation.html" data-i18n="nav_donate">寄付</a></li>
+            <li><a href="#" data-dapp="./account.html" data-i18n="nav_mypage">マイページ</a></li>
           </ul>
         </aside>
       </header>
 
       <main>
         <div class="donation-page">
-          <h1 class="page-title">BizenDAOを応援する</h1>
+          <h1 class="page-title" data-i18n="donate_support">BizenDAOを応援する</h1>
           <p class="page-subtitle">
             備前焼の文化を守り、デジタル技術で世界に届ける。<br>
             あなたの寄付がDAOの活動を支えます。
@@ -479,7 +479,7 @@
 
           <!-- 活動紹介 -->
           <div class="mission-card">
-            <h3>BizenDAOの活動</h3>
+            <h3 data-i18n="donate_desc">BizenDAOの活動</h3>
             BizenDAOは、備前焼の伝統文化をブロックチェーン技術で保存・発信するコミュニティです。
             作家のNFT作品の発行支援、箱書き（SBT）による来歴証明、
             そしてメタデータの永続化（Arweave）を通じて、
@@ -491,7 +491,7 @@
           <div class="stats-row">
             <div class="stat-card">
               <div class="stat-number">{{ totalDonations }} <small style="font-size:12px">POL</small></div>
-              <div class="stat-label">累計寄付額</div>
+              <div class="stat-label" data-i18n="total_donated">累計寄付額</div>
             </div>
             <div class="stat-card">
               <div class="stat-number">{{ totalUsed }} <small style="font-size:12px">POL</small></div>
@@ -536,7 +536,7 @@
 
             <!-- 金額プリセット -->
             <div class="form-section">
-              <label class="form-label">寄付金額</label>
+              <label class="form-label" data-i18n="donate_amount">寄付金額</label>
               <div class="preset-row">
                 <button v-for="p in presets" :key="p"
                   class="preset-btn" :class="{ selected: amount === p }"
@@ -570,7 +570,7 @@
 
           <!-- 自分の寄付履歴 -->
           <div v-if="connected && history.length > 0" class="history-section">
-            <h3 class="history-title">あなたの寄付履歴</h3>
+            <h3 class="history-title" data-i18n="donate_history">あなたの寄付履歴</h3>
             <div v-for="(h, i) in history" :key="i" class="history-item">
               <span class="history-amount">{{ weiToEth(h.amount) }} POL</span>
               <span class="history-detail">{{ h.detail || '' }}</span>
@@ -578,7 +578,7 @@
             </div>
           </div>
           <div v-else-if="connected && !historyLoading" class="history-section">
-            <h3 class="history-title">あなたの寄付履歴</h3>
+            <h3 class="history-title" data-i18n="donate_history">あなたの寄付履歴</h3>
             <div class="history-empty">まだ寄付履歴がありません</div>
           </div>
 
@@ -817,6 +817,7 @@
         },
       }).mount('#app');
     </script>
+  <script src="../js/i18n.js"></script>
   <script src="../js/lang-toggle.js"></script>
 </body>
 </html>

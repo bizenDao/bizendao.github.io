@@ -86,6 +86,35 @@
       visibility: '表示/非表示',
       admin_only: '管理者のみアクセス可能です。',
 
+      // Token page
+      token_contract_addr: 'NFTコントラクトアドレス',
+      token_id_optional: 'トークンID（オプション）',
+      token_fetch: 'NFT情報を取得',
+
+      // Donation page
+      donate_support: 'BizenDAOを応援する',
+      donate_desc: 'BizenDAOの活動',
+
+      // Disconnect page
+      connect_wallet_please: 'ウォレットを接続してください',
+      no_metamask: 'MetaMaskがインストールされていません',
+      discord_disconnected: 'Discord連携が解除されました。',
+
+      // Register page
+      register_linked: 'ウォレットとDiscordが紐付けられました。',
+      back_to_top: 'トップへ戻る',
+      registering: '登録中...',
+      regist_discord_id: 'Discordの /regist コマンドで表示されたID',
+      regist_secret: 'Discordの /regist コマンドで表示されたSECRETコード',
+
+      // Settings
+      no_admins: '管理者が登録されていません',
+      no_creators: '作家が登録されていません',
+      no_contracts: 'コントラクトが登録されていません',
+      visible: '公開',
+      hidden: '非公開',
+      edit: '編集',
+
       // Common
       loading: '読み込み中...',
       error: 'エラーが発生しました。',
@@ -160,6 +189,35 @@
       save: 'Save',
       visibility: 'Show/Hide',
       admin_only: 'Admin access only.',
+
+      // Token page
+      token_contract_addr: 'NFT Contract Address',
+      token_id_optional: 'Token ID (optional)',
+      token_fetch: 'Fetch NFT Info',
+
+      // Donation page
+      donate_support: 'Support BizenDAO',
+      donate_desc: 'BizenDAO Activities',
+
+      // Disconnect page
+      connect_wallet_please: 'Please connect your wallet',
+      no_metamask: 'MetaMask is not installed',
+      discord_disconnected: 'Discord account has been disconnected.',
+
+      // Register page
+      register_linked: 'Your wallet and Discord have been linked.',
+      back_to_top: 'Back to Home',
+      registering: 'Registering...',
+      regist_discord_id: 'ID shown by Discord /regist command',
+      regist_secret: 'SECRET code shown by Discord /regist command',
+
+      // Settings
+      no_admins: 'No admins registered',
+      no_creators: 'No artists registered',
+      no_contracts: 'No contracts registered',
+      visible: 'Visible',
+      hidden: 'Hidden',
+      edit: 'Edit',
 
       // Common
       loading: 'Loading...',

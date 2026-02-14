@@ -618,13 +618,13 @@
           aria-label="サイトメニュー"
         >
           <ul class="drawer-nav">
-            <li><a href="../ja/index.html">トップページ</a></li>
-            <li><a href="../ja/artist-list.html">作家紹介</a></li>
-            <li><a href="../ja/index.html#company">会社概要</a></li>
-            <li><a href="../ja/index.html#discord">Discordリンク</a></li>
-            <li><a href="../ja/index.html#meta">作品使用歴作成</a></li>
-            <li><a href="../ja/index.html#donate">寄付ポイント</a></li>
-            <li><a href="./account.html">マイページ</a></li>
+            <li><a href="#" data-nav="top" data-i18n="nav_top">トップページ</a></li>
+            <li><a href="#" data-nav="artists" data-i18n="nav_artists">作家紹介</a></li>
+            <li><a href="#" data-nav="company" data-i18n="nav_company">会社概要</a></li>
+            <li><a href="#" data-nav="discord" data-i18n="nav_discord">Discordリンク</a></li>
+            <li><a href="#" data-nav="meta" data-i18n="nav_meta">作品使用歴作成</a></li>
+            <li><a href="#" data-dapp="./donation.html" data-i18n="nav_donate">寄付ポイント</a></li>
+            <li><a href="#" data-dapp="./account.html" data-i18n="nav_mypage">マイページ</a></li>
           </ul>
         </aside>
       </header>
@@ -635,7 +635,7 @@
           <div v-if="showControlPanel" class="control-panel">
             <div class="input-group">
               <div class="input-field">
-                <label>NFTコントラクトアドレス</label>
+                <label data-i18n="token_contract_addr">NFTコントラクトアドレス</label>
                 <input
                   type="text"
                   v-model="contractAddress"
@@ -644,7 +644,7 @@
                 />
               </div>
               <div class="input-field">
-                <label>トークンID（オプション）</label>
+                <label data-i18n="token_id_optional">トークンID（オプション）</label>
                 <input
                   type="text"
                   v-model="tokenId"
@@ -661,7 +661,7 @@
                 :disabled="loading || !contractAddress"
               >
                 <span v-if="loading" class="loading-spinner"></span>
-                <span v-else>NFT情報を取得</span>
+                <span v-else data-i18n="token_fetch">NFT情報を取得</span>
               </button>
               <button class="btn" @click="loadSampleContract">
                 サンプルNFTを表示
@@ -688,8 +688,8 @@
 
                 <!-- オーナー操作ボタン -->
                 <div v-if="isOwner" class="owner-actions">
-                  <button class="btn btn-send" @click="showSendModal = true" :disabled="sendingTx">📤 Send</button>
-                  <button class="btn btn-burn" @click="confirmBurn" :disabled="sendingTx">🔥 Burn</button>
+                  <button class="btn btn-send" @click="showSendModal = true" :disabled="sendingTx" data-i18n="send">📤 Send</button>
+                  <button class="btn btn-burn" @click="confirmBurn" :disabled="sendingTx" data-i18n="burn">🔥 Burn</button>
                 </div>
                 <div v-if="txMessage" :class="['tx-message', txClass]">{{ txMessage }}</div>
 
@@ -698,16 +698,16 @@
                   <div class="send-modal">
                     <h3>NFTを送信</h3>
                     <p class="send-token-info">{{ nft.name }} #{{ nft.tokenId }}</p>
-                    <input v-model="sendTo" class="send-input" placeholder="送信先アドレス (0x...)" @input="lookupSendToNickname" />
+                    <input v-model="sendTo" class="send-input" placeholder="送信先アドレス (0x...)" @input="lookupSendToNickname" data-i18n="send_to" data-i18n-attr="placeholder" />
                     <p v-if="sendToNicknameLoading" class="send-to-nick"><span class="nickname-spinner"></span> 検索中...</p>
                     <p v-else-if="sendToNickname" class="send-to-nick">👤 {{ sendToNickname }}</p>
                     <p v-else-if="sendTo && sendToLookedUp" class="send-to-nick unknown">未登録のアドレスです</p>
                     <div class="send-modal-actions">
                       <button class="btn btn-send" @click="sendNft" :disabled="sendingTx || !sendTo">
                         <span v-if="sendingTx">送信中...</span>
-                        <span v-else>送信</span>
+                        <span v-else data-i18n="send">送信</span>
                       </button>
-                      <button class="btn" @click="showSendModal = false" :disabled="sendingTx">キャンセル</button>
+                      <button class="btn" @click="showSendModal = false" :disabled="sendingTx" data-i18n="cancel">キャンセル</button>
                     </div>
                   </div>
                 </div>
@@ -774,7 +774,7 @@
                     v-if="nft.attributes && nft.attributes.length > 0"
                     class="metadata-section"
                   >
-                    <h3 class="metadata-title">属性</h3>
+                    <h3 class="metadata-title" data-i18n="attributes">属性</h3>
                     <div class="metadata-grid">
                       <div
                         v-for="(attr, index) in nft.attributes"
@@ -806,7 +806,7 @@
           <!-- TBA (Token Bound Account) セクション — アセットがある時のみ表示 -->
           <div v-if="nfts.length > 0 && !tbaLoading && tbaAssets.length > 0" class="tba-section">
             <div class="tba-header">
-              <h3>📦 Token Bound Account</h3>
+              <h3 data-i18n="tba_title">📦 Token Bound Account</h3>
               <div v-if="tbaAddress" class="tba-address">
                 <a :href="polygonscanAddress(tbaAddress)" target="_blank">{{ shortAddr(tbaAddress) }}</a>
               </div>
@@ -862,7 +862,7 @@
             <div v-if="loading" class="loading-overlay">
               <div class="loading-content">
                 <div class="loading-spinner"></div>
-                <p>NFT情報を読み込み中...</p>
+                <p data-i18n="loading">NFT情報を読み込み中...</p>
               </div>
             </div>
           </transition>
@@ -1308,6 +1308,7 @@
         },
       }).mount("#app");
     </script>
+  <script src="../js/i18n.js"></script>
   <script src="../js/lang-toggle.js"></script>
 </body>
 </html>

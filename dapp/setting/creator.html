@@ -36,7 +36,7 @@
             <button v-if="metamaskAvailable" class="btn btn-connect" @click="connectWallet" :disabled="connecting">
               {{ connecting ? '接続中...' : '🦊 ウォレットを接続' }}
             </button>
-            <p v-else>MetaMaskがインストールされていません</p>
+            <p v-else data-i18n="no_metamask">MetaMaskがインストールされていません</p>
           </div>
 
           <div v-else-if="userType !== 'admin'" class="access-denied">
@@ -67,16 +67,16 @@
                     <td>{{ c.name }}</td>
                     <td>{{ c.type }}</td>
                     <td>
-                      <span v-if="c.visible" class="badge-visible">公開</span>
-                      <span v-else class="badge-hidden">非公開</span>
+                      <span v-if="c.visible" class="badge-visible" data-i18n="visible">公開</span>
+                      <span v-else class="badge-hidden" data-i18n="hidden">非公開</span>
                     </td>
                     <td class="actions">
-                      <button v-if="c.visible" class="btn btn-sm" @click="toggleCreator(c, false)" :disabled="sending">非公開</button>
-                      <button v-else class="btn btn-sm" @click="toggleCreator(c, true)" :disabled="sending">公開</button>
-                      <button class="btn btn-sm btn-danger" @click="removeCreator(c)" :disabled="sending">削除</button>
+                      <button v-if="c.visible" class="btn btn-sm" @click="toggleCreator(c, false)" :disabled="sending" data-i18n="hidden">非公開</button>
+                      <button v-else class="btn btn-sm" @click="toggleCreator(c, true)" :disabled="sending" data-i18n="visible">公開</button>
+                      <button class="btn btn-sm btn-danger" @click="removeCreator(c)" :disabled="sending" data-i18n="remove">削除</button>
                     </td>
                   </tr>
-                  <tr v-if="creators.length === 0"><td colspan="5" class="empty">作家が登録されていません</td></tr>
+                  <tr v-if="creators.length === 0"><td colspan="5" class="empty" data-i18n="no_creators">作家が登録されていません</td></tr>
                 </tbody>
               </table>
             </div>
@@ -102,7 +102,7 @@
                 <button class="btn btn-primary" @click="submitCreator" :disabled="!form.address || !form.name || sending">
                   {{ editMode ? '更新' : '追加' }}
                 </button>
-                <button v-if="editMode" class="btn" @click="cancelEdit">キャンセル</button>
+                <button v-if="editMode" class="btn" @click="cancelEdit" data-i18n="cancel">キャンセル</button>
               </div>
             </div>
 
@@ -202,6 +202,7 @@
         },
       }).mount('#app');
     </script>
+  <script src="../../js/i18n.js"></script>
   <script src="../../js/lang-toggle.js"></script>
 </body>
 </html>

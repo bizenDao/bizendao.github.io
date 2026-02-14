@@ -193,25 +193,25 @@
         <div class="nav-overlay" :class="{ 'is-open': menuOpen }" @click="closeMenu"></div>
         <aside class="nav-drawer" :class="{ 'is-open': menuOpen }" aria-label="サイトメニュー">
           <ul class="drawer-nav">
-            <li><a href="../../ja/index.html">トップページ</a></li>
-            <li><a href="../../ja/artist-list.html">作家紹介</a></li>
-            <li><a href="../donation.html">寄付</a></li>
-            <li><a href="../account.html">マイページ</a></li>
+            <li><a href="#" data-nav="top" data-i18n="nav_top">トップページ</a></li>
+            <li><a href="#" data-nav="artists" data-i18n="nav_artists">作家紹介</a></li>
+            <li><a href="#" data-dapp="../donation.html" data-i18n="nav_donate">寄付</a></li>
+            <li><a href="#" data-dapp="../account.html" data-i18n="nav_mypage">マイページ</a></li>
           </ul>
         </aside>
       </header>
 
       <main>
         <div class="disconnect-page">
-          <h1 class="page-title">ウォレット接続解除</h1>
+          <h1 class="page-title" data-i18n="disconnect_title">ウォレット接続解除</h1>
 
           <!-- 未接続 -->
           <div v-if="!connected" class="connect-prompt">
-            <p style="margin-bottom: 24px; opacity: 0.7;">ウォレットを接続してください</p>
+            <p style="margin-bottom: 24px; opacity: 0.7;" data-i18n="connect_wallet_please">ウォレットを接続してください</p>
             <button v-if="metamaskAvailable" class="btn btn-connect" @click="connectWallet" :disabled="connecting">
               {{ connecting ? '接続中...' : '🦊 ウォレットを接続' }}
             </button>
-            <p v-else style="opacity:0.5;">MetaMaskがインストールされていません</p>
+            <p v-else style="opacity:0.5;" data-i18n="no_metamask">MetaMaskがインストールされていません</p>
           </div>
 
           <!-- 接続済み -->
@@ -223,8 +223,8 @@
 
               <!-- 解除完了 -->
               <div v-if="disconnected" class="success-card">
-                <h3>✅ 接続解除が完了しました</h3>
-                <p style="opacity:0.7;">Discord連携が解除されました。</p>
+                <h3 data-i18n="disconnect_done">✅ 接続解除が完了しました</h3>
+                <p style="opacity:0.7;" data-i18n="discord_disconnected">Discord連携が解除されました。</p>
                 <a href="index.html" class="btn" style="margin-top:12px;">トップへ戻る</a>
               </div>
 
@@ -388,6 +388,7 @@
         },
       }).mount('#app');
     </script>
+  <script src="../../js/i18n.js"></script>
   <script src="../../js/lang-toggle.js"></script>
 </body>
 </html>
