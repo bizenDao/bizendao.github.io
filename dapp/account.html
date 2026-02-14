@@ -166,22 +166,36 @@
         100% { opacity: 0; }
       }
 
-      .admin-badge {
+      .role-badge {
         display: inline-flex;
         align-items: center;
         padding: 4px 12px;
-        background: rgba(138, 43, 226, 0.12);
-        border: 1px solid rgba(138, 43, 226, 0.3);
         border-radius: 20px;
         font-size: 13px;
-        color: #b388ff;
         text-decoration: none;
         transition: all 0.3s ease;
       }
 
-      .admin-badge:hover {
-        background: rgba(138, 43, 226, 0.25);
-        border-color: rgba(138, 43, 226, 0.5);
+      .role-admin {
+        background: rgba(220, 50, 50, 0.12);
+        border: 1px solid rgba(220, 50, 50, 0.3);
+        color: #ff6b6b;
+      }
+
+      .role-admin:hover {
+        background: rgba(220, 50, 50, 0.25);
+        border-color: rgba(220, 50, 50, 0.5);
+      }
+
+      .role-creator {
+        background: rgba(255, 165, 0, 0.12);
+        border: 1px solid rgba(255, 165, 0, 0.3);
+        color: #ffaa33;
+      }
+
+      .role-creator:hover {
+        background: rgba(255, 165, 0, 0.25);
+        border-color: rgba(255, 165, 0, 0.5);
       }
 
       .sbt-badge {
@@ -505,8 +519,8 @@
                   {{ nickname || shortAddress }} <span v-if="nicknameLoading" class="nickname-spinner"></span>
                 </span>
                 <span v-if="isViewMode" class="view-badge">{{ t('view_mode') }}</span>
-                <a v-if="userType === 'admin'" href="setting/index.html" class="admin-badge">(admin)</a>
-                <a v-else-if="userType === 'creator'" href="setting/index.html" class="admin-badge">(creator)</a>
+                <a v-if="userType === 'admin'" href="setting/index.html" class="role-badge role-admin">admin</a>
+                <a v-else-if="userType === 'creator'" href="setting/index.html" class="role-badge role-creator">creator</a>
                 <span v-if="hasSbt" class="sbt-badge">✓ BizenDAO Member</span>
               </div>
               <div class="wallet-actions">
