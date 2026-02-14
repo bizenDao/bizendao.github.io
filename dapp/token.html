@@ -685,7 +685,7 @@
                 <a :href="'contract.html?ca=' + contractAddress" class="contract-link">Contract Token List</a>
                 <p class="nft-token-id">Token ID: #{{ nft.tokenId }}</p>
                 <p v-if="ownerAddress" class="nft-owner">
-                  Owner: <a :href="'account.html?address=' + ownerAddress" class="contract-link">{{ ownerDisplayName || shortAddr(ownerAddress) }}</a> <span v-if="ownerNicknameLoading" class="nickname-spinner"></span>
+                  Owner: <a :href="'account.html?address=' + ownerAddress + '&lang=' + lang" class="contract-link">{{ ownerDisplayName || shortAddr(ownerAddress) }}</a> <span v-if="ownerNicknameLoading" class="nickname-spinner"></span>
                 </p>
 
                 <!-- オーナー操作ボタン -->
@@ -820,7 +820,7 @@
                 <h4>📜 箱書き（SBT）</h4>
                 <div class="tba-grid">
                   <a v-for="asset in tbaSbtAssets" :key="asset.contractAddress + '-' + asset.tokenId"
-                     :href="'token.html?ca=' + asset.contractAddress + '&id=' + asset.tokenId"
+                     :href="'token.html?ca=' + asset.contractAddress + '&id=' + asset.tokenId + '&lang=' + lang"
                      class="tba-card">
                     <img v-if="asset.metadata.image" :src="asset.metadata.image" :alt="asset.metadata.name"
                          class="tba-card-image" @error="handleImageError" />
@@ -838,7 +838,7 @@
                 <h4>🏺 所有NFT</h4>
                 <div class="tba-grid">
                   <a v-for="asset in tbaNftAssets" :key="asset.contractAddress + '-' + asset.tokenId"
-                     :href="'token.html?ca=' + asset.contractAddress + '&id=' + asset.tokenId"
+                     :href="'token.html?ca=' + asset.contractAddress + '&id=' + asset.tokenId + '&lang=' + lang"
                      class="tba-card">
                     <img v-if="asset.metadata.image" :src="asset.metadata.image" :alt="asset.metadata.name"
                          class="tba-card-image" @error="handleImageError" />

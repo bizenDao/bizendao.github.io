@@ -466,7 +466,7 @@
                   <span>Polygon</span>
                 </div>
                 <button v-if="!isViewMode" class="btn btn-disconnect" @click="disconnectWallet">{{ t('disconnect') }}</button>
-                <a v-else class="btn btn-disconnect" href="account.html">{{ t('connect_own') }}</a>
+                <a v-else class="btn btn-disconnect" :href="'account.html?lang=' + lang">{{ t('connect_own') }}</a>
               </div>
             </div>
 
@@ -510,7 +510,7 @@
 
                 <div class="nft-grid">
                   <a v-for="token in artist.tokens" :key="token.tokenId"
-                     :href="'token.html?ca=' + artist.address + '&id=' + token.tokenId"
+                     :href="'token.html?ca=' + artist.address + '&id=' + token.tokenId + '&lang=' + lang"
                      class="nft-card">
                     <img
                       :src="token.image || 'https://via.placeholder.com/300x300?text=Loading...'"
