@@ -108,3 +108,4 @@ vendor/bundle
 /temp/
 /tmp/
 /backup/
+.playwright-cli/

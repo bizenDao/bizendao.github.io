@@ -577,7 +577,7 @@
             </div>
 
           <!-- 自分の寄付履歴 -->
-          <div v-if="connected && history.length > 0" class="history-section">
+          <div v-if="history.length > 0" class="history-section">
             <h3 class="history-title">{{ t('donate_history') }}</h3>
             <div v-for="(h, i) in history" :key="i" class="history-item">
               <span class="history-amount">{{ weiToEth(h.amount) }} POL</span>
@@ -585,7 +585,7 @@
               <span class="history-date">{{ formatDate(h.date) }}</span>
             </div>
           </div>
-          <div v-else-if="connected && !historyLoading" class="history-section">
+          <div v-else-if="!historyLoading" class="history-section">
             <h3 class="history-title">{{ t('donate_history') }}</h3>
             <div class="history-empty">{{ t('no_history') }}</div>
           </div>
