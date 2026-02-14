@@ -23,7 +23,7 @@ const CONFIG = {
   botApi: 'https://bizendaobot-production.up.railway.app/',
 
   // ── GAS (メンバーニックネーム検索) ──
-  gasApi: 'https://script.google.com/macros/s/AKfycbyTs_nmQbvKdwz2qtWdxbhXZ06pWHBctC4dzeHvS5jR7ms8BKCnB_mE92_E1tz-QV7u/exec',
+  gasApi: 'https://script.google.com/macros/s/AKfycbzoKALSum7-NJAPmVNDa3kXN-jMCpnPb0iErr5hEaHeR13I3lngVApX7AIkvvF0ywna/exec',
 
   // ── コントラクト ──
   contracts: {

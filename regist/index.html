@@ -191,7 +191,7 @@
           <!-- 未接続 -->
           <div v-if="!connected" class="connect-prompt">
             <button v-if="metamaskAvailable" class="btn btn-connect" @click="connectWallet" :disabled="connecting">
-              {{ connecting ? t('connecting') : '🦊 ' + t('connect_wallet') }}
+              {{ connecting ? t('connecting') : '' + t('connect_wallet') }}
             </button>
             <p v-else style="opacity:0.5;">{{ t('no_metamask') }}</p>
           </div>
@@ -202,7 +202,7 @@
 
             <!-- 登録完了 -->
             <div v-if="registered" class="success-card">
-              <h3>✅ {{ t('register_done') }}</h3>
+              <h3>{{ t('register_done') }}</h3>
               <p style="opacity:0.7;">{{ t('register_linked') }}</p>
               <a :href="contentBase + '/index.html'" class="btn" style="margin-top:12px;">{{ t('back_to_top') }}</a>
             </div>
@@ -211,7 +211,7 @@
             <div v-else class="section-card">
               <h2>{{ t('register_title') }}</h2>
 
-              <div class="wallet-display">🦊 {{ address }}</div>
+              <div class="wallet-display">{{ address }}</div>
 
               <div class="form-field">
                 <label>Discord ID</label>

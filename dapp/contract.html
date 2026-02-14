@@ -412,7 +412,7 @@
                        class="token-card">
                         <img v-if="card.image" :src="card.image" :alt="card.name"
                              class="token-card-image" @error="handleImageError($event)" />
-                        <div v-else class="token-card-placeholder">🏺</div>
+                        <div v-else class="token-card-placeholder"></div>
                         <div class="token-card-info">
                             <div class="token-card-name">{{ card.name || 'Loading...' }}</div>
                             <div class="token-card-id">#{{ card.tokenId }}</div>
@@ -560,7 +560,7 @@
                     // Show placeholder instead
                     const placeholder = document.createElement('div');
                     placeholder.className = 'token-card-placeholder';
-                    placeholder.textContent = '🏺';
+                    placeholder.textContent = '';
                     event.target.parentNode.insertBefore(placeholder, event.target);
                 },
 

@@ -503,7 +503,7 @@
 
           <!-- 送金完了 -->
           <div v-if="txHash" class="result-card result-success">
-            <h3>✅ {{ t('donate_thanks') }}</h3>
+            <h3>{{ t('donate_thanks') }}</h3>
             <div class="result-tx">tx: {{ txHash }}</div>
             <a :href="CONFIG.chain.explorer + '/tx/' + txHash" target="_blank" class="result-link">
               {{ t('view_on_polygonscan') }} ↗
@@ -514,7 +514,7 @@
           <div v-if="!connected">
             <button v-if="metamaskAvailable" class="btn btn-connect" @click="connectWallet" :disabled="connecting">
               <span v-if="connecting">{{ t('connecting') }}</span>
-              <span v-else>🦊 {{ t('connect_to_donate') }}</span>
+              <span v-else>{{ t('connect_to_donate') }}</span>
             </button>
             <div v-else class="no-metamask">
               {{ t('no_metamask') }}
@@ -525,7 +525,7 @@
           <!-- 寄付フォーム -->
           <div v-else class="donate-form">
             <div class="wallet-row">
-              <span class="wallet-address">🦊 {{ nickname || shortAddress }} <span v-if="nicknameLoading" class="nickname-spinner"></span></span>
+              <span class="wallet-address">{{ nickname || shortAddress }} <span v-if="nicknameLoading" class="nickname-spinner"></span></span>
               <span class="wallet-balance">{{ balance }} POL</span>
             </div>
 
@@ -559,7 +559,7 @@
             <button class="btn btn-donate" @click="executeDonate"
                     :disabled="!amount || amount <= 0 || sending || amount > parseFloat(balance)">
               <span v-if="sending"><span class="loading-spinner"></span> {{ t('tx_sending') }}</span>
-              <span v-else>💎 {{ t('donate_button').replace('{amount}', amount || 0) }}</span>
+              <span v-else>{{ t('donate_button').replace('{amount}', amount || 0) }}</span>
             </button>
           </div>
 

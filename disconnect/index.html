@@ -211,7 +211,7 @@
           <div v-if="!connected" class="connect-prompt">
             <p style="margin-bottom: 24px; opacity: 0.7;">{{ t('connect_wallet_please') }}</p>
             <button v-if="metamaskAvailable" class="btn btn-connect" @click="connectWallet" :disabled="connecting">
-              {{ connecting ? t('connecting') : '🦊 ' + t('connect_wallet') }}
+              {{ connecting ? t('connecting') : '' + t('connect_wallet') }}
             </button>
             <p v-else style="opacity:0.5;">{{ t('no_metamask') }}</p>
           </div>
@@ -225,7 +225,7 @@
 
               <!-- 解除完了 -->
               <div v-if="disconnected" class="success-card">
-                <h3>✅ {{ t('disconnect_done') }}</h3>
+                <h3>{{ t('disconnect_done') }}</h3>
                 <p style="opacity:0.7;">{{ t('discord_disconnected') }}</p>
                 <a href="index.html" class="btn" style="margin-top:12px;">{{ t('back_to_top') }}</a>
               </div>
@@ -256,7 +256,7 @@
 
                 <!-- SBTがある場合：BURNが先 -->
                 <div v-if="hasSbt" class="section-card">
-                  <h2>📜 {{ t('dc_burn_title') }}</h2>
+                  <h2>{{ t('dc_burn_title') }}</h2>
                   <p>{{ t('dc_burn_desc') }}</p>
                   <p>
                     <a :href="'account.html?address=' + address + '&lang=' + lang" class="link">

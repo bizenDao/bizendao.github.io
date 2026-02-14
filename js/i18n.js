@@ -28,7 +28,7 @@
       nav_mypage: 'マイページ',
 
       // Wallet
-      connect_wallet: '🦊 ウォレットを接続',
+      connect_wallet: 'ウォレットを接続',
       connecting: '接続中...',
       disconnect: '切断',
       connect_own: '自分のウォレットで接続',
@@ -56,7 +56,7 @@
       owner: '所有者',
       send_to: '送り先アドレス',
       send_confirm: '{dest} に送信しますか？',
-      burn_confirm: 'このNFTを燃焼（削除）しますか？この操作は取り消せません。',
+      burn_confirm: 'このNFTをBurn（焼却）します。この操作は取り消すことができません。本当によろしいですか？',
 
       // Donation
       donate: '寄付する',
@@ -203,7 +203,7 @@
       nav_mypage: 'My Page',
 
       // Wallet
-      connect_wallet: '🦊 Connect Wallet',
+      connect_wallet: 'Connect Wallet',
       connecting: 'Connecting...',
       disconnect: 'Disconnect',
       connect_own: 'Connect with your wallet',
@@ -231,7 +231,7 @@
       owner: 'Owner',
       send_to: 'Recipient Address',
       send_confirm: 'Send to {dest}?',
-      burn_confirm: 'Burn (destroy) this NFT? This action cannot be undone.',
+      burn_confirm: 'This will permanently burn (destroy) this NFT. This action CANNOT be undone. Are you absolutely sure?',
 
       // Donation
       donate: 'Donate',

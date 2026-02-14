@@ -510,11 +510,35 @@
         opacity: 0;
       }
       /* Owner actions */
-      .owner-actions { margin-top: 12px; display: flex; gap: 10px; }
-      .btn-send { background: #4a7c59; color: #fff; }
-      .btn-send:hover { background: #3d6b4a; }
-      .btn-burn { background: #c0392b; color: #fff; }
-      .btn-burn:hover { background: #a93226; }
+      .owner-actions {
+        margin-top: 16px;
+        display: flex;
+        gap: 12px;
+      }
+      .btn-send {
+        background: rgba(74, 124, 89, 0.15);
+        color: #6fcf8a;
+        border: 1px solid rgba(74, 124, 89, 0.4);
+        backdrop-filter: blur(4px);
+        transition: all 0.3s ease;
+      }
+      .btn-send:hover {
+        background: rgba(74, 124, 89, 0.3);
+        border-color: rgba(111, 207, 138, 0.6);
+        box-shadow: 0 0 12px rgba(74, 124, 89, 0.2);
+      }
+      .btn-burn {
+        background: rgba(192, 57, 43, 0.12);
+        color: #e74c3c;
+        border: 1px solid rgba(192, 57, 43, 0.3);
+        backdrop-filter: blur(4px);
+        transition: all 0.3s ease;
+      }
+      .btn-burn:hover {
+        background: rgba(192, 57, 43, 0.25);
+        border-color: rgba(231, 76, 60, 0.5);
+        box-shadow: 0 0 12px rgba(192, 57, 43, 0.2);
+      }
       .tx-message { margin-top: 8px; padding: 8px 12px; border-radius: 6px; font-size: 0.9em; }
       .tx-pending { background: #fef5e7; color: #8B5A2B; }
       .tx-success { background: #eafaf1; color: #27ae60; }
@@ -572,7 +596,7 @@
         transition: transform 0.2s ease;
       }
       .toggle-arrow.open { transform: rotate(90deg); }
-      .contract-info-section { margin-top: 16px; align-self: stretch; }
+      .contract-info-section { margin-top: 16px; margin-bottom: 0 !important; align-self: stretch; }
       .contract-info-body { margin-top: 12px; }
 
       .nickname-spinner {
@@ -698,11 +722,11 @@
                 <!-- Send モーダル -->
                 <div v-if="showSendModal" class="send-modal-overlay" @click.self="showSendModal = false">
                   <div class="send-modal">
-                    <h3>{{ t('send_nft') }}</h3>
+                    <h3>{{ sendModalTitle }}</h3>
                     <p class="send-token-info">{{ nft.name }} #{{ nft.tokenId }}</p>
                     <input v-model="sendTo" class="send-input" :placeholder="t('send_to')" @input="lookupSendToNickname" />
                     <p v-if="sendToNicknameLoading" class="send-to-nick"><span class="nickname-spinner"></span> {{ t('searching') }}</p>
-                    <p v-else-if="sendToNickname" class="send-to-nick">👤 {{ sendToNickname }}</p>
+                    <p v-else-if="sendToNickname" class="send-to-nick">{{ sendToNickname }}</p>
                     <p v-else-if="sendTo && sendToLookedUp" class="send-to-nick unknown">{{ t('unregistered_address') }}</p>
                     <div class="send-modal-actions">
                       <button class="btn btn-send" @click="sendNft" :disabled="sendingTx || !sendTo">
@@ -791,7 +815,7 @@
                             <img v-if="getMediaType(attr.value) === 'image'" :src="resolveUrl(attr.value)" class="attr-media-img" loading="lazy" />
                             <video v-else-if="getMediaType(attr.value) === 'video'" :src="resolveUrl(attr.value)" class="attr-media-video" controls preload="metadata"></video>
                             <audio v-else-if="getMediaType(attr.value) === 'audio'" :src="resolveUrl(attr.value)" controls></audio>
-                            <a v-else-if="getMediaType(attr.value) === '3d'" :href="resolveUrl(attr.value)" target="_blank" class="attr-3d-link">🎮 {{ t('view_3d') }}</a>
+                            <a v-else-if="getMediaType(attr.value) === '3d'" :href="resolveUrl(attr.value)" target="_blank" class="attr-3d-link">{{ t('view_3d') }}</a>
                             <img v-else :src="resolveUrl(attr.value)" class="attr-media-img" loading="lazy" />
                           </template>
                           <template v-else>{{ attr.value }}</template>
@@ -817,7 +841,7 @@
             <template>
               <!-- 箱書き（SBT） -->
               <div v-if="tbaSbtAssets.length > 0" class="tba-subsection">
-                <h4>📜 {{ t('tba_hakogaki') }}</h4>
+                <h4>{{ t('tba_hakogaki') }}</h4>
                 <div class="tba-grid">
                   <a v-for="asset in tbaSbtAssets" :key="asset.contractAddress + '-' + asset.tokenId"
                      :href="'token.html?ca=' + asset.contractAddress + '&id=' + asset.tokenId + '&lang=' + lang"
@@ -835,7 +859,7 @@
 
               <!-- 所有NFT -->
               <div v-if="tbaNftAssets.length > 0" class="tba-subsection">
-                <h4>🏺 {{ t('owned_nft') }}</h4>
+                <h4>{{ t('owned_nft') }}</h4>
                 <div class="tba-grid">
                   <a v-for="asset in tbaNftAssets" :key="asset.contractAddress + '-' + asset.tokenId"
                      :href="'token.html?ca=' + asset.contractAddress + '&id=' + asset.tokenId + '&lang=' + lang"
@@ -938,6 +962,12 @@
           isOwner() {
             if (!this.connectedAddress || !this.ownerAddress) return false;
             return this.connectedAddress.toLowerCase() === this.ownerAddress.toLowerCase();
+          },
+          sendModalTitle() {
+            const base = this.t('send_nft');
+            if (this.sendToNickname) return base + '  →  ' + this.sendToNickname;
+            if (this.sendTo && /^0x[0-9a-fA-F]{40}$/.test(this.sendTo)) return base + '  →  ' + this.sendTo.slice(0, 6) + '...' + this.sendTo.slice(-4);
+            return base;
           },
         },
         async mounted() {

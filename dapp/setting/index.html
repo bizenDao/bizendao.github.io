@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BizenDAO - Settings</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js" crossorigin="anonymous"></script>
+    <script src="../../js/config.js"></script>
+    <script src="../../js/cache.js"></script>
+    <script src="../../js/nft.js"></script>
+    <script src="../../js/wallet.js"></script>
+    <script src="../../js/manager.js"></script>
+    <script src="../../js/i18n.js"></script>
+    <script src="../../js/lang-toggle.js"></script>
+    <link rel="stylesheet" href="setting.css" />
+
+    <style>
+      .proxy-donate-section {
+        margin-top: 32px;
+        padding: 24px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+      }
+
+      .proxy-donate-section h2 {
+        font-size: 20px;
+        margin-bottom: 16px;
+      }
+
+      .proxy-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .proxy-form .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .proxy-form label {
+        font-size: 13px;
+        opacity: 0.7;
+      }
+
+      .proxy-form input {
+        padding: 10px 14px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        color: #f6f6f6;
+        font-size: 14px;
+      }
+
+      .proxy-form input:focus,
+      .proxy-form select:focus {
+        outline: none;
+        border-color: rgba(255, 255, 255, 0.4);
+      }
+
+      .proxy-form select {
+        padding: 10px 14px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        color: #f6f6f6;
+        font-size: 14px;
+        width: 100%;
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        padding-right: 36px;
+        cursor: pointer;
+      }
+
+      .proxy-form select option {
+        background: #1a1a2e;
+        color: #f6f6f6;
+      }
+
+      .preset-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .preset-btn {
+        padding: 8px 16px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        color: #f6f6f6;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 14px;
+      }
+
+      .preset-btn:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+
+      .preset-btn.selected {
+        background: rgba(255, 200, 50, 0.15);
+        border-color: rgba(255, 200, 50, 0.5);
+        color: #ffcc44;
+      }
+
+      .btn-proxy-donate {
+        padding: 14px 24px;
+        background: rgba(74, 124, 89, 0.15);
+        color: #6fcf8a;
+        border: 1px solid rgba(74, 124, 89, 0.4);
+        border-radius: 8px;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 8px;
+      }
+
+      .btn-proxy-donate:hover {
+        background: rgba(74, 124, 89, 0.3);
+        border-color: rgba(111, 207, 138, 0.6);
+        box-shadow: 0 0 12px rgba(74, 124, 89, 0.2);
+      }
+
+      .btn-proxy-donate:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .proxy-result {
+        margin-top: 16px;
+        padding: 16px;
+        border-radius: 8px;
+      }
+
+      .proxy-result.success {
+        background: rgba(74, 124, 89, 0.15);
+        border: 1px solid rgba(74, 124, 89, 0.3);
+        color: #6fcf8a;
+      }
+
+      .proxy-result.error {
+        background: rgba(192, 57, 43, 0.12);
+        border: 1px solid rgba(192, 57, 43, 0.3);
+        color: #e74c3c;
+      }
+
+      .proxy-history {
+        margin-top: 24px;
+      }
+
+      .proxy-history h3 {
+        font-size: 16px;
+        margin-bottom: 12px;
+        opacity: 0.8;
+      }
+
+      .proxy-history-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 14px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 8px;
+        margin-bottom: 6px;
+        font-size: 13px;
+      }
+
+      .proxy-history-item .amount {
+        font-weight: 600;
+        color: #ffcc44;
+      }
+
+      .proxy-history-item .donor {
+        opacity: 0.6;
+        font-family: monospace;
+      }
+
+      .copyable {
+        cursor: pointer;
+        transition: opacity 0.2s;
+      }
+
+      .copyable:hover {
+        opacity: 1 !important;
+      }
+
+      .copied-toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 8px 20px;
+        background: rgba(111, 207, 138, 0.9);
+        color: #1a1a2e;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        z-index: 9999;
+        animation: toast-fade 1.5s ease forwards;
+      }
+
+      @keyframes toast-fade {
+        0%, 70% { opacity: 1; }
+        100% { opacity: 0; }
+      }
+
+      .stepper-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .stepper-row input[type="number"] {
+        flex: 1;
+        padding: 10px 14px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        color: #f6f6f6;
+        font-size: 16px;
+        font-family: monospace;
+        text-align: center;
+      }
+
+      .stepper-btn {
+        width: 40px;
+        height: 40px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.06);
+        color: #f6f6f6;
+        border-radius: 8px;
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+      }
+
+      .stepper-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.4);
+      }
+
+      .input-unit {
+        font-size: 14px;
+        opacity: 0.6;
+        white-space: nowrap;
+      }
+
+      /* Donation Breakdown */
+      .donation-breakdown {
+        margin-top: 20px;
+        padding: 16px 20px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+      }
+
+      .breakdown-title {
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.5;
+        margin-bottom: 12px;
+      }
+
+      .breakdown-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        font-size: 14px;
+        opacity: 0.8;
+      }
+
+      .breakdown-row.total {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 6px;
+        padding-top: 10px;
+        font-weight: 600;
+        opacity: 1;
+      }
+
+      .breakdown-value {
+        font-family: monospace;
+      }
+
+      .breakdown-value.highlight {
+        color: #6fcf8a;
+      }
+
+      /* Split flow layout */
+      .transfer-flow-split {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin: 24px 0;
+        justify-content: center;
+      }
+
+      .split-arrow {
+        font-size: 28px;
+        opacity: 0.4;
+        flex-shrink: 0;
+      }
+
+      .split-recipients {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        flex: 1;
+        max-width: 300px;
+      }
+
+      .transfer-flow-split > .transfer-card {
+        flex: 0 0 auto;
+        min-width: 180px;
+        max-width: 240px;
+      }
+
+      .split-recipients .transfer-card {
+        max-width: 100%;
+        min-width: auto;
+      }
+
+      @media (max-width: 600px) {
+        .transfer-flow-split {
+          flex-direction: column;
+        }
+        .split-arrow {
+          transform: rotate(90deg);
+        }
+        .split-recipients {
+          max-width: 100%;
+          width: 100%;
+        }
+      }
+
+      /* Flow colors */
+      .flow-out {
+        color: #ff6b6b !important;
+        font-weight: 600;
+        opacity: 1 !important;
+      }
+
+      .flow-in {
+        color: #6fcf8a !important;
+        font-weight: 600;
+        opacity: 1 !important;
+      }
+
+      /* Recipient Card */
+      .recipient-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        margin-top: 8px;
+      }
+
+      .recipient-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(107, 182, 255, 0.3), rgba(255, 200, 50, 0.3));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+
+      .recipient-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .recipient-name {
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .recipient-address {
+        font-size: 12px;
+        opacity: 0.5;
+        font-family: monospace;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* Transfer Flow Visual */
+      .transfer-flow {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin: 24px 0;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .transfer-card {
+        flex: 1;
+        min-width: 200px;
+        max-width: 300px;
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        text-align: center;
+      }
+
+      .transfer-card img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 10px;
+      }
+
+      .transfer-card .card-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.4;
+        margin-bottom: 6px;
+      }
+
+      .transfer-card .card-name {
+        font-weight: 600;
+        font-size: 15px;
+      }
+
+      .transfer-card .card-sub {
+        font-size: 12px;
+        opacity: 0.5;
+        margin-top: 4px;
+      }
+
+      .transfer-arrow {
+        font-size: 28px;
+        opacity: 0.4;
+        flex-shrink: 0;
+      }
+
+      @media (max-width: 600px) {
+        .transfer-flow {
+          flex-direction: column;
+        }
+        .transfer-arrow {
+          transform: rotate(90deg);
+        }
+        .transfer-card {
+          max-width: 100%;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app">
+      <header class="site-header">
+        <div class="container header-inner">
+          <a href="../../ja/index.html" class="logo"><img src="../../img/349F5603-389E-48C6-81C9-1515A338A59B.png" :alt="t('logo_alt')"></a>
+          <div class="header-right">
+            <span class="lang-switch"><a class="lang-btn" data-lang="en" href="#">EN</a> / <a class="lang-btn" data-lang="ja" href="#">JP</a></span>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <div class="setting-page">
+          <h1 class="setting-title">Settings</h1>
+
+          <!-- Setting Nav -->
+          <nav class="setting-nav">
+            <a href="admin.html" class="setting-nav-item">Admin</a>
+            <a href="creator.html" class="setting-nav-item">Creator</a>
+            <a href="contract.html" class="setting-nav-item">Contract</a>
+            <a href="index.html" class="setting-nav-item active">Proxy Donate</a>
+          </nav>
+
+          <!-- 未接続 -->
+          <div v-if="!connected" class="connect-prompt">
+            <button v-if="metamaskAvailable" class="btn btn-connect" @click="connectWallet" :disabled="connecting">
+              {{ connecting ? t('connecting') : t('connect_wallet') }}
+            </button>
+            <p v-else>{{ t('no_metamask') }}</p>
+          </div>
+
+          <!-- 権限なし -->
+          <div v-else-if="userType !== 'admin'" class="access-denied">
+            <p>{{ t('admin_only') }} ({{ userType }})</p>
+            <p class="wallet-info-small">{{ shortAddress }}</p>
+          </div>
+
+          <!-- 管理者：代理寄付 + NFT送信 -->
+          <div v-else class="proxy-donate-section">
+            <h2>Proxy Donate & NFT Transfer</h2>
+            <p style="opacity: 0.6; margin-bottom: 20px; font-size: 14px;">
+              Process a customer purchase: donate on their behalf (with gas cashback) and send the NFT in one step.
+            </p>
+
+            <div class="proxy-form">
+              <!-- Step 1: Customer -->
+              <div class="form-group">
+                <label>1. Customer Wallet Address</label>
+                <input type="text" v-model="donorAddress" placeholder="0x..." @input="syncRecipient" />
+                <div v-if="donorAddress && /^0x[0-9a-fA-F]{40}$/.test(donorAddress)" class="recipient-card">
+                  <div class="recipient-avatar">{{ donorNickname ? donorNickname.charAt(0).toUpperCase() : '?' }}</div>
+                  <div class="recipient-info">
+                    <div class="recipient-name">{{ donorNickname || 'Unknown User' }}</div>
+                    <div class="recipient-address">{{ donorAddress }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 2: NFT -->
+              <div class="form-group">
+                <label>2. Select NFT to send</label>
+                <div v-if="nftLoading" style="opacity: 0.6;">Loading your NFTs...</div>
+                <div v-else-if="ownedNfts.length === 0" style="opacity: 0.5;">No NFTs found.</div>
+                <select v-else v-model="selectedNftIndex">
+                  <option :value="null" disabled>-- Select NFT --</option>
+                  <option v-for="(nft, idx) in ownedNfts" :key="idx" :value="idx">
+                    {{ nft.artistName }} #{{ nft.tokenId }} — {{ nft.name || 'Unnamed' }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Step 3: Donation -->
+              <div class="form-group">
+                <label>3. Donation Amount (POL)</label>
+                <div class="preset-row">
+                  <button v-for="p in presets" :key="p"
+                    class="preset-btn" :class="{ selected: amount === p }"
+                    @click="amount = p">
+                    {{ p }} POL
+                  </button>
+                </div>
+                <div class="stepper-row">
+                  <button class="stepper-btn" @click="amount = Math.max(0, (amount || 0) - 1)">−</button>
+                  <input type="number" v-model.number="amount" placeholder="Custom" step="0.1" min="0" />
+                  <button class="stepper-btn" @click="amount = (amount || 0) + 1">+</button>
+                  <span class="input-unit">POL</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>4. Gas Cashback</label>
+                <div class="stepper-row">
+                  <button class="stepper-btn" @click="gasCashbackPol = Math.max(0, (gasCashbackPol || 0) - 0.001)">−</button>
+                  <input type="number" v-model.number="gasCashbackPol" min="0" step="0.001" />
+                  <button class="stepper-btn" @click="gasCashbackPol = Math.round(((gasCashbackPol || 0) + 0.001) * 1000) / 1000">+</button>
+                  <span class="input-unit">POL</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>5. Detail / Memo</label>
+                <input type="text" v-model="detail" placeholder="Customer name, purchase details, etc." />
+              </div>
+
+              <!-- Donation Breakdown -->
+              <div v-if="amount && amount > 0" class="donation-breakdown">
+                <div class="breakdown-title">Breakdown</div>
+                <div class="breakdown-row">
+                  <span>Total Sent</span>
+                  <span class="breakdown-value">{{ totalSent }} POL</span>
+                </div>
+                <div class="breakdown-row">
+                  <span>− Gas Cashback</span>
+                  <span class="breakdown-value">{{ gasCashbackPol || 0 }} POL</span>
+                </div>
+                <div class="breakdown-row total">
+                  <span>= Donation (Points)</span>
+                  <span class="breakdown-value highlight">{{ effectiveDonation }} POL</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Transfer Flow Visualization -->
+            <div v-if="donorAddress && /^0x[0-9a-fA-F]{40}$/.test(donorAddress) && (amount > 0 || selectedNft)" class="transfer-flow-split">
+              <!-- Admin (sender) -->
+              <div class="transfer-card">
+                <div class="card-label">Admin</div>
+                <div class="recipient-avatar" style="width: 80px; height: 80px; font-size: 32px; margin: 0 auto 10px;">A</div>
+                <div class="card-name">{{ shortAddress }}</div>
+                <div v-if="amount > 0" class="card-sub flow-out" style="margin-top: 8px;">− {{ amount }} POL</div>
+                <div v-if="selectedNft" class="card-sub flow-out" style="margin-top: 4px;">− {{ selectedNft.name || 'NFT #' + selectedNft.tokenId }}</div>
+              </div>
+
+              <div class="split-arrow">→</div>
+
+              <!-- Right side: Treasury + Customer stacked -->
+              <div class="split-recipients">
+                <div v-if="amount > 0" class="transfer-card">
+                  <div class="card-label">Treasury</div>
+                  <div class="card-name">BizenDAO</div>
+                  <div class="card-sub flow-in" style="margin-top: 6px;">+ {{ effectiveDonation }} POL</div>
+                </div>
+
+                <div class="transfer-card">
+                  <div class="card-label">Customer</div>
+                  <div class="card-name">{{ donorNickname || shortAddr(donorAddress) }}</div>
+                  <div v-if="gasCashbackPol > 0" class="card-sub flow-in" style="margin-top: 6px;">+ {{ gasCashbackPol }} POL cashback</div>
+                  <div v-if="selectedNft" class="card-sub flow-in" style="margin-top: 4px;">+ {{ selectedNft.name || 'NFT #' + selectedNft.tokenId }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Execute Button -->
+            <button class="btn-proxy-donate" @click="executeAll"
+                    :disabled="!canExecute || sending" style="width: 100%; margin-top: 8px;">
+              <span v-if="sending"><span class="loading-spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:8px;"></span> Processing...</span>
+              <span v-else><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>{{ executeButtonLabel }}</span>
+            </button>
+
+            <!-- Result -->
+            <div v-if="txResult" :class="['proxy-result', txResultClass]" style="margin-top: 16px;">
+              <div v-html="txResult"></div>
+            </div>
+
+            <!-- Proxy Donation History -->
+            <div v-if="proxyHistory.length > 0" class="proxy-history">
+              <h3>Proxy Donation History</h3>
+              <div v-for="(h, i) in proxyHistory" :key="i" class="proxy-history-item">
+                <span class="amount">{{ weiToEth(h.amount) }} POL</span>
+                <span class="donor copyable" @click="copyToClipboard(h.donor, $event)" :title="h.donor">{{ shortAddr(h.donor) }}</span>
+                <span>{{ h.detail }}</span>
+                <span style="opacity: 0.5;">{{ formatDate(h.date) }}</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const { createApp } = Vue;
+
+      createApp({
+        data() {
+          return {
+            connected: false,
+            connecting: false,
+            metamaskAvailable: typeof window.ethereum !== 'undefined',
+            address: null,
+            userType: null,
+            donorAddress: '',
+            donorNickname: null,
+            amount: null,
+            detail: '',
+            gasCashbackPol: 0,
+            presets: CONFIG.contracts.donation.presets || [1, 5, 10, 50],
+            sending: false,
+            txResult: null,
+            txResultClass: '',
+            txHash: null,
+            proxyHistory: [],
+            // NFT Transfer
+            ownedNfts: [],
+            nftLoading: false,
+            selectedNftIndex: null,
+          };
+        },
+
+        computed: {
+          shortAddress() {
+            if (!this.address) return '';
+            return this.address.slice(0, 6) + '...' + this.address.slice(-4);
+          },
+          CONFIG() { return CONFIG; },
+          selectedNft() {
+            if (this.selectedNftIndex === null) return null;
+            return this.ownedNfts[this.selectedNftIndex] || null;
+          },
+          gasCashbackWei() {
+            if (!this.gasCashbackPol) return '0';
+            try {
+              const web3 = NFTHelper.getWeb3();
+              return web3.utils.toWei(String(this.gasCashbackPol), 'ether');
+            } catch (e) { return '0'; }
+          },
+          totalSent() {
+            return (this.amount || 0);
+          },
+          effectiveDonation() {
+            const d = (this.amount || 0) - (this.gasCashbackPol || 0);
+            return d > 0 ? d.toFixed(4).replace(/\.?0+$/, '') : '0';
+          },
+          canExecute() {
+            const validAddr = this.donorAddress && /^0x[0-9a-fA-F]{40}$/.test(this.donorAddress);
+            const hasDonate = this.amount && this.amount > 0;
+            const hasNft = this.selectedNftIndex !== null;
+            return validAddr && (hasDonate || hasNft);
+          },
+          executeButtonLabel() {
+            const hasDonate = this.amount && this.amount > 0;
+            const hasNft = this.selectedNft;
+            const name = this.donorNickname || this.shortAddr(this.donorAddress) || '...';
+            if (hasDonate && hasNft) {
+              return `Donate ${this.amount} POL + Send ${this.selectedNft.name || 'NFT'} to ${name}`;
+            } else if (hasDonate) {
+              return `Donate ${this.amount} POL to ${name}`;
+            } else if (hasNft) {
+              return `Send ${this.selectedNft.name || 'NFT'} to ${name}`;
+            }
+            return 'Select options above';
+          },
+        },
+
+        watch: {
+          donorAddress(val) {
+            if (val && /^0x[0-9a-fA-F]{40}$/.test(val)) {
+              NFTHelper.getNickname(val).then(nick => { this.donorNickname = nick; });
+            } else {
+              this.donorNickname = null;
+            }
+          }
+        },
+
+        async mounted() {
+          // 自動再接続
+          const result = await Wallet.reconnect();
+          if (result) {
+            this.connected = true;
+            this.address = result.address;
+            await Wallet.ensurePolygon();
+            await this.checkRole();
+            if (this.userType === 'admin') {
+              await this.loadProxyHistory();
+              this.loadOwnedNfts();
+            }
+          }
+          // i18n適用
+          if (window.i18n) { window.i18n.apply(); }
+        },
+
+        methods: {
+          t(key) { return window.i18n ? window.i18n.t(key) : key; },
+
+          copyToClipboard(text, event) {
+            navigator.clipboard.writeText(text).then(() => {
+              const toast = document.createElement('div');
+              toast.className = 'copied-toast';
+              toast.textContent = 'Copied!';
+              document.body.appendChild(toast);
+              setTimeout(() => toast.remove(), 1500);
+            });
+          },
+
+          shortAddr(addr) {
+            if (!addr) return '';
+            return addr.slice(0, 6) + '...' + addr.slice(-4);
+          },
+
+          weiToEth(wei) {
+            return (Number(wei) / 1e18).toFixed(4);
+          },
+
+          formatDate(timestamp) {
+            const d = new Date(Number(timestamp) * 1000);
+            return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          },
+
+          async connectWallet() {
+            this.connecting = true;
+            try {
+              const result = await Wallet.connect();
+              if (result) {
+                this.connected = true;
+                this.address = result.address;
+                await this.checkRole();
+                await this.loadProxyHistory();
+                this.loadOwnedNfts();
+              }
+            } catch (e) {
+              console.error('connect error:', e);
+            }
+            this.connecting = false;
+          },
+
+          async checkRole() {
+            try {
+              const web3 = new Web3(window.ethereum);
+              const contract = new web3.eth.Contract(ABI.Manager, CONFIG.contracts.manager.address);
+              this.userType = await contract.methods.checkUser().call({ from: this.address });
+            } catch (e) {
+              console.error('checkRole error:', e);
+              this.userType = 'user';
+            }
+          },
+
+          async loadProxyHistory() {
+            try {
+              const web3 = new Web3(window.ethereum);
+              const contract = new web3.eth.Contract(ABI.Donate, CONFIG.contracts.donation.address);
+              const history = await contract.methods.getsubstituteDonationHistory(this.address).call();
+              this.proxyHistory = [...history].reverse();
+            } catch (e) {
+              console.error('loadProxyHistory error:', e);
+            }
+          },
+
+          syncRecipient() {
+            // donorAddress is used for both donation and NFT transfer
+          },
+
+          async executeAll() {
+            if (!this.canExecute) return;
+            const hasDonate = this.amount && this.amount > 0;
+            const hasNft = this.selectedNft;
+            const name = this.donorNickname || this.shortAddr(this.donorAddress);
+
+            let confirmMsg = '';
+            if (hasDonate && hasNft) {
+              confirmMsg = `Donate ${this.amount} POL and send "${this.selectedNft.name}" to ${name}?`;
+            } else if (hasDonate) {
+              confirmMsg = `Donate ${this.amount} POL on behalf of ${name}?`;
+            } else {
+              confirmMsg = `Send "${this.selectedNft.name}" to ${name}?`;
+            }
+            if (!confirm(confirmMsg)) return;
+
+            this.sending = true;
+            this.txResult = null;
+            let results = [];
+
+            try {
+              const web3 = new Web3(window.ethereum);
+
+              // Step 1: Proxy Donation
+              if (hasDonate) {
+                const donateContract = new web3.eth.Contract(ABI.Donate, CONFIG.contracts.donation.address);
+                const valueWei = web3.utils.toWei(String(this.amount), 'ether');
+                const donateTx = await donateContract.methods.donate(
+                  this.donorAddress,
+                  this.detail || '',
+                  this.gasCashbackWei
+                ).send({ from: this.address, value: valueWei });
+                results.push(`Donation ${this.amount} POL — <a href="${CONFIG.chain.explorer}/tx/${donateTx.transactionHash}" target="_blank" style="color:inherit;text-decoration:underline;">tx</a>`);
+              }
+
+              // Step 2: NFT Transfer
+              if (hasNft) {
+                const nftContract = new web3.eth.Contract(ABI.ERC721Full, this.selectedNft.contractAddress);
+                const nftTx = await nftContract.methods.transferFrom(
+                  this.address,
+                  this.donorAddress,
+                  this.selectedNft.tokenId
+                ).send({ from: this.address });
+                results.push(`NFT "${this.selectedNft.name}" sent — <a href="${CONFIG.chain.explorer}/tx/${nftTx.transactionHash}" target="_blank" style="color:inherit;text-decoration:underline;">tx</a>`);
+
+                // Remove from list
+                this.ownedNfts.splice(this.selectedNftIndex, 1);
+                this.selectedNftIndex = null;
+              }
+
+              this.txResult = results.join('<br>');
+              this.txResultClass = 'success';
+
+              // Refresh
+              if (hasDonate) await this.loadProxyHistory();
+              this.amount = null;
+              this.detail = '';
+              this.gasCashbackPol = 0;
+            } catch (e) {
+              if (e.code === 4001 || (e.message && e.message.includes('denied'))) {
+                this.txResult = 'Transaction cancelled';
+              } else {
+                this.txResult = (results.length > 0 ? results.join('<br>') + '<br>' : '') + 'Error: ' + (e.message || 'Unknown error');
+              }
+              this.txResultClass = results.length > 0 ? 'success' : 'error';
+              console.error('executeAll error:', e);
+            }
+
+            this.sending = false;
+          },
+
+          async loadOwnedNfts() {
+            this.nftLoading = true;
+            this.ownedNfts = [];
+            try {
+              const nftContracts = CONFIG.contracts.nfts;
+              for (const artist of nftContracts) {
+                const tokenIds = await NFTHelper.getOwnedTokenIds(artist.address, this.address);
+                for (const tokenId of tokenIds) {
+                  const metadata = await NFTHelper.getTokenMetadata(artist.address, tokenId);
+                  this.ownedNfts.push({
+                    contractAddress: artist.address,
+                    artistName: artist.name,
+                    artistNameEn: artist.nameEn,
+                    tokenId,
+                    name: metadata ? metadata.name : 'NFT #' + tokenId,
+                    image: metadata ? metadata.image : '',
+                  });
+                }
+              }
+            } catch (e) {
+              console.error('loadOwnedNfts error:', e);
+            }
+            this.nftLoading = false;
+          },
+
+          // executeNftTransfer removed — merged into executeAll
+        },
+      }).mount('#app');
+    </script>
+  </body>
+</html>
