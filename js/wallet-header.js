@@ -57,6 +57,7 @@ const WalletHeader = {
   methods: {
     t(key) { return window.i18n ? window.i18n.t(key) : key; },
     doDisconnect() {
+      if (typeof Wallet !== 'undefined') Wallet.disconnect();
       this.$emit('disconnect');
       window.location.reload();
     },
