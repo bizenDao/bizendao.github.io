@@ -61,10 +61,10 @@
           <h1 class="setting-title">{{ t('setting_creator') }}</h1>
 
           <nav class="setting-nav">
-            <a href="admin.html" class="setting-nav-item">{{ t('setting_admin') }}</a>
-            <a href="creator.html" class="setting-nav-item active">{{ t('setting_creator') }}</a>
-            <a href="contract.html" class="setting-nav-item">{{ t('setting_contract') }}</a>
-            <a href="index.html" class="setting-nav-item">{{ t('setting_proxy_donate') }}</a>
+            <a :href="'admin.html?lang=' + lang" class="setting-nav-item">{{ t('setting_admin') }}</a>
+            <a :href="'creator.html?lang=' + lang" class="setting-nav-item active">{{ t('setting_creator') }}</a>
+            <a :href="'contract.html?lang=' + lang" class="setting-nav-item">{{ t('setting_contract') }}</a>
+            <a :href="'index.html?lang=' + lang" class="setting-nav-item">{{ t('setting_proxy_donate') }}</a>
           </nav>
 
           <div v-if="!connected" class="connect-prompt">
@@ -173,6 +173,7 @@
         computed: {
           metamaskAvailable() { return Wallet.isAvailable(); },
           shortAddress() { return Wallet.shortAddress(); },
+          lang() { return (window.i18n && window.i18n.currentLang) || new URLSearchParams(location.search).get('lang') || 'ja'; },
           nameJson() {
             return JSON.stringify({ en: this.form.nameEn || '', ja: this.form.nameJa || '' });
           },

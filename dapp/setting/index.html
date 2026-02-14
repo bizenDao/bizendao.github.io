@@ -500,10 +500,10 @@
 
           <!-- Setting Nav -->
           <nav class="setting-nav">
-            <a v-if="userType === 'admin'" href="admin.html" class="setting-nav-item">Admin</a>
-            <a v-if="userType === 'admin'" href="creator.html" class="setting-nav-item">Creator</a>
-            <a v-if="userType === 'admin'" href="contract.html" class="setting-nav-item">Contract</a>
-            <a href="index.html" class="setting-nav-item active">Proxy Donate</a>
+            <a v-if="userType === 'admin'" :href="'admin.html?lang=' + lang" class="setting-nav-item">{{ t('setting_admin') }}</a>
+            <a v-if="userType === 'admin'" :href="'creator.html?lang=' + lang" class="setting-nav-item">{{ t('setting_creator') }}</a>
+            <a v-if="userType === 'admin'" :href="'contract.html?lang=' + lang" class="setting-nav-item">{{ t('setting_contract') }}</a>
+            <a :href="'index.html?lang=' + lang" class="setting-nav-item active">{{ t('setting_proxy_donate') }}</a>
           </nav>
 
           <!-- 未接続 -->
@@ -700,6 +700,7 @@
             return this.address.slice(0, 6) + '...' + this.address.slice(-4);
           },
           CONFIG() { return CONFIG; },
+          lang() { return (window.i18n && window.i18n.currentLang) || new URLSearchParams(location.search).get('lang') || 'ja'; },
           selectedNft() {
             if (this.selectedNftIndex === null) return null;
             return this.ownedNfts[this.selectedNftIndex] || null;
