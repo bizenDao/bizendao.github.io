@@ -13,6 +13,19 @@
     <script src="../../js/wallet.js"></script>
     <script src="../../js/manager.js"></script>
     <link rel="stylesheet" href="setting.css" />
+    <style>
+      .name-preview {
+        display: block;
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        font-size: 13px;
+        font-family: monospace;
+        color: rgba(255, 255, 255, 0.6);
+        word-break: break-all;
+      }
+    </style>
   </head>
   <body>
     <div id="app">
@@ -65,7 +78,7 @@
                 <tbody>
                   <tr v-for="c in creators" :key="c.address" :class="{ 'row-hidden': !c.visible }">
                     <td class="mono addr-cell">{{ shortAddr(c.address) }}</td>
-                    <td>{{ c.name }}</td>
+                    <td>{{ displayName(c.name) }}</td>
                     <td>{{ c.type }}</td>
                     <td>
                       <span v-if="c.visible" class="badge-visible">{{ t('visible') }}</span>
@@ -91,8 +104,16 @@
                   <input type="text" v-model="form.address" class="form-input mono" placeholder="0x..." :disabled="editMode" />
                 </div>
                 <div class="form-field">
-                  <label>Name</label>
-                  <input type="text" v-model="form.name" class="form-input" placeholder="作家名" />
+                  <label>Name (JA)</label>
+                  <input type="text" v-model="form.nameJa" class="form-input" placeholder="作家名（日本語）" />
+                </div>
+                <div class="form-field">
+                  <label>Name (EN)</label>
+                  <input type="text" v-model="form.nameEn" class="form-input" placeholder="Artist name (English)" />
+                </div>
+                <div class="form-field" style="grid-column: 1 / -1;">
+                  <label>Preview</label>
+                  <code class="name-preview">{{ nameJson }}</code>
                 </div>
                 <div class="form-field">
                   <label>Type</label>
@@ -100,7 +121,7 @@
                 </div>
               </div>
               <div class="form-actions">
-                <button class="btn btn-primary" @click="submitCreator" :disabled="!form.address || !form.name || sending">
+                <button class="btn btn-primary" @click="submitCreator" :disabled="!form.address || (!form.nameJa && !form.nameEn) || sending">
                   {{ editMode ? '更新' : '追加' }}
                 </button>
                 <button v-if="editMode" class="btn" @click="cancelEdit">{{ t('cancel') }}</button>
@@ -124,7 +145,7 @@
             error: null, success: null,
             userType: 'none',
             creators: [],
-            form: { address: '', name: '', type: 'creator' },
+            form: { address: '', nameJa: '', nameEn: '', type: 'creator' },
             editMode: false,
             CONFIG,
           };
@@ -132,6 +153,9 @@
         computed: {
           metamaskAvailable() { return Wallet.isAvailable(); },
           shortAddress() { return Wallet.shortAddress(); },
+          nameJson() {
+            return JSON.stringify({ en: this.form.nameEn || '', ja: this.form.nameJa || '' });
+          },
         },
         async mounted() {
           const r = await Wallet.reconnect();
@@ -159,22 +183,35 @@
             this.loading = false;
           },
           shortAddr(a) { return a ? a.slice(0,6) + '...' + a.slice(-4) : ''; },
+          parseName(name) {
+            try {
+              const obj = JSON.parse(name);
+              return obj;
+            } catch (e) {
+              return { ja: name, en: name };
+            }
+          },
+          displayName(name) {
+            const p = this.parseName(name);
+            return p.ja || p.en || name;
+          },
           startEdit(c) {
-            this.form = { address: c.address, name: c.name, type: c.type };
+            const p = this.parseName(c.name);
+            this.form = { address: c.address, nameJa: p.ja || '', nameEn: p.en || '', type: c.type };
             this.editMode = true;
           },
           cancelEdit() {
-            this.form = { address: '', name: '', type: 'creator' };
+            this.form = { address: '', nameJa: '', nameEn: '', type: 'creator' };
             this.editMode = false;
           },
           async submitCreator() {
             this.sending = true; this.error = null; this.success = null;
             try {
               if (this.editMode) {
-                await Manager.setCreatorInfo(this.form.address, this.form.name, this.form.type);
+                await Manager.setCreatorInfo(this.form.address, this.nameJson, this.form.type);
                 this.success = '作家情報を更新しました';
               } else {
-                await Manager.setCreator(this.form.address, this.form.name, this.form.type);
+                await Manager.setCreator(this.form.address, this.nameJson, this.form.type);
                 this.success = '作家を追加しました';
               }
               this.cancelEdit();
