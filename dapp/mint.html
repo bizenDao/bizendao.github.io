@@ -12,6 +12,7 @@
     <script src="../js/nft.js"></script>
     <script src="../js/wallet.js"></script>
     <script src="../js/manager.js"></script>
+    <script src="../js/wallet-header.js"></script>
     <script src="../js/i18n.js"></script>
     <script src="../js/lang-toggle.js"></script>
 
@@ -363,10 +364,8 @@
 
           <!-- Mint Form -->
           <div v-else class="mint-form">
-            <div class="wallet-row">
-              <span class="wallet-address">{{ nickname || shortAddress }} <span v-if="nicknameLoading" class="nickname-spinner"></span></span>
-              <span class="wallet-role" :class="'role-' + userType">{{ userType }}</span>
-            </div>
+            <wallet-header :address="address" :nickname="nickname" :nickname-loading="nicknameLoading"
+              :user-type="userType" :balance="polBalance" :show-balance="true"></wallet-header>
 
             <div class="balance-row">
               <div class="balance-card">
@@ -714,7 +713,7 @@
             this.minting = false;
           },
         },
-      }).mount('#app');
+      }).component('wallet-header', WalletHeader).mount('#app');
     </script>
   </body>
 </html>

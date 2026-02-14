@@ -12,6 +12,7 @@
     <script src="../../js/nft.js"></script>
     <script src="../../js/wallet.js"></script>
     <script src="../../js/manager.js"></script>
+    <script src="../../js/wallet-header.js"></script>
     <script src="../../js/i18n.js"></script>
     <script src="../../js/lang-toggle.js"></script>
     <link rel="stylesheet" href="setting.css" />
@@ -506,6 +507,7 @@
 
           <!-- 管理者：代理寄付 + NFT送信 -->
           <div v-else class="proxy-donate-section">
+            <wallet-header :address="address" :user-type="userType" setting-base="index.html"></wallet-header>
             <h2>{{ t('proxy_title') }}</h2>
             <p style="opacity: 0.6; margin-bottom: 20px; font-size: 14px;">
               {{ t('proxy_desc') }}
@@ -918,7 +920,7 @@
 
           // executeNftTransfer removed — merged into executeAll
         },
-      }).mount('#app');
+      }).component('wallet-header', WalletHeader).mount('#app');
     </script>
   </body>
 </html>

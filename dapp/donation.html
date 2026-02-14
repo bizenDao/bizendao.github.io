@@ -18,6 +18,7 @@
     <script src="../js/cache.js"></script>
     <script src="../js/nft.js"></script>
     <script src="../js/wallet.js"></script>
+    <script src="../js/wallet-header.js"></script>
     <script src="../js/i18n.js"></script>
     <script src="../js/lang-toggle.js"></script>
 
@@ -524,10 +525,8 @@
 
           <!-- 寄付フォーム -->
           <div v-else class="donate-form">
-            <div class="wallet-row">
-              <span class="wallet-address">{{ nickname || shortAddress }} <span v-if="nicknameLoading" class="nickname-spinner"></span></span>
-              <span class="wallet-balance">{{ balance }} POL</span>
-            </div>
+            <wallet-header :address="address" :nickname="nickname" :nickname-loading="nicknameLoading"
+              :balance="balance" :show-balance="true"></wallet-header>
 
             <!-- 金額プリセット -->
             <div class="form-section">
@@ -821,7 +820,7 @@
             document.body.style.overflow = '';
           },
         },
-      }).mount('#app');
+      }).component('wallet-header', WalletHeader).mount('#app');
     </script>
 </body>
 </html>
