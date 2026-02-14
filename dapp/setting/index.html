@@ -484,9 +484,9 @@
 
           <!-- Setting Nav -->
           <nav class="setting-nav">
-            <a href="admin.html" class="setting-nav-item">Admin</a>
-            <a href="creator.html" class="setting-nav-item">Creator</a>
-            <a href="contract.html" class="setting-nav-item">Contract</a>
+            <a v-if="userType === 'admin'" href="admin.html" class="setting-nav-item">Admin</a>
+            <a v-if="userType === 'admin'" href="creator.html" class="setting-nav-item">Creator</a>
+            <a v-if="userType === 'admin'" href="contract.html" class="setting-nav-item">Contract</a>
             <a href="index.html" class="setting-nav-item active">Proxy Donate</a>
           </nav>
 
@@ -499,7 +499,7 @@
           </div>
 
           <!-- 権限なし -->
-          <div v-else-if="userType !== 'admin'" class="access-denied">
+          <div v-else-if="userType !== 'admin' && userType !== 'creator'" class="access-denied">
             <p>{{ t('admin_only') }} ({{ userType }})</p>
             <p class="wallet-info-small">{{ shortAddress }}</p>
           </div>
@@ -739,7 +739,7 @@
             this.address = result.address;
             await Wallet.ensurePolygon();
             await this.checkRole();
-            if (this.userType === 'admin') {
+            if (this.userType === 'admin' || this.userType === 'creator') {
               await this.loadProxyHistory();
               this.loadOwnedNfts();
             }

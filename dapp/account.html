@@ -478,6 +478,7 @@
                 </span>
                 <span v-if="isViewMode" class="view-badge">{{ t('view_mode') }}</span>
                 <a v-if="userType === 'admin'" href="setting/index.html" class="admin-badge">(admin)</a>
+                <a v-else-if="userType === 'creator'" href="setting/index.html" class="admin-badge">(creator)</a>
                 <span v-if="hasSbt" class="sbt-badge">✓ BizenDAO Member</span>
               </div>
               <div class="wallet-actions">
