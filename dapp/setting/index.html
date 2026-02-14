@@ -523,6 +523,18 @@
           <!-- 管理者：代理寄付 + NFT送信 -->
           <div v-else class="proxy-donate-section">
             <wallet-header :address="address" :user-type="userType" setting-base="index.html"></wallet-header>
+
+            <div class="balance-row">
+              <div class="balance-card">
+                <div class="balance-value">{{ balance }} <small>POL</small></div>
+                <div class="balance-label">{{ t('mint_pol_balance') }}</div>
+              </div>
+              <div class="balance-card">
+                <div class="balance-value">{{ donatePoints }} <small>pt</small></div>
+                <div class="balance-label">{{ t('mint_donate_points') }}</div>
+              </div>
+            </div>
+
             <h2>{{ t('proxy_title') }}</h2>
             <p style="opacity: 0.6; margin-bottom: 20px; font-size: 14px;">
               {{ t('proxy_desc') }}
@@ -691,6 +703,8 @@
             nftLoading: false,
             selectedNftIndex: null,
             menuOpen: false,
+            balance: '0',
+            donatePoints: '--',
           };
         },
 
@@ -758,6 +772,7 @@
             this.address = result.address;
             await Wallet.ensurePolygon();
             await this.checkRole();
+            this.loadBalance();
             if (this.userType === 'admin' || this.userType === 'creator') {
               await this.loadProxyHistory();
               this.loadOwnedNfts();
@@ -780,6 +795,21 @@
               document.body.appendChild(toast);
               setTimeout(() => toast.remove(), 1500);
             });
+          },
+
+          async loadBalance() {
+            try {
+              const web3 = NFTHelper.getWeb3();
+              const wei = await web3.eth.getBalance(this.address);
+              this.balance = parseFloat(web3.utils.fromWei(wei, 'ether')).toFixed(4);
+            } catch (e) { console.warn('Balance fetch failed', e); }
+            try {
+              const web3 = NFTHelper.getWeb3();
+              const dc = CONFIG.contracts.donation;
+              const contract = new web3.eth.Contract(ABI.Donate, dc.address);
+              const pts = await contract.methods.latestPoint(this.address).call();
+              this.donatePoints = parseFloat(web3.utils.fromWei(pts, 'ether')).toFixed(4);
+            } catch (e) { this.donatePoints = '0'; }
           },
 
           shortAddr(addr) {
