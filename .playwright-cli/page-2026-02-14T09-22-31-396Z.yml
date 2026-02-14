@@ -1,0 +1,30 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link [ref=e5] [cursor=pointer]:
+        - /url: ../../ja/index.html
+        - img [ref=e6]
+      - generic [ref=e8]:
+        - link "EN" [ref=e9] [cursor=pointer]:
+          - /url: /bizendao/dapp/setting/contract.html?lang=en
+        - text: /
+        - link "JP" [ref=e10] [cursor=pointer]:
+          - /url: /bizendao/dapp/setting/contract.html?lang=ja
+  - main [ref=e11]:
+    - generic [ref=e12]:
+      - 'heading "{{ t(''setting_contract'') }}" [level=1] [ref=e13]'
+      - navigation [ref=e14]:
+        - 'link "{{ t(''setting_admin'') }}" [ref=e15] [cursor=pointer]':
+          - /url: admin.html
+        - 'link "{{ t(''setting_creator'') }}" [ref=e16] [cursor=pointer]':
+          - /url: creator.html
+        - 'link "{{ t(''setting_contract'') }}" [ref=e17] [cursor=pointer]':
+          - /url: contract.html
+        - 'link "{{ t(''setting_proxy_donate'') }}" [ref=e18] [cursor=pointer]':
+          - /url: index.html
+      - generic [ref=e19]:
+        - 'button "{{ connecting ? t(''connecting'') : t(''connect_wallet'') }}" [ref=e20] [cursor=pointer]'
+        - paragraph [ref=e21]: "{{ t('no_metamask') }}"
+      - generic [ref=e22]:
+        - paragraph [ref=e23]: "{{ t('admin_only') }} ({{ userType }})"
+        - paragraph [ref=e24]: "{{ shortAddress }}"
