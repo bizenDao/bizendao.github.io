@@ -13,7 +13,10 @@ const WalletHeader = {
         <div class="wh-right">
           <a v-if="userType === 'admin'" :href="settingLink" class="wh-role wh-role-admin">admin</a>
           <a v-else-if="userType === 'creator'" :href="settingLink" class="wh-role wh-role-creator">creator</a>
-          <span v-if="showBalance" class="wh-balance">{{ balance }} POL</span>
+          <span class="wh-balances">
+            <span class="wh-balance">{{ displayPol }} POL</span>
+            <span class="wh-balance wh-point">{{ displayPoint }} pt</span>
+          </span>
         </div>
       </div>
     </div>
@@ -25,8 +28,15 @@ const WalletHeader = {
     nicknameLoading: { type: Boolean, default: false },
     userType: { type: String, default: 'user' },
     balance: { type: String, default: null },
-    showBalance: { type: Boolean, default: false },
+    point: { type: String, default: null },
     settingBase: { type: String, default: 'setting/index.html' },
+  },
+
+  data() {
+    return {
+      autoPol: null,
+      autoPoint: null,
+    };
   },
 
   computed: {
@@ -37,9 +47,39 @@ const WalletHeader = {
     settingLink() {
       return this.settingBase;
     },
+    displayPol() {
+      const v = this.balance ?? this.autoPol;
+      return v != null ? v : '--';
+    },
+    displayPoint() {
+      const v = this.point ?? this.autoPoint;
+      return v != null ? v : '--';
+    },
+  },
+
+  watch: {
+    address: {
+      immediate: true,
+      handler(addr) { if (addr) this.fetchBalances(addr); },
+    },
   },
 
   methods: {
+    async fetchBalances(addr) {
+      try {
+        if (typeof web3 !== 'undefined' && this.balance == null) {
+          const wei = await web3.eth.getBalance(addr);
+          this.autoPol = parseFloat(web3.utils.fromWei(wei, 'ether')).toFixed(4);
+        }
+      } catch (e) { /* ignore */ }
+      try {
+        if (typeof web3 !== 'undefined' && typeof CONFIG !== 'undefined' && typeof ABI !== 'undefined' && this.point == null) {
+          const contract = new web3.eth.Contract(ABI.Donate, CONFIG.contracts.donation.address);
+          const pt = await contract.methods.latestPoint(addr).call();
+          this.autoPoint = web3.utils.fromWei(pt, 'ether');
+        }
+      } catch (e) { /* ignore */ }
+    },
     copyEoa() {
       if (!this.address) return;
       navigator.clipboard.writeText(this.address).then(() => {
@@ -85,10 +125,21 @@ const WalletHeader = {
       gap: 10px;
     }
 
+    .wh-balances {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     .wh-balance {
       font-size: 13px;
       opacity: 0.7;
       font-family: monospace;
+    }
+
+    .wh-point {
+      color: #ffcc66;
+      opacity: 0.85;
     }
 
     .wh-role {
