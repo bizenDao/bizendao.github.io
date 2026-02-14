@@ -362,8 +362,8 @@
             <div v-else style="text-align:center; opacity:0.6;">{{ t('no_metamask') }}</div>
           </div>
 
-          <!-- Mint Form -->
-          <div v-else class="mint-form">
+          <!-- Connected -->
+          <template v-else>
             <wallet-header :address="address" :nickname="nickname" :nickname-loading="nicknameLoading"
               :user-type="userType"></wallet-header>
 
@@ -378,6 +378,8 @@
               </div>
             </div>
 
+            <!-- Mint Form -->
+            <div class="mint-form">
             <!-- Contract Select -->
             <div class="form-group">
               <label class="form-label">1. {{ t('mint_select_contract') }}</label>
@@ -435,7 +437,8 @@
               <span v-if="minting"><span class="loading-spinner"></span> {{ t('mint_minting') }}</span>
               <span v-else>{{ t('mint_button') }}</span>
             </button>
-          </div>
+            </div>
+          </template>
         </div>
       </main>
     </div>

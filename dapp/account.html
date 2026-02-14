@@ -522,6 +522,17 @@
               <a v-else class="btn btn-sm btn-disconnect" :href="'account.html?lang=' + lang">{{ t('connect_own') }}</a>
             </wallet-header>
 
+            <div class="balance-row">
+              <div class="balance-card">
+                <div class="balance-value">{{ polBalance }} <small>POL</small></div>
+                <div class="balance-label">{{ t('mint_pol_balance') }}</div>
+              </div>
+              <div class="balance-card">
+                <div class="balance-value">{{ donatePoints }} <small>pt</small></div>
+                <div class="balance-label">{{ t('mint_donate_points') }}</div>
+              </div>
+            </div>
+
             <!-- エラー表示 -->
             <div v-if="error" class="error-message">{{ error }}</div>
 
@@ -536,18 +547,6 @@
 
             <!-- コレクション表示 -->
             <template v-else>
-
-              <!-- 残高 -->
-              <div class="balance-row">
-                <div class="balance-card">
-                  <div class="balance-value">{{ polBalance }} <small>POL</small></div>
-                  <div class="balance-label">{{ t('mint_pol_balance') }}</div>
-                </div>
-                <div class="balance-card">
-                  <div class="balance-value">{{ donatePoints }} <small>pt</small></div>
-                  <div class="balance-label">{{ t('mint_donate_points') }}</div>
-                </div>
-              </div>
 
               <!-- サマリー -->
               <div class="summary">

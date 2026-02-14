@@ -524,8 +524,8 @@
             </div>
           </div>
 
-          <!-- 寄付フォーム -->
-          <div v-else class="donate-form">
+          <!-- 接続済み -->
+          <template v-else>
             <wallet-header :address="address" :nickname="nickname" :nickname-loading="nicknameLoading"
               :user-type="userType"></wallet-header>
 
@@ -540,6 +540,8 @@
               </div>
             </div>
 
+            <!-- 寄付フォーム -->
+            <div class="donate-form">
             <!-- 金額プリセット -->
             <div class="form-section">
               <label class="form-label">{{ t('donate_amount') }}</label>
@@ -572,7 +574,7 @@
               <span v-if="sending"><span class="loading-spinner"></span> {{ t('tx_sending') }}</span>
               <span v-else>{{ t('donate_button').replace('{amount}', amount || 0) }}</span>
             </button>
-          </div>
+            </div>
 
           <!-- 自分の寄付履歴 -->
           <div v-if="connected && history.length > 0" class="history-section">
@@ -595,6 +597,7 @@
               <span>Polygon Mainnet</span>
             </div>
           </div>
+          </template>
         </div>
       </main>
     </div>
