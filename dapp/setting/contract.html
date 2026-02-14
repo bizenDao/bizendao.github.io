@@ -63,7 +63,7 @@
     <div id="app">
       <header class="site-header">
         <div class="container header-inner">
-          <a href="../../ja/index.html" class="logo"><img src="../../img/349F5603-389E-48C6-81C9-1515A338A59B.png" alt="ロゴ"></a>
+          <a href="../../ja/index.html" class="logo"><img src="../../img/349F5603-389E-48C6-81C9-1515A338A59B.png" :alt="t('logo_alt')"></a>
           <div class="header-right">
             <span class="lang-switch"><a class="lang-btn" data-lang="en" href="#">EN</a> / <a class="lang-btn" data-lang="ja" href="#">JP</a></span>
           </div>
@@ -72,18 +72,18 @@
 
       <main>
         <div class="setting-page">
-          <h1 class="setting-title">Contract Settings</h1>
+          <h1 class="setting-title">{{ t('setting_contract') }}</h1>
 
           <nav class="setting-nav">
-            <a href="admin.html" class="setting-nav-item">Admin</a>
-            <a href="creator.html" class="setting-nav-item">Creator</a>
-            <a href="contract.html" class="setting-nav-item active">Contract</a>
-            <a href="index.html" class="setting-nav-item">Proxy Donate</a>
+            <a href="admin.html" class="setting-nav-item">{{ t('setting_admin') }}</a>
+            <a href="creator.html" class="setting-nav-item">{{ t('setting_creator') }}</a>
+            <a href="contract.html" class="setting-nav-item active">{{ t('setting_contract') }}</a>
+            <a href="index.html" class="setting-nav-item">{{ t('setting_proxy_donate') }}</a>
           </nav>
 
           <div v-if="!connected" class="connect-prompt">
             <button v-if="metamaskAvailable" class="btn btn-connect" @click="connectWallet" :disabled="connecting">
-              {{ connecting ? '{{ t('connecting') }}' : '{{ t('connect_wallet') }}' }}
+              {{ connecting ? t('connecting') : t('connect_wallet') }}
             </button>
             <p v-else>{{ t('no_metamask') }}</p>
           </div>
@@ -101,22 +101,22 @@
 
             <!-- Config Diff Alert -->
             <div v-if="configDiffs.length > 0" class="diff-alert">
-              <h3>config.js / Manager 差分検出</h3>
+              <h3>{{ t('config_diff_title') }}</h3>
               <div v-for="(d, i) in configDiffs" :key="i" class="diff-item">
-                <span class="diff-badge" :class="d.type">{{ d.type === 'config_only' ? 'config.js のみ' : 'Manager のみ' }}</span>
+                <span class="diff-badge" :class="d.type">{{ d.type === 'config_only' ? t('config_only_label') : t('manager_only_label') }}</span>
                 <span class="mono" style="font-size:12px;">{{ d.address.slice(0,6) + '...' + d.address.slice(-4) }}</span>
                 <span>{{ d.name }} ({{ d.entryType }})</span>
-                <span style="opacity:0.6; font-size:12px;">{{ d.msg }}</span>
+                <span style="opacity:0.6; font-size:12px;">{{ d.type === 'config_only' ? t('config_only_msg') : t('manager_only_msg') }}</span>
               </div>
             </div>
 
             <!-- コントラクト一覧 -->
             <div class="section-card">
-              <h2 class="section-heading">Contract List</h2>
+              <h2 class="section-heading">{{ t('contract_list') }}</h2>
               <div v-if="loading" class="loading-center"><span class="loading-spinner"></span></div>
               <table v-else class="data-table">
                 <thead>
-                  <tr><th>Address</th><th>Name</th><th>Type</th><th>Visible</th><th></th></tr>
+                  <tr><th>{{ t('address') }}</th><th>{{ t('name_label') }}</th><th>{{ t('type_label') }}</th><th>{{ t('visible') }}</th><th></th></tr>
                 </thead>
                 <tbody>
                   <tr v-for="c in contracts" :key="c.address" :class="{ 'row-hidden': !c.visible }">
@@ -143,18 +143,18 @@
 
             <!-- 追加 / 編集 -->
             <div class="section-card">
-              <h2 class="section-heading">{{ editMode ? 'Edit Contract' : 'Add Contract' }}</h2>
+              <h2 class="section-heading">{{ editMode ? t('edit_contract') : t('add_contract') }}</h2>
               <div class="form-grid">
                 <div class="form-field">
-                  <label>Address</label>
+                  <label>{{ t('address') }}</label>
                   <input type="text" v-model="form.address" class="form-input mono" placeholder="0x..." :disabled="editMode" />
                 </div>
                 <div class="form-field">
-                  <label>Name</label>
-                  <input type="text" v-model="form.name" class="form-input" placeholder="コントラクト名" />
+                  <label>{{ t('name_label') }}</label>
+                  <input type="text" v-model="form.name" class="form-input" :placeholder="t('contract_name_placeholder')" />
                 </div>
                 <div class="form-field">
-                  <label>Type</label>
+                  <label>{{ t('type_label') }}</label>
                   <select v-model="form.type" class="form-input">
                     <option value="nft">nft</option>
                     <option value="sbt">sbt</option>
@@ -166,7 +166,7 @@
               </div>
               <div class="form-actions">
                 <button class="btn btn-primary" @click="submitContract" :disabled="!form.address || !form.name || sending">
-                  {{ editMode ? '更新' : '追加' }}
+                  {{ editMode ? t('update') : t('add') }}
                 </button>
                 <button v-if="editMode" class="btn" @click="cancelEdit">{{ t('cancel') }}</button>
               </div>
@@ -242,7 +242,7 @@
 
             for (const entry of configEntries) {
               if (!managerAddrs.has(entry.address.toLowerCase())) {
-                diffs.push({ type: 'config_only', address: entry.address, name: entry.name, entryType: entry.type, msg: 'config.js にあるが Manager に未登録' });
+                diffs.push({ type: 'config_only', address: entry.address, name: entry.name, entryType: entry.type });
               }
             }
 
@@ -250,7 +250,7 @@
             const configAddrs = new Set(configEntries.map(e => e.address.toLowerCase()));
             for (const c of this.contracts) {
               if ((c.type === 'nft' || c.type === 'sbt') && c.visible && !configAddrs.has(c.address.toLowerCase())) {
-                diffs.push({ type: 'manager_only', address: c.address, name: c.name, entryType: c.type, msg: 'Manager に登録済みだが config.js に未反映' });
+                diffs.push({ type: 'manager_only', address: c.address, name: c.name, entryType: c.type });
               }
             }
 
@@ -270,10 +270,10 @@
             try {
               if (this.editMode) {
                 await Manager.setContractInfo(this.form.address, this.form.name, this.form.type);
-                this.success = 'コントラクト情報を更新しました';
+                this.success = this.t('contract_updated');
               } else {
                 await Manager.setContract(this.form.address, this.form.name, this.form.type);
-                this.success = 'コントラクトを追加しました';
+                this.success = this.t('contract_added');
               }
               this.cancelEdit();
               this.contracts = await Manager.getAllContracts();
@@ -285,17 +285,17 @@
             try {
               if (visible) { await Manager.publicContract(c.address); }
               else { await Manager.hiddenContract(c.address); }
-              this.success = visible ? '公開にしました' : '非公開にしました';
+              this.success = visible ? this.t('contract_public') : this.t('contract_hidden_done');
               this.contracts = await Manager.getAllContracts();
             } catch (e) { this.error = e.message; }
             this.sending = false;
           },
           async removeContract(c) {
-            if (!confirm(c.name + ' (' + c.address + ') を削除しますか？')) return;
+            if (!confirm(c.name + ' (' + c.address + ')' + this.t('confirm_delete_contract'))) return;
             this.sending = true; this.error = null; this.success = null;
             try {
               await Manager.deleteContract(c.address);
-              this.success = 'コントラクトを削除しました';
+              this.success = this.t('contract_deleted');
               this.contracts = await Manager.getAllContracts();
             } catch (e) { this.error = e.message; }
             this.sending = false;
