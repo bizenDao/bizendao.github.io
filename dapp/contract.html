@@ -479,6 +479,9 @@
 
                 selectArtist(artist) {
                     this.contractAddress = artist.address;
+                    const url = new URL(window.location);
+                    url.searchParams.set('ca', artist.address);
+                    window.history.replaceState({}, '', url);
                     this.loadContract();
                 },
 
