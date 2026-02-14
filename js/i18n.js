@@ -142,6 +142,8 @@
       name: '名前',
       type: 'タイプ',
       preview: 'プレビュー',
+      unknown_user: '不明なユーザー',
+      unnamed: '無名',
 
       // Token page
       token_contract_addr: 'NFTコントラクトアドレス',
@@ -418,6 +420,8 @@
       name: 'Name',
       type: 'Type',
       preview: 'Preview',
+      unknown_user: 'Unknown User',
+      unnamed: 'Unnamed',
 
       // Token page
       token_contract_addr: 'NFT Contract Address',

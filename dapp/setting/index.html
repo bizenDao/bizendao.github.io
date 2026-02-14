@@ -496,7 +496,7 @@
 
       <main>
         <div class="setting-page">
-          <h1 class="setting-title">Settings</h1>
+          <h1 class="setting-title">{{ t('setting_proxy_donate') }}</h1>
 
           <!-- Setting Nav -->
           <nav class="setting-nav">
@@ -536,7 +536,7 @@
                 <div v-if="donorAddress && /^0x[0-9a-fA-F]{40}$/.test(donorAddress)" class="recipient-card">
                   <div class="recipient-avatar">{{ donorNickname ? donorNickname.charAt(0).toUpperCase() : '?' }}</div>
                   <div class="recipient-info">
-                    <div class="recipient-name">{{ donorNickname || 'Unknown User' }}</div>
+                    <div class="recipient-name">{{ donorNickname || t('unknown_user') }}</div>
                     <div class="recipient-address">{{ donorAddress }}</div>
                   </div>
                 </div>
@@ -550,7 +550,7 @@
                 <select v-else v-model="selectedNftIndex">
                   <option :value="null" disabled>{{ t('proxy_select_nft') }}</option>
                   <option v-for="(nft, idx) in ownedNfts" :key="idx" :value="idx">
-                    {{ nft.artistName }} #{{ nft.tokenId }} — {{ nft.name || 'Unnamed' }}
+                    {{ nft.artistName }} #{{ nft.tokenId }} — {{ nft.name || t('unnamed') }}
                   </option>
                 </select>
               </div>
@@ -567,7 +567,7 @@
                 </div>
                 <div class="stepper-row">
                   <button class="stepper-btn" @click="amount = Math.max(0, (amount || 0) - 1)">−</button>
-                  <input type="number" v-model.number="amount" placeholder="Custom" step="0.1" min="0" />
+                  <input type="number" v-model.number="amount" :placeholder="t('custom_amount')" step="0.1" min="0" />
                   <button class="stepper-btn" @click="amount = (amount || 0) + 1">+</button>
                   <span class="input-unit">POL</span>
                 </div>
