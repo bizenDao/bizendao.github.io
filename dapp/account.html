@@ -432,8 +432,8 @@
             <p data-i18n="wallet_prompt">ウォレットを接続して、備前焼NFTコレクションを確認しましょう。</p>
 
             <button v-if="metamaskAvailable" class="btn btn-connect" @click="connectWallet" :disabled="connecting">
-              <span v-if="connecting" data-i18n="connecting">接続中...</span>
-              <span v-else data-i18n="connect_wallet">🦊 ウォレットを接続</span>
+              <span v-if="connecting">{{ t('connecting') }}</span>
+              <span v-else>{{ t('connect_wallet') }}</span>
             </button>
 
             <div v-else class="no-metamask">
@@ -455,7 +455,7 @@
                   <template v-else>🦊</template>
                   {{ nickname || shortAddress }} <span v-if="nicknameLoading" class="nickname-spinner"></span>
                 </span>
-                <span v-if="isViewMode" class="view-badge">閲覧モード</span>
+                <span v-if="isViewMode" class="view-badge">{{ t('view_mode') }}</span>
                 <span v-if="hasSbt" class="sbt-badge">✓ BizenDAO Member</span>
               </div>
               <div class="wallet-actions">
@@ -463,8 +463,8 @@
                   <span class="network-dot"></span>
                   <span>Polygon</span>
                 </div>
-                <button v-if="!isViewMode" class="btn btn-disconnect" @click="disconnectWallet" data-i18n="disconnect">切断</button>
-                <a v-else class="btn btn-disconnect" href="account.html" data-i18n="connect_own">自分のウォレットで接続</a>
+                <button v-if="!isViewMode" class="btn btn-disconnect" @click="disconnectWallet">{{ t('disconnect') }}</button>
+                <a v-else class="btn btn-disconnect" href="account.html">{{ t('connect_own') }}</a>
               </div>
             </div>
 
@@ -570,6 +570,8 @@
           metamaskAvailable() {
             return Wallet.isAvailable();
           },
+          lang() { return window.i18n ? window.i18n.lang() : 'ja'; },
+          contentBase() { return window.i18n ? window.i18n.contentBase() : '../ja'; },
 
           isViewMode() {
             return this.viewMode === 'view';
@@ -619,9 +621,16 @@
               this.loadPortfolio();
             }
           }
+          if (window.i18n) { window.i18n.apply(); }
+          // Update dapp-internal links with lang param
+          document.querySelectorAll('a[data-dapp]').forEach(a => {
+            if (window.i18n) a.href = window.i18n.dappLink(a.getAttribute('data-dapp'));
+          });
         },
 
         methods: {
+          t(key) { return window.i18n ? window.i18n.t(key) : key; },
+
           // ── ウォレット接続 ──
 
           async connectWallet() {

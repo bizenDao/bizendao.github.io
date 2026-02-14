@@ -38,7 +38,7 @@
             <button v-if="metamaskAvailable" class="btn btn-connect" @click="connectWallet" :disabled="connecting">
               {{ connecting ? '接続中...' : '🦊 ウォレットを接続' }}
             </button>
-            <p v-else data-i18n="no_metamask">MetaMaskがインストールされていません</p>
+            <p v-else>{{ t('no_metamask') }}</p>
           </div>
 
           <!-- 権限なし -->
@@ -69,10 +69,10 @@
                   <tr v-for="addr in admins" :key="addr">
                     <td class="mono">{{ addr }}</td>
                     <td class="actions">
-                      <button class="btn btn-sm btn-danger" @click="removeAdmin(addr)" :disabled="sending" data-i18n="remove">削除</button>
+                      <button class="btn btn-sm btn-danger" @click="removeAdmin(addr)" :disabled="sending">{{ t('remove') }}</button>
                     </td>
                   </tr>
-                  <tr v-if="admins.length === 0"><td colspan="2" class="empty" data-i18n="no_admins">管理者が登録されていません</td></tr>
+                  <tr v-if="admins.length === 0"><td colspan="2" class="empty">{{ t('no_admins') }}</td></tr>
                 </tbody>
               </table>
             </div>
@@ -82,7 +82,7 @@
               <h2 class="section-heading">Add Admin</h2>
               <div class="form-row">
                 <input type="text" v-model="newAdmin" class="form-input mono" placeholder="0x..." />
-                <button class="btn btn-primary" @click="addAdmin" :disabled="!newAdmin || sending" data-i18n="add">追加</button>
+                <button class="btn btn-primary" @click="addAdmin" :disabled="!newAdmin || sending">{{ t('add') }}</button>
               </div>
             </div>
 
@@ -114,8 +114,10 @@
         async mounted() {
           const r = await Wallet.reconnect();
           if (r) { this.connected = true; await this.init(); }
+          if (window.i18n) { window.i18n.apply(); }
         },
         methods: {
+          t(key) { return window.i18n ? window.i18n.t(key) : key; },
           async connectWallet() {
             this.connecting = true;
             try {

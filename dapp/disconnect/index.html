@@ -211,7 +211,7 @@
             <button v-if="metamaskAvailable" class="btn btn-connect" @click="connectWallet" :disabled="connecting">
               {{ connecting ? '接続中...' : '🦊 ウォレットを接続' }}
             </button>
-            <p v-else style="opacity:0.5;" data-i18n="no_metamask">MetaMaskがインストールされていません</p>
+            <p v-else style="opacity:0.5;">{{ t('no_metamask') }}</p>
           </div>
 
           <!-- 接続済み -->
@@ -311,6 +311,8 @@
         },
         computed: {
           metamaskAvailable() { return Wallet.isAvailable(); },
+          lang() { return window.i18n ? window.i18n.lang() : 'ja'; },
+          contentBase() { return window.i18n ? window.i18n.contentBase() : '../../ja'; },
         },
         async mounted() {
           const r = await Wallet.reconnect();
@@ -320,8 +322,15 @@
             await Wallet.ensurePolygon();
             await this.checkStatus();
           }
+          if (window.i18n) { window.i18n.apply(); }
+          // Update dapp-internal links with lang param
+          document.querySelectorAll('a[data-dapp]').forEach(a => {
+            if (window.i18n) a.href = window.i18n.dappLink(a.getAttribute('data-dapp'));
+          });
         },
         methods: {
+          t(key) { return window.i18n ? window.i18n.t(key) : key; },
+
           async connectWallet() {
             this.connecting = true; this.error = null;
             try {

@@ -661,7 +661,7 @@
                 :disabled="loading || !contractAddress"
               >
                 <span v-if="loading" class="loading-spinner"></span>
-                <span v-else data-i18n="token_fetch">NFT情報を取得</span>
+                <span v-else>{{ t('token_fetch') }}</span>
               </button>
               <button class="btn" @click="loadSampleContract">
                 サンプルNFTを表示
@@ -688,8 +688,8 @@
 
                 <!-- オーナー操作ボタン -->
                 <div v-if="isOwner" class="owner-actions">
-                  <button class="btn btn-send" @click="showSendModal = true" :disabled="sendingTx" data-i18n="send">📤 Send</button>
-                  <button class="btn btn-burn" @click="confirmBurn" :disabled="sendingTx" data-i18n="burn">🔥 Burn</button>
+                  <button class="btn btn-send" @click="showSendModal = true" :disabled="sendingTx">{{ t('send') }}</button>
+                  <button class="btn btn-burn" @click="confirmBurn" :disabled="sendingTx">{{ t('burn') }}</button>
                 </div>
                 <div v-if="txMessage" :class="['tx-message', txClass]">{{ txMessage }}</div>
 
@@ -704,10 +704,10 @@
                     <p v-else-if="sendTo && sendToLookedUp" class="send-to-nick unknown">未登録のアドレスです</p>
                     <div class="send-modal-actions">
                       <button class="btn btn-send" @click="sendNft" :disabled="sendingTx || !sendTo">
-                        <span v-if="sendingTx">送信中...</span>
-                        <span v-else data-i18n="send">送信</span>
+                        <span v-if="sendingTx">{{ t('sending') }}</span>
+                        <span v-else>{{ t('send') }}</span>
                       </button>
-                      <button class="btn" @click="showSendModal = false" :disabled="sendingTx" data-i18n="cancel">キャンセル</button>
+                      <button class="btn" @click="showSendModal = false" :disabled="sendingTx">{{ t('cancel') }}</button>
                     </div>
                   </div>
                 </div>
@@ -931,6 +931,8 @@
           tbaNftAssets() {
             return this.tbaAssets.filter(a => a.type === 'nft');
           },
+          lang() { return window.i18n ? window.i18n.lang() : 'ja'; },
+          contentBase() { return window.i18n ? window.i18n.contentBase() : '../ja'; },
           isOwner() {
             if (!this.connectedAddress || !this.ownerAddress) return false;
             return this.connectedAddress.toLowerCase() === this.ownerAddress.toLowerCase();
@@ -956,9 +958,16 @@
 
           // ESCキーイベント
           window.addEventListener("keydown", this.handleEscape);
+          if (window.i18n) { window.i18n.apply(); }
+          // Update dapp-internal links with lang param
+          document.querySelectorAll('a[data-dapp]').forEach(a => {
+            if (window.i18n) a.href = window.i18n.dappLink(a.getAttribute('data-dapp'));
+          });
         },
 
         methods: {
+          t(key) { return window.i18n ? window.i18n.t(key) : key; },
+
           initializeEthers() {
             this.web3 = new Web3(CONFIG.chain.rpc);
             this.showStatus("接続完了", "success");

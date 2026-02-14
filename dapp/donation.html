@@ -629,6 +629,8 @@
           metamaskAvailable() {
             return Wallet.isAvailable();
           },
+          lang() { return window.i18n ? window.i18n.lang() : 'ja'; },
+          contentBase() { return window.i18n ? window.i18n.contentBase() : '../ja'; },
           shortAddress() {
             return Wallet.shortAddress(this.address);
           },
@@ -652,9 +654,16 @@
             this.loadWalletData();
             this.nicknameLoading = true; NFTHelper.getNickname(this.address).then(nick => { this.nickname = nick; }).finally(() => { this.nicknameLoading = false; });
           }
+          if (window.i18n) { window.i18n.apply(); }
+          // Update dapp-internal links with lang param
+          document.querySelectorAll('a[data-dapp]').forEach(a => {
+            if (window.i18n) a.href = window.i18n.dappLink(a.getAttribute('data-dapp'));
+          });
         },
 
         methods: {
+          t(key) { return window.i18n ? window.i18n.t(key) : key; },
+
           // ── ウォレット ──
 
           async connectWallet() {
