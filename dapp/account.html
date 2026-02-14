@@ -761,6 +761,9 @@
             this.error = null;
             this.loadingMessage = this.t('loading_nft');
 
+            // checksum address
+            try { this.address = NFTHelper.getWeb3().utils.toChecksumAddress(this.address); } catch(e) {}
+
             // ニックネーム取得（非同期、表示をブロックしない）
             this.nicknameLoading = true;
             NFTHelper.getNickname(this.address).then(nick => { this.nickname = nick; }).finally(() => { this.nicknameLoading = false; });

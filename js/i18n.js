@@ -185,6 +185,7 @@
 
       // UI Common
       logo_alt: 'ロゴ',
+      view_mode: '閲覧モード',
       toggle_menu: 'メニューを開閉',
       site_menu: 'サイトメニュー',
       view_on_polygonscan: 'PolygonScanで確認',
@@ -441,6 +442,7 @@
 
       // UI Common
       logo_alt: 'Logo',
+      view_mode: 'View Mode',
       toggle_menu: 'Toggle menu',
       site_menu: 'Site menu',
       view_on_polygonscan: 'View on PolygonScan',
