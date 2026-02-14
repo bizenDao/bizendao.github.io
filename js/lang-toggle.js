@@ -1,11 +1,8 @@
 /**
  * BizenDAO Language Toggle
  * 
- * Handles EN/JP switching for both content pages (ja/ ↔ en/)
- * and dapp pages (?lang=ja ↔ ?lang=en)
- * 
- * Include this script in all pages. It auto-detects page type
- * from the URL path.
+ * EN / JP links — active language is white, inactive is gray.
+ * Works for both content pages (ja/ ↔ en/) and dapp pages (?lang=).
  */
 (function () {
   'use strict';
@@ -14,11 +11,6 @@
   var search = window.location.search;
   var hash = window.location.hash;
 
-  /**
-   * Detect current language
-   * - Content pages: from path (/ja/ or /en/)
-   * - Dapp pages: from ?lang= param
-   */
   function detectLang() {
     if (/\/ja\//.test(path)) return 'ja';
     if (/\/en\//.test(path)) return 'en';
@@ -26,41 +18,34 @@
     return params.get('lang') || 'ja';
   }
 
-  /**
-   * Get the URL for the opposite language
-   */
-  function getToggleUrl() {
-    var current = detectLang();
-    var target = current === 'ja' ? 'en' : 'ja';
-
-    // Content pages: swap /ja/ ↔ /en/ in path
+  function getUrl(targetLang) {
+    // Content pages: swap /ja/ ↔ /en/
     if (/\/(ja|en)\//.test(path)) {
-      return path.replace(/\/(ja|en)\//, '/' + target + '/') + search + hash;
+      return path.replace(/\/(ja|en)\//, '/' + targetLang + '/') + search + hash;
     }
-
     // Dapp pages: swap ?lang= param
     var params = new URLSearchParams(search);
-    params.set('lang', target);
+    params.set('lang', targetLang);
     return path + '?' + params.toString() + hash;
   }
 
-  /**
-   * Update button label to show current state
-   */
-  function updateButton(btn) {
-    var current = detectLang();
-    btn.textContent = current === 'ja' ? 'EN' : 'JP';
-    btn.title = current === 'ja' ? 'Switch to English' : '日本語に切り替え';
-  }
-
-  // Bind click handlers on DOMContentLoaded
   function init() {
-    var buttons = document.querySelectorAll('.lang-toggle');
+    var current = detectLang();
+    var buttons = document.querySelectorAll('.lang-btn');
+
     for (var i = 0; i < buttons.length; i++) {
-      updateButton(buttons[i]);
-      buttons[i].addEventListener('click', function () {
-        window.location.href = getToggleUrl();
-      });
+      var btn = buttons[i];
+      var lang = btn.getAttribute('data-lang');
+
+      // Set href
+      btn.href = getUrl(lang);
+
+      // Active state
+      if (lang === current) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
     }
   }
 
