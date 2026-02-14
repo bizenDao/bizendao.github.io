@@ -190,6 +190,12 @@
       mint_success: 'ミント完了',
       mint_pol_balance: 'POL 残高',
       mint_donate_points: '寄付ポイント',
+      mint_need_points: '必要ポイント',
+      mint_no_points_needed: 'ポイント不要',
+      mint_creator_only_label: 'Creator/Owner 限定',
+      mint_creator_only: 'このコントラクトは Creator/Owner のみミント可能です',
+      mint_insufficient_points: 'ポイント不足（必要: {need} pt / 所持: {have} pt）',
+      mint_mintable: 'ミント可能',
       mint_no_permission: 'Admin または Creator 権限が必要です',
 
       // Setting - Proxy Donate
@@ -403,6 +409,12 @@
       mint_success: 'Mint Complete',
       mint_pol_balance: 'POL Balance',
       mint_donate_points: 'Donate Points',
+      mint_need_points: 'Required Points',
+      mint_no_points_needed: 'No points required',
+      mint_creator_only_label: 'Creator/Owner only',
+      mint_creator_only: 'This contract is restricted to Creator/Owner',
+      mint_insufficient_points: 'Insufficient points (need: {need} pt / have: {have} pt)',
+      mint_mintable: 'Mintable',
       mint_no_permission: 'Admin or Creator permission required',
 
       // Setting - Proxy Donate

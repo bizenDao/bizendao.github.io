@@ -155,6 +155,7 @@ ABI.ERC721Mint = [
   { "constant": true, "inputs": [], "name": "owner", "outputs": [{ "name": "", "type": "address" }], "type": "function" },
   { "constant": true, "inputs": [], "name": "creator", "outputs": [{ "name": "", "type": "address" }], "type": "function" },
   { "constant": true, "inputs": [], "name": "creatorOnly", "outputs": [{ "name": "", "type": "bool" }], "type": "function" },
+  { "constant": true, "inputs": [], "name": "_usePoint", "outputs": [{ "name": "", "type": "uint256" }], "type": "function" },
 ];
 
 ABI.ERC721Full = [...ABI.ERC721, ...ABI.ERC721Enumerable];

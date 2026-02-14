@@ -254,6 +254,27 @@
 
       @keyframes spin { to { transform: rotate(360deg); } }
 
+      .contract-status {
+        margin-top: 10px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+      }
+
+      .contract-status.status-ok {
+        background: rgba(111, 207, 138, 0.08);
+        border: 1px solid rgba(111, 207, 138, 0.2);
+      }
+
+      .contract-status.status-ng {
+        background: rgba(255, 107, 107, 0.08);
+        border: 1px solid rgba(255, 107, 107, 0.2);
+      }
+
+      .status-item { padding: 2px 0; }
+      .status-error { color: #ff6b6b; font-weight: 600; }
+      .status-success { color: #6fcf8a; font-weight: 600; }
+
       .contract-info {
         margin-top: 8px;
         font-size: 12px;
@@ -369,6 +390,14 @@
                 </option>
               </select>
               <div v-if="selectedContract" class="contract-info">{{ selectedContract }}</div>
+              <div v-if="contractInfoLoading" class="meta-loading" style="margin-top:8px;"><span class="loading-spinner"></span></div>
+              <div v-else-if="contractInfo" class="contract-status" :class="{ 'status-ok': contractInfo.mintable, 'status-ng': !contractInfo.mintable }">
+                <div v-if="contractInfo.needPoint > 0" class="status-item">{{ t('mint_need_points') }}: {{ contractInfo.needPoint }} pt</div>
+                <div v-else class="status-item">{{ t('mint_no_points_needed') }}</div>
+                <div v-if="contractInfo.creatorOnly" class="status-item">{{ t('mint_creator_only_label') }}</div>
+                <div v-if="!contractInfo.mintable" class="status-item status-error">{{ contractInfo.reason }}</div>
+                <div v-else class="status-item status-success">{{ t('mint_mintable') }}</div>
+              </div>
             </div>
 
             <!-- Token URI -->
@@ -435,6 +464,9 @@
             mintTo: '',
             mintToNickname: null,
             mintToNickLoading: false,
+            // Contract info
+            contractInfo: null,
+            contractInfoLoading: false,
             // Metadata preview
             metadata: null,
             metaLoading: false,
@@ -457,7 +489,9 @@
             return this.selectedContract
               && this.tokenUri.trim()
               && this.mintTo
-              && /^0x[0-9a-fA-F]{40}$/.test(this.mintTo);
+              && /^0x[0-9a-fA-F]{40}$/.test(this.mintTo)
+              && this.contractInfo
+              && this.contractInfo.mintable;
           },
         },
 
@@ -545,9 +579,51 @@
             this.contractsLoading = false;
           },
 
-          onContractChange() {
+          async onContractChange() {
             this.txHash = null;
             this.error = null;
+            this.contractInfo = null;
+            if (!this.selectedContract) return;
+
+            this.contractInfoLoading = true;
+            try {
+              const web3 = NFTHelper.getWeb3();
+              const contract = new web3.eth.Contract([...ABI.ERC721, ...ABI.ERC721Mint], this.selectedContract);
+              const info = {};
+
+              try { info.creatorOnly = await contract.methods.creatorOnly().call(); } catch (e) { info.creatorOnly = false; }
+              try { info.creator = await contract.methods.creator().call(); } catch (e) { info.creator = null; }
+              try { info.owner = await contract.methods.owner().call(); } catch (e) { info.owner = null; }
+              try {
+                const pts = await contract.methods._usePoint().call();
+                info.needPoint = Number(pts) / 1e18;
+              } catch (e) { info.needPoint = 0; }
+
+              // mintable check
+              const addr = this.address.toLowerCase();
+              if (info.creatorOnly) {
+                info.mintable = (info.creator && info.creator.toLowerCase() === addr)
+                             || (info.owner && info.owner.toLowerCase() === addr);
+                info.reason = info.mintable ? '' : this.t('mint_creator_only');
+              } else {
+                info.mintable = true;
+                info.reason = '';
+              }
+
+              // points check
+              if (info.mintable && info.needPoint > 0) {
+                const donatePoints = parseFloat(this.donatePoints) || 0;
+                if (donatePoints < info.needPoint) {
+                  info.mintable = false;
+                  info.reason = this.t('mint_insufficient_points').replace('{need}', info.needPoint).replace('{have}', donatePoints);
+                }
+              }
+
+              this.contractInfo = info;
+            } catch (e) {
+              console.warn('contract info check error:', e);
+            }
+            this.contractInfoLoading = false;
           },
 
           // Metadata preview
