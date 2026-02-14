@@ -620,13 +620,13 @@
           aria-label="サイトメニュー"
         >
           <ul class="drawer-nav">
-            <li><a href="#" data-nav="top" data-i18n="nav_top">トップページ</a></li>
-            <li><a href="#" data-nav="artists" data-i18n="nav_artists">作家紹介</a></li>
-            <li><a href="#" data-nav="company" data-i18n="nav_company">会社概要</a></li>
-            <li><a href="#" data-nav="discord" data-i18n="nav_discord">Discordリンク</a></li>
-            <li><a href="#" data-nav="meta" data-i18n="nav_meta">作品使用歴作成</a></li>
-            <li><a href="#" data-dapp="./donation.html" data-i18n="nav_donate">寄付ポイント</a></li>
-            <li><a href="#" data-dapp="./account.html" data-i18n="nav_mypage">マイページ</a></li>
+            <li><a href="#" data-nav="top">{{ t('nav_top') }}</a></li>
+            <li><a href="#" data-nav="artists">{{ t('nav_artists') }}</a></li>
+            <li><a href="#" data-nav="company">{{ t('nav_company') }}</a></li>
+            <li><a href="#" data-nav="discord">{{ t('nav_discord') }}</a></li>
+            <li><a href="#" data-nav="meta">{{ t('nav_meta') }}</a></li>
+            <li><a href="#" data-dapp="./donation.html">{{ t('nav_donate') }}</a></li>
+            <li><a href="#" data-dapp="./account.html">{{ t('nav_mypage') }}</a></li>
           </ul>
         </aside>
       </header>
@@ -637,7 +637,7 @@
           <div v-if="showControlPanel" class="control-panel">
             <div class="input-group">
               <div class="input-field">
-                <label data-i18n="token_contract_addr">NFTコントラクトアドレス</label>
+                <label>{{ t('token_contract_addr') }}</label>
                 <input
                   type="text"
                   v-model="contractAddress"
@@ -646,7 +646,7 @@
                 />
               </div>
               <div class="input-field">
-                <label data-i18n="token_id_optional">トークンID（オプション）</label>
+                <label>{{ t('token_id_optional') }}</label>
                 <input
                   type="text"
                   v-model="tokenId"
@@ -700,7 +700,7 @@
                   <div class="send-modal">
                     <h3>NFTを送信</h3>
                     <p class="send-token-info">{{ nft.name }} #{{ nft.tokenId }}</p>
-                    <input v-model="sendTo" class="send-input" placeholder="送信先アドレス (0x...)" @input="lookupSendToNickname" data-i18n="send_to" data-i18n-attr="placeholder" />
+                    <input v-model="sendTo" class="send-input" :placeholder="t('send_to')" @input="lookupSendToNickname" />
                     <p v-if="sendToNicknameLoading" class="send-to-nick"><span class="nickname-spinner"></span> 検索中...</p>
                     <p v-else-if="sendToNickname" class="send-to-nick">👤 {{ sendToNickname }}</p>
                     <p v-else-if="sendTo && sendToLookedUp" class="send-to-nick unknown">未登録のアドレスです</p>
@@ -776,7 +776,7 @@
                     v-if="nft.attributes && nft.attributes.length > 0"
                     class="metadata-section"
                   >
-                    <h3 class="metadata-title" data-i18n="attributes">属性</h3>
+                    <h3 class="metadata-title">{{ t('attributes') }}</h3>
                     <div class="metadata-grid">
                       <div
                         v-for="(attr, index) in nft.attributes"
@@ -808,7 +808,7 @@
           <!-- TBA (Token Bound Account) セクション — アセットがある時のみ表示 -->
           <div v-if="nfts.length > 0 && !tbaLoading && tbaAssets.length > 0" class="tba-section">
             <div class="tba-header">
-              <h3 data-i18n="tba_title">📦 Token Bound Account</h3>
+              <h3>{{ t('tba_title') }}</h3>
               <div v-if="tbaAddress" class="tba-address">
                 <a :href="polygonscanAddress(tbaAddress)" target="_blank">{{ shortAddr(tbaAddress) }}</a>
               </div>
@@ -864,7 +864,7 @@
             <div v-if="loading" class="loading-overlay">
               <div class="loading-content">
                 <div class="loading-spinner"></div>
-                <p data-i18n="loading">NFT情報を読み込み中...</p>
+                <p>{{ t('loading') }}</p>
               </div>
             </div>
           </transition>
@@ -1108,14 +1108,14 @@
           async sendNft() {
             if (!this.sendTo || !this.isOwner) return;
             if (!/^0x[0-9a-fA-F]{40}$/.test(this.sendTo)) {
-              this.txMessage = '無効なアドレスです';
+              this.txMessage = this.t('tx_invalid_address');
               this.txClass = 'tx-error';
               return;
             }
             const dest = this.sendToNickname ? `${this.sendToNickname} (${this.shortAddr(this.sendTo)})` : this.sendTo;
             if (!confirm(`${dest} に送信しますか？`)) return;
             this.sendingTx = true;
-            this.txMessage = 'トランザクション送信中...';
+            this.txMessage = this.t('tx_sending');
             this.txClass = 'tx-pending';
             try {
               const web3 = new Web3(window.ethereum);
@@ -1125,23 +1125,23 @@
               );
               await contract.methods.transferFrom(this.connectedAddress, this.sendTo, this.tokenId || 1)
                 .send({ from: this.connectedAddress });
-              this.txMessage = '送信完了！';
+              this.txMessage = this.t('tx_sent');
               this.txClass = 'tx-success';
               this.showSendModal = false;
               this.sendTo = '';
               // Owner再取得
               this.fetchOwner(this.tokenId || 1);
             } catch (e) {
-              this.txMessage = e.message?.includes('denied') ? 'キャンセルされました' : `エラー: ${e.message}`;
+              this.txMessage = e.message?.includes('denied') ? this.t('tx_cancelled') : this.t('error') + ' ' + e.message;
               this.txClass = 'tx-error';
             }
             this.sendingTx = false;
           },
 
           async confirmBurn() {
-            if (!confirm('このNFTをBurn（焼却）しますか？この操作は取り消せません。')) return;
+            if (!confirm(this.t('burn_confirm'))) return;
             this.sendingTx = true;
-            this.txMessage = 'Burn トランザクション送信中...';
+            this.txMessage = this.t('tx_burning');
             this.txClass = 'tx-pending';
             try {
               const web3 = new Web3(window.ethereum);
@@ -1152,11 +1152,11 @@
               const DEAD = '0x000000000000000000000000000000000000dEaD';
               await contract.methods.transferFrom(this.connectedAddress, DEAD, this.tokenId || 1)
                 .send({ from: this.connectedAddress });
-              this.txMessage = 'Burn完了';
+              this.txMessage = this.t('tx_burned');
               this.txClass = 'tx-success';
               this.fetchOwner(this.tokenId || 1);
             } catch (e) {
-              this.txMessage = e.message?.includes('denied') ? 'キャンセルされました' : `エラー: ${e.message}`;
+              this.txMessage = e.message?.includes('denied') ? this.t('tx_cancelled') : this.t('error') + ' ' + e.message;
               this.txClass = 'tx-error';
             }
             this.sendingTx = false;

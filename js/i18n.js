@@ -117,6 +117,15 @@
       hidden: '非公開',
       edit: '編集',
 
+      // Transaction
+      tx_invalid_address: '無効なアドレスです',
+      tx_sending: 'トランザクション送信中...',
+      tx_sent: '送信完了！',
+      tx_burning: 'Burn トランザクション送信中...',
+      tx_burned: 'Burn完了',
+      tx_cancelled: 'キャンセルされました',
+      donate_failed: '寄付に失敗しました',
+
       // Loading
       loading_nft: 'NFTを検索中...',
       loading_membership: 'メンバーシップを確認中...',
@@ -229,6 +238,15 @@
       visible: 'Visible',
       hidden: 'Hidden',
       edit: 'Edit',
+
+      // Transaction
+      tx_invalid_address: 'Invalid address',
+      tx_sending: 'Sending transaction...',
+      tx_sent: 'Sent successfully!',
+      tx_burning: 'Sending burn transaction...',
+      tx_burned: 'Burn complete',
+      tx_cancelled: 'Cancelled',
+      donate_failed: 'Donation failed',
 
       // Loading
       loading_nft: 'Searching NFTs...',
