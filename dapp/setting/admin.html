@@ -45,14 +45,14 @@
 
       <main>
         <div class="setting-page">
-          <h1 class="setting-title">Admin Settings</h1>
+          <h1 class="setting-title">{{ t('setting_admin') }}</h1>
 
           <!-- Setting Nav -->
           <nav class="setting-nav">
-            <a href="admin.html" class="setting-nav-item active">Admin</a>
-            <a href="creator.html" class="setting-nav-item">Creator</a>
-            <a href="contract.html" class="setting-nav-item">Contract</a>
-            <a href="index.html" class="setting-nav-item">Proxy Donate</a>
+            <a href="admin.html" class="setting-nav-item active">{{ t('setting_admin') }}</a>
+            <a href="creator.html" class="setting-nav-item">{{ t('setting_creator') }}</a>
+            <a href="contract.html" class="setting-nav-item">{{ t('setting_contract') }}</a>
+            <a href="index.html" class="setting-nav-item">{{ t('setting_proxy_donate') }}</a>
           </nav>
 
           <!-- 未接続 -->
@@ -78,11 +78,11 @@
 
             <!-- 管理者一覧 -->
             <div class="section-card">
-              <h2 class="section-heading">Admin List</h2>
+              <h2 class="section-heading">{{ t('admin_list') }}</h2>
               <div v-if="loading" class="loading-center"><span class="loading-spinner"></span></div>
               <table v-else class="data-table">
                 <thead>
-                  <tr><th>Address</th><th></th></tr>
+                  <tr><th>{{ t('address') }}</th><th></th></tr>
                 </thead>
                 <tbody>
                   <tr v-for="addr in admins" :key="addr">
@@ -98,7 +98,7 @@
 
             <!-- 追加フォーム -->
             <div class="section-card">
-              <h2 class="section-heading">Add Admin</h2>
+              <h2 class="section-heading">{{ t('add_admin') }}</h2>
               <div class="form-row">
                 <input type="text" v-model="newAdmin" class="form-input mono" placeholder="0x..." />
                 <button class="btn btn-primary" @click="addAdmin" :disabled="!newAdmin || sending">{{ t('add') }}</button>
@@ -164,18 +164,18 @@
             this.sending = true; this.error = null; this.success = null;
             try {
               await Manager.setAdmin(this.newAdmin);
-              this.success = 'Admin追加完了';
+              this.success = this.t('admin_added');
               this.newAdmin = '';
               this.admins = await Manager.getAdmins();
             } catch (e) { this.error = e.message; }
             this.sending = false;
           },
           async removeAdmin(addr) {
-            if (!confirm(addr + ' を管理者から削除しますか？')) return;
+            if (!confirm(addr + this.t('confirm_remove_admin'))) return;
             this.sending = true; this.error = null; this.success = null;
             try {
               await Manager.delAdmin(addr);
-              this.success = 'Admin削除完了';
+              this.success = this.t('admin_removed');
               this.admins = await Manager.getAdmins();
             } catch (e) { this.error = e.message; }
             this.sending = false;
