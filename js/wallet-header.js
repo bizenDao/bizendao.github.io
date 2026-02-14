@@ -11,6 +11,7 @@ const WalletHeader = {
           {{ nickname || shortAddr }} <span v-if="nicknameLoading" class="nickname-spinner"></span>
         </span>
         <div class="wh-right">
+          <span v-if="viewMode" class="wh-badge wh-badge-view">{{ t('view_mode') }}</span>
           <a v-if="userType === 'admin'" :href="settingLink" class="wh-role wh-role-admin">admin</a>
           <a v-else-if="userType === 'creator'" :href="settingLink" class="wh-role wh-role-creator">creator</a>
           <span class="wh-balances">
@@ -29,6 +30,7 @@ const WalletHeader = {
     userType: { type: String, default: 'user' },
     balance: { type: String, default: null },
     point: { type: String, default: null },
+    viewMode: { type: Boolean, default: false },
     settingBase: { type: String, default: 'setting/index.html' },
   },
 
@@ -65,6 +67,7 @@ const WalletHeader = {
   },
 
   methods: {
+    t(key) { return window.i18n ? window.i18n.t(key) : key; },
     async fetchBalances(addr) {
       try {
         if (typeof web3 !== 'undefined' && this.balance == null) {
@@ -109,6 +112,8 @@ const WalletHeader = {
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 10px;
+      flex-wrap: wrap;
+      gap: 8px;
     }
 
     .wh-address {
@@ -123,6 +128,7 @@ const WalletHeader = {
       display: flex;
       align-items: center;
       gap: 10px;
+      flex-wrap: wrap;
     }
 
     .wh-balances {
@@ -140,6 +146,20 @@ const WalletHeader = {
     .wh-point {
       color: #ffcc66;
       opacity: 0.85;
+    }
+
+    .wh-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 16px;
+      font-size: 12px;
+    }
+
+    .wh-badge-view {
+      background: rgba(107,182,255,0.12);
+      border: 1px solid rgba(107,182,255,0.3);
+      color: #6bb6ff;
     }
 
     .wh-role {

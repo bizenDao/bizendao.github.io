@@ -112,7 +112,7 @@
           </div>
 
           <template v-else>
-            <wallet-header :address="address" user-type="admin"></wallet-header>
+            <wallet-header :address="address" :user-type="userType" setting-base="index.html"></wallet-header>
 
             <div v-if="error" class="error-message">{{ error }}</div>
             <div v-if="success" class="success-message">{{ success }}</div>

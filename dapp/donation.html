@@ -18,6 +18,7 @@
     <script src="../js/cache.js"></script>
     <script src="../js/nft.js"></script>
     <script src="../js/wallet.js"></script>
+    <script src="../js/manager.js"></script>
     <script src="../js/wallet-header.js"></script>
     <script src="../js/i18n.js"></script>
     <script src="../js/lang-toggle.js"></script>
@@ -526,7 +527,7 @@
           <!-- 寄付フォーム -->
           <div v-else class="donate-form">
             <wallet-header :address="address" :nickname="nickname" :nickname-loading="nicknameLoading"
-              :balance="balance"></wallet-header>
+              :user-type="userType" :balance="balance"></wallet-header>
 
             <!-- 金額プリセット -->
             <div class="form-section">
@@ -601,6 +602,7 @@
             address: null,
             nickname: null,
             nicknameLoading: false,
+            userType: 'user',
             balance: '0',
             amount: null,
             detail: '',
@@ -647,6 +649,7 @@
             await Wallet.ensurePolygon();
             this.loadWalletData();
             this.nicknameLoading = true; NFTHelper.getNickname(this.address).then(nick => { this.nickname = nick; }).finally(() => { this.nicknameLoading = false; });
+            Manager.checkUser().then(ut => { this.userType = ut; }).catch(() => {});
           }
           if (window.i18n) { window.i18n.apply(); }
           // Update dapp-internal links with lang param
@@ -670,6 +673,7 @@
               this.connected = true;
               this.setupWalletCallbacks();
               this.nicknameLoading = true; NFTHelper.getNickname(this.address).then(nick => { this.nickname = nick; }).finally(() => { this.nicknameLoading = false; });
+              Manager.checkUser().then(ut => { this.userType = ut; }).catch(() => {});
               await this.loadWalletData();
             } catch (e) {
               this.error = e.message;

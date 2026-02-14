@@ -19,6 +19,7 @@
     <script src="../js/nft.js"></script>
     <script src="../js/wallet.js"></script>
     <script src="../js/manager.js"></script>
+    <script src="../js/wallet-header.js"></script>
     <script src="../js/i18n.js"></script>
     <script src="../js/lang-toggle.js"></script>
 
@@ -511,26 +512,15 @@
           <template v-else>
 
             <!-- ウォレットヘッダー -->
-            <div class="wallet-header">
-              <div class="wallet-info">
-                <span class="wallet-address copyable" @click="copyEoa" :title="address">
-                  <template v-if="isViewMode"></template>
-                  <template v-else></template>
-                  {{ nickname || shortAddress }} <span v-if="nicknameLoading" class="nickname-spinner"></span>
-                </span>
-                <span v-if="isViewMode" class="view-badge">{{ t('view_mode') }}</span>
-                <a v-if="userType === 'admin'" href="setting/index.html" class="role-badge role-admin">admin</a>
-                <a v-else-if="userType === 'creator'" href="setting/index.html" class="role-badge role-creator">creator</a>
-                <!-- SBT badge removed -->
+            <wallet-header :address="address" :nickname="nickname" :nickname-loading="nicknameLoading"
+              :user-type="userType" :view-mode="isViewMode"></wallet-header>
+            <div class="wallet-actions">
+              <div class="network-badge">
+                <span class="network-dot"></span>
+                <span>Polygon</span>
               </div>
-              <div class="wallet-actions">
-                <div class="network-badge">
-                  <span class="network-dot"></span>
-                  <span>Polygon</span>
-                </div>
-                <button v-if="!isViewMode" class="btn btn-disconnect" @click="disconnectWallet">{{ t('disconnect') }}</button>
-                <a v-else class="btn btn-disconnect" :href="'account.html?lang=' + lang">{{ t('connect_own') }}</a>
-              </div>
+              <button v-if="!isViewMode" class="btn btn-disconnect" @click="disconnectWallet">{{ t('disconnect') }}</button>
+              <a v-else class="btn btn-disconnect" :href="'account.html?lang=' + lang">{{ t('connect_own') }}</a>
             </div>
 
             <!-- エラー表示 -->
@@ -857,7 +847,7 @@
             document.body.style.overflow = '';
           },
         },
-      }).mount('#app');
+      }).component('wallet-header', WalletHeader).mount('#app');
     </script>
 </body>
 </html>
