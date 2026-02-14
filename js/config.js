@@ -184,18 +184,33 @@ const RPC = {
     return new Web3(this.next());
   },
 
-  // リトライ付きRPCコール（失敗時に次のRPCへフォールオーバー）
-  async call(fn, maxRetries) {
+  // リトライ付きRPCコール（ラウンドロビン + 指数バックオフ）
+  // 全RPCを一巡 = 1ラウンド。ラウンドごとにバックオフ増加
+  async call(fn, opts) {
+    opts = opts || {};
     const urls = CONFIG.chain.rpcs;
-    maxRetries = maxRetries || urls.length;
+    const rounds = opts.rounds || 3;           // 最大ラウンド数
+    const baseMs = opts.baseMs || 1000;        // 初回バックオフ
+    const maxMs  = opts.maxMs  || 10000;       // バックオフ上限
     let lastErr;
-    for (let i = 0; i < maxRetries; i++) {
-      try {
-        const web3 = new Web3(this.next());
-        return await fn(web3);
-      } catch (e) {
-        lastErr = e;
-        console.warn(`RPC failed (${i + 1}/${maxRetries}):`, e.message);
+
+    for (let r = 0; r < rounds; r++) {
+      // ラウンド間バックオフ（初回ラウンドはなし）
+      if (r > 0) {
+        const delay = Math.min(baseMs * Math.pow(2, r - 1), maxMs);
+        const jitter = delay * (0.5 + Math.random() * 0.5); // 50-100% jitter
+        console.warn(`RPC backoff: ${Math.round(jitter)}ms before round ${r + 1}`);
+        await new Promise(resolve => setTimeout(resolve, jitter));
+      }
+      // 各RPCを順番に試す
+      for (let i = 0; i < urls.length; i++) {
+        try {
+          const web3 = new Web3(this.next());
+          return await fn(web3);
+        } catch (e) {
+          lastErr = e;
+          console.warn(`RPC failed [round ${r + 1}, endpoint ${i + 1}/${urls.length}]:`, e.message);
+        }
       }
     }
     throw lastErr;
