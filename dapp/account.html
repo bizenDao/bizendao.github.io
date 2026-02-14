@@ -515,7 +515,7 @@
             <wallet-header :address="address" :nickname="nickname" :nickname-loading="nicknameLoading"
               :user-type="userType" :view-mode="isViewMode"></wallet-header>
 
-            <div class="balance-row">
+            <div v-if="viewMode === 'self'" class="balance-row">
               <div class="balance-card">
                 <div class="balance-value">{{ polBalance }} <small>POL</small></div>
                 <div class="balance-label">{{ t('mint_pol_balance') }}</div>
