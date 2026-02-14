@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BizenDAO - 寄付</title>
+    <title>BizenDAO - Donation</title>
 
     <link rel="stylesheet" href="../css/style.css" />
 
@@ -474,19 +474,12 @@
       <main>
         <div class="donation-page">
           <h1 class="page-title">{{ t('donate_support') }}</h1>
-          <p class="page-subtitle">
-            備前焼の文化を守り、デジタル技術で世界に届ける。<br>
-            あなたの寄付がDAOの活動を支えます。
-          </p>
+          <p class="page-subtitle" v-html="t('donate_subtitle')"></p>
 
           <!-- 活動紹介 -->
           <div class="mission-card">
             <h3>{{ t('donate_desc') }}</h3>
-            BizenDAOは、備前焼の伝統文化をブロックチェーン技術で保存・発信するコミュニティです。
-            作家のNFT作品の発行支援、箱書き（SBT）による来歴証明、
-            そしてメタデータの永続化（Arweave）を通じて、
-            備前焼の価値を次世代に繋げます。
-            寄付金はアーティスト支援、インフラ維持、コミュニティ運営に使われます。
+            {{ t('donate_mission') }}
           </div>
 
           <!-- 全体統計 -->
@@ -497,11 +490,11 @@
             </div>
             <div class="stat-card">
               <div class="stat-number">{{ totalUsed }} <small style="font-size:12px">POL</small></div>
-              <div class="stat-label">累計使用ポイント</div>
+              <div class="stat-label">{{ t('total_used') }}</div>
             </div>
             <div class="stat-card">
               <div class="stat-number">{{ totalSupply }} <small style="font-size:12px">POL</small></div>
-              <div class="stat-label">現在の残高</div>
+              <div class="stat-label">{{ t('current_balance') }}</div>
             </div>
           </div>
 
@@ -510,22 +503,22 @@
 
           <!-- 送金完了 -->
           <div v-if="txHash" class="result-card result-success">
-            <h3>✅ ありがとうございます！</h3>
+            <h3>✅ {{ t('donate_thanks') }}</h3>
             <div class="result-tx">tx: {{ txHash }}</div>
             <a :href="CONFIG.chain.explorer + '/tx/' + txHash" target="_blank" class="result-link">
-              Polygonscanで確認 ↗
+              {{ t('view_on_polygonscan') }} ↗
             </a>
           </div>
 
           <!-- ウォレット未接続 -->
           <div v-if="!connected">
             <button v-if="metamaskAvailable" class="btn btn-connect" @click="connectWallet" :disabled="connecting">
-              <span v-if="connecting">接続中...</span>
-              <span v-else>🦊 ウォレットを接続して寄付する</span>
+              <span v-if="connecting">{{ t('connecting') }}</span>
+              <span v-else>🦊 {{ t('connect_to_donate') }}</span>
             </button>
             <div v-else class="no-metamask">
-              MetaMaskがインストールされていません。
-              <a href="https://metamask.io/download/" target="_blank">MetaMaskをインストール →</a>
+              {{ t('no_metamask') }}
+              <a href="https://metamask.io/download/" target="_blank">{{ t('install_metamask') }} →</a>
             </div>
           </div>
 
@@ -548,7 +541,7 @@
               </div>
               <div class="custom-input-row">
                 <input type="number" v-model.number="amount" class="custom-input"
-                       placeholder="カスタム金額" step="0.1" min="0" />
+                       :placeholder="t('custom_amount')" step="0.1" min="0" />
                 <span class="input-unit">POL</span>
               </div>
               <div v-if="jpyEstimate" class="jpy-estimate">
@@ -558,15 +551,15 @@
 
             <!-- メモ -->
             <div class="form-section">
-              <label class="form-label">メッセージ（任意）</label>
-              <input type="text" v-model="detail" class="memo-input" placeholder="応援メッセージなど" />
+              <label class="form-label">{{ t('message_optional') }}</label>
+              <input type="text" v-model="detail" class="memo-input" :placeholder="t('message_placeholder')" />
             </div>
 
             <!-- 寄付ボタン -->
             <button class="btn btn-donate" @click="executeDonate"
                     :disabled="!amount || amount <= 0 || sending || amount > parseFloat(balance)">
-              <span v-if="sending"><span class="loading-spinner"></span> 送信中...</span>
-              <span v-else>💎 {{ amount || 0 }} POL を寄付する</span>
+              <span v-if="sending"><span class="loading-spinner"></span> {{ t('tx_sending') }}</span>
+              <span v-else>💎 {{ t('donate_button').replace('{amount}', amount || 0) }}</span>
             </button>
           </div>
 
@@ -581,7 +574,7 @@
           </div>
           <div v-else-if="connected && !historyLoading" class="history-section">
             <h3 class="history-title">{{ t('donate_history') }}</h3>
-            <div class="history-empty">まだ寄付履歴がありません</div>
+            <div class="history-empty">{{ t('no_history') }}</div>
           </div>
 
           <!-- ネットワーク -->
