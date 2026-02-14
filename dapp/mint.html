@@ -602,8 +602,7 @@
               // mintable check
               const addr = this.address.toLowerCase();
               if (info.creatorOnly) {
-                info.mintable = (info.creator && info.creator.toLowerCase() === addr)
-                             || (info.owner && info.owner.toLowerCase() === addr);
+                info.mintable = this.userType === 'admin' || this.userType === 'creator';
                 info.reason = info.mintable ? '' : this.t('mint_creator_only');
               } else {
                 info.mintable = true;
