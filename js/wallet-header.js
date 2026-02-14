@@ -16,18 +16,17 @@ const WalletHeader = {
           <a v-else-if="userType === 'creator'" :href="settingLink" class="wh-role wh-role-creator">creator</a>
           <slot></slot>
           <button class="wh-disconnect" @click="doDisconnect" :title="t('disconnect')">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <!-- プラグ側（右上） -->
-              <line x1="18" y1="3" x2="18" y2="7"/>
-              <line x1="21" y1="3" x2="21" y2="7"/>
-              <rect x="15" y="7" width="9" height="4" rx="1"/>
-              <line x1="19.5" y1="11" x2="19.5" y2="14"/>
-              <!-- コンセント側（左下） -->
-              <rect x="1" y="14" width="10" height="8" rx="2"/>
-              <line x1="4" y1="17" x2="4" y2="19"/>
-              <line x1="8" y1="17" x2="8" y2="19"/>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <!-- プラグピン -->
+              <rect x="8" y="1" width="2.5" height="6" rx="1"/>
+              <rect x="13.5" y="1" width="2.5" height="6" rx="1"/>
+              <!-- プラグ本体 -->
+              <rect x="6" y="6" width="12" height="5" rx="1.5"/>
+              <!-- ケーブル -->
+              <rect x="10.5" y="11" width="3" height="4" rx="1"/>
+              <rect x="9" y="15" width="6" height="6" rx="2"/>
               <!-- 切断線 -->
-              <line x1="2" y1="2" x2="15" y2="15" stroke="#ff6b6b" stroke-width="2.5"/>
+              <line x1="2" y1="22" x2="22" y2="2" stroke="#ff6b6b" stroke-width="2.5" stroke-linecap="round"/>
             </svg>
           </button>
         </div>
