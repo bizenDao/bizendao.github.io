@@ -15,7 +15,7 @@ const WalletHeader = {
           <a v-if="userType === 'admin'" :href="settingLink" class="wh-role wh-role-admin">admin</a>
           <a v-else-if="userType === 'creator'" :href="settingLink" class="wh-role wh-role-creator">creator</a>
           <slot></slot>
-          <button class="wh-disconnect" @click="doDisconnect" :title="t('disconnect')">
+          <button v-if="!viewMode" class="wh-disconnect" @click="doDisconnect" :title="t('disconnect')">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <!-- プラグピン -->
               <rect x="8" y="1" width="2.5" height="6" rx="1"/>
