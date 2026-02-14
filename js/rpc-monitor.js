@@ -28,6 +28,9 @@ const RPCMonitor = {
       this._hideTimer = null;
     }
 
+    // ログ記録
+    this._addLog(method || 'RPC', detail || '', 'pending');
+
     // 既に表示中なら内容更新のみ
     if (this._el && this._el.classList.contains('rpc-mon--visible')) {
       this._updateContent();
@@ -59,6 +62,17 @@ const RPCMonitor = {
     if (this._showTimer) {
       clearTimeout(this._showTimer);
       this._showTimer = null;
+    }
+
+    // 最後のログエントリを完了にする
+    for (let i = this._log.length - 1; i >= 0; i--) {
+      if (this._log[i].status === 'pending') { this._log[i].status = 'done'; break; }
+    }
+
+    // pinned mode: 消さずにアイドル表示に切替
+    if (this._pinned) {
+      this._updateContent();
+      return;
     }
 
     if (this._timerId) {
@@ -94,19 +108,83 @@ const RPCMonitor = {
     this._el = el;
   },
 
+  // 常時表示モード
+  _pinned: false,
+  _log: [],          // RPCコールログ
+  _logMax: 50,
+
+  // コンソールから: disp('rpcmonitor')
+  pin() {
+    this._pinned = true;
+    this._startTime = this._startTime || Date.now();
+    this._create();
+    this._el.classList.add('rpc-mon--visible', 'rpc-mon--pinned');
+    this._updateContent();
+    if (!this._timerId) {
+      this._timerId = setInterval(() => this._updateContent(), 1000);
+    }
+    console.log('%c[RPCMonitor] Pinned — always visible. Use hide() or disp("rpcmonitor") to toggle off.', 'color:#7eb8f7');
+  },
+
+  unpin() {
+    this._pinned = false;
+    if (this._count === 0) {
+      if (this._timerId) { clearInterval(this._timerId); this._timerId = null; }
+      if (this._el) {
+        this._el.classList.remove('rpc-mon--visible', 'rpc-mon--pinned');
+        this._el.classList.add('rpc-mon--hiding');
+        setTimeout(() => { if (this._el && !this._pinned) { this._el.remove(); this._el = null; } }, this.HIDE_DELAY);
+      }
+    }
+    console.log('%c[RPCMonitor] Unpinned.', 'color:#7eb8f7');
+  },
+
+  // ログ追加
+  _addLog(method, detail, status) {
+    const entry = { time: new Date().toISOString().slice(11, 23), method, detail, status };
+    this._log.push(entry);
+    if (this._log.length > this._logMax) this._log.shift();
+    return entry;
+  },
+
+  // コンソールからログ確認
+  logs() {
+    if (this._log.length === 0) { console.log('No RPC calls logged.'); return; }
+    console.table(this._log);
+  },
+
   _updateContent() {
     if (!this._el) return;
-    const elapsed = ((Date.now() - this._startTime) / 1000).toFixed(1);
     const status = this._el.querySelector('.rpc-mon__status');
     const detail = this._el.querySelector('.rpc-mon__detail');
-    if (status) status.textContent = `Querying blockchain... ${elapsed}s`;
-    if (detail) {
-      const parts = [];
-      if (this._method) parts.push(this._method);
-      if (this._detail) parts.push(this._detail);
-      detail.textContent = parts.join(' — ');
+
+    if (this._count > 0) {
+      const elapsed = ((Date.now() - this._startTime) / 1000).toFixed(1);
+      if (status) status.textContent = `Querying blockchain... ${elapsed}s`;
+      if (detail) {
+        const parts = [];
+        if (this._method) parts.push(this._method);
+        if (this._detail) parts.push(this._detail);
+        if (this._count > 1) parts.push(`(${this._count} active)`);
+        detail.textContent = parts.join(' — ');
+      }
+    } else if (this._pinned) {
+      // 常時表示: アイドル状態
+      const last = this._log[this._log.length - 1];
+      if (status) status.textContent = 'RPC Monitor — Idle';
+      if (detail) detail.textContent = last ? `Last: ${last.method} ${last.status}` : 'Waiting for calls...';
     }
   },
+};
+
+// ── Console command: disp('rpcmonitor') ──
+window.disp = function(target) {
+  if (target === 'rpcmonitor' || target === 'rpc') {
+    if (RPCMonitor._pinned) RPCMonitor.unpin();
+    else RPCMonitor.pin();
+  } else {
+    console.log('Available: disp("rpcmonitor") or disp("rpc")');
+  }
 };
 
 // ── CSS injection ──
