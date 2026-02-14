@@ -616,8 +616,9 @@
                   info.reason = this.t('mint_admin_override');
                 } else {
                   info.mintable = false;
-                  info.reason = this.t('mint_creator_only_detail')
-                    .replace('{creator}', info.creator ? info.creator.slice(0,6) + '...' + info.creator.slice(-4) : '?');
+                  info.reason = info.creator
+                    ? this.t('mint_creator_only_detail').replace('{creator}', info.creator.slice(0,6) + '...' + info.creator.slice(-4))
+                    : this.t('mint_creator_only');
                 }
               } else {
                 info.mintable = true;
