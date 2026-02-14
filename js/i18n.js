@@ -172,6 +172,16 @@
       contract_hidden_done: '非公開にしました',
       confirm_delete_contract: 'を削除しますか？',
       contract_name_placeholder: 'コントラクト名',
+      contract_token_list: 'コントラクト トークン一覧',
+      contract_token_subtitle: 'NFTコントラクトのトークン一覧',
+      select_artist: '作家で選ぶ',
+      symbol: 'シンボル',
+      total_supply: '総発行数',
+      loading_contract_info: 'コントラクト情報を取得中...',
+      loading_tokens: 'トークン一覧を取得中...',
+      no_tokens: 'このコントラクトにはトークンがありません',
+      tokens_found_loading_meta: '件のトークンを取得しました。メタデータを読み込み中...',
+      tokens_displaying: '件のトークンを表示中',
 
       // UI Common
       logo_alt: 'ロゴ',
@@ -418,6 +428,16 @@
       contract_hidden_done: 'Set to hidden',
       confirm_delete_contract: ' — delete this contract?',
       contract_name_placeholder: 'Contract name',
+      contract_token_list: 'Contract Token List',
+      contract_token_subtitle: 'Browse tokens by NFT contract',
+      select_artist: 'Select by artist',
+      symbol: 'Symbol',
+      total_supply: 'Total Supply',
+      loading_contract_info: 'Loading contract info...',
+      loading_tokens: 'Loading tokens...',
+      no_tokens: 'No tokens found in this contract',
+      tokens_found_loading_meta: ' tokens found. Loading metadata...',
+      tokens_displaying: ' tokens displayed',
 
       // UI Common
       logo_alt: 'Logo',

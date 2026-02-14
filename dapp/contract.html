@@ -17,6 +17,8 @@
     <script src="../js/config.js"></script>
     <script src="../js/cache.js"></script>
     <script src="../js/nft.js"></script>
+    <script src="../js/i18n.js"></script>
+    <script src="../js/lang-toggle.js"></script>
     
     <style>
         main {
@@ -330,43 +332,43 @@
         <!-- ヘッダー -->
         <header class="site-header">
             <div class="container header-inner">
-                <a href="../ja/index.html" class="logo"><img src="../img/349F5603-389E-48C6-81C9-1515A338A59B.png" alt="ロゴ"></a>
+                <a href="../ja/index.html" class="logo"><img src="../img/349F5603-389E-48C6-81C9-1515A338A59B.png" :alt="t('logo_alt')"></a>
                 <div class="header-right">
-                    <button class="lang-toggle" type="button">EN/JP</button>
-                    <button class="nav-toggle" type="button" aria-label="メニューを開閉" @click="toggleMenu">
+                    <span class="lang-switch"><a class="lang-btn" data-lang="en" href="#">EN</a> / <a class="lang-btn" data-lang="ja" href="#">JP</a></span>
+                    <button class="nav-toggle" type="button" :aria-label="t('toggle_menu')" @click="toggleMenu">
                         <span></span><span></span>
                     </button>
                 </div>
             </div>
             <div class="nav-overlay" :class="{ 'is-open': menuOpen }" @click="closeMenu"></div>
-            <aside class="nav-drawer" :class="{ 'is-open': menuOpen }" aria-label="サイトメニュー">
+            <aside class="nav-drawer" :class="{ 'is-open': menuOpen }" :aria-label="t('site_menu')">
                 <ul class="drawer-nav">
-                    <li><a href="../ja/index.html">トップページ</a></li>
-                    <li><a href="../ja/artist-list.html">作家紹介</a></li>
-                    <li><a href="../ja/index.html#company">会社概要</a></li>
-                    <li><a href="../ja/index.html#discord">Discordリンク</a></li>
-                    <li><a href="../ja/index.html#meta">作品使用歴作成</a></li>
-                    <li><a href="../ja/index.html#donate">寄付ポイント</a></li>
-                    <li><a href="./account.html">マイページ</a></li>
+                    <li><a href="#" data-nav="top">{{ t('nav_top') }}</a></li>
+                    <li><a href="#" data-nav="artists">{{ t('nav_artists') }}</a></li>
+                    <li><a href="#" data-nav="company">{{ t('nav_company') }}</a></li>
+                    <li><a href="#" data-nav="discord">{{ t('nav_discord') }}</a></li>
+                    <li><a href="#" data-nav="meta">{{ t('nav_meta') }}</a></li>
+                    <li><a href="#" data-dapp="./donation.html">{{ t('nav_donate') }}</a></li>
+                    <li><a href="#" data-dapp="./account.html">{{ t('nav_mypage') }}</a></li>
                 </ul>
             </aside>
         </header>
 
         <main>
             <div class="contract-viewer">
-                <h1 class="viewer-title">Contract Token List</h1>
-                <p class="viewer-subtitle">NFTコントラクトのトークン一覧</p>
+                <h1 class="viewer-title">{{ t('contract_token_list') }}</h1>
+                <p class="viewer-subtitle">{{ t('contract_token_subtitle') }}</p>
                 
                 <!-- コントロールパネル -->
                 <div class="control-panel">
                     <!-- 作家プリセット -->
                     <div style="margin-bottom: 20px;">
-                        <label style="font-size: 14px; opacity: 0.8;">作家で選ぶ</label>
+                        <label style="font-size: 14px; opacity: 0.8;">{{ t('select_artist') }}</label>
                         <div class="artist-presets">
                             <button v-for="artist in artists" :key="artist.key"
                                 class="artist-btn" :class="{ active: contractAddress === artist.address }"
                                 @click="selectArtist(artist)">
-                                {{ artist.name }}
+                                {{ lang === 'en' && artist.nameEn ? artist.nameEn : artist.name }}
                             </button>
                         </div>
                     </div>
@@ -383,19 +385,19 @@
                 <!-- コントラクト情報 -->
                 <div v-if="contractInfo.name" class="contract-info">
                     <div class="info-item">
-                        <span class="info-label">名前</span>
+                        <span class="info-label">{{ t('name_label') }}</span>
                         <span class="info-value">{{ contractInfo.name }}</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">シンボル</span>
+                        <span class="info-label">{{ t('symbol') }}</span>
                         <span class="info-value">{{ contractInfo.symbol }}</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">総発行数</span>
+                        <span class="info-label">{{ t('total_supply') }}</span>
                         <span class="info-value">{{ contractInfo.totalSupply }}</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">コントラクト</span>
+                        <span class="info-label">{{ t('contract_info') }}</span>
                         <span class="info-value" style="font-family: monospace; font-size: 13px;">
                             <a :href="CONFIG.chain.explorer + '/address/' + contractAddress" target="_blank" 
                                style="color: #6bb6ff; text-decoration: none;">
@@ -408,7 +410,7 @@
                 <!-- トークンカードグリッド -->
                 <div v-if="tokenCards.length > 0" class="token-grid">
                     <a v-for="card in tokenCards" :key="card.tokenId"
-                       :href="'token.html?ca=' + contractAddress + '&id=' + card.tokenId"
+                       :href="'token.html?ca=' + contractAddress + '&id=' + card.tokenId + '&lang=' + lang"
                        class="token-card">
                         <img v-if="card.image" :src="card.image" :alt="card.name"
                              class="token-card-image" @error="handleImageError($event)" />
@@ -447,7 +449,7 @@
                     contractInfo: {},
                     tokenCards: [],
                     loading: false,
-                    loadingMessage: 'トークン一覧を読み込み中...',
+                    loadingMessage: '',
                     statusMessage: '',
                     statusClass: '',
                     menuOpen: false,
@@ -455,11 +457,16 @@
                     CONFIG: CONFIG,
                 };
             },
+            computed: {
+                lang() { return window.i18n ? window.i18n.lang() : 'ja'; },
+            },
             mounted() {
                 this.loadFromUrlParams();
                 window.addEventListener('keydown', this.handleEscape);
+                if (window.i18n) window.i18n.apply();
             },
             methods: {
+                t(key) { return window.i18n ? window.i18n.t(key) : key; },
                 loadFromUrlParams() {
                     const params = new URLSearchParams(window.location.search);
                     const ca = params.get('ca');
@@ -480,7 +487,7 @@
                     this.loading = true;
                     this.tokenCards = [];
                     this.contractInfo = {};
-                    this.loadingMessage = 'コントラクト情報を取得中...';
+                    this.loadingMessage = this.t('loading_contract_info');
 
                     try {
                         // コントラクト情報
@@ -488,13 +495,13 @@
                         this.contractInfo = info;
 
                         if (info.totalSupply === 0) {
-                            this.showStatus('このコントラクトにはトークンがありません', 'info');
+                            this.showStatus(this.t('no_tokens'), 'info');
                             this.loading = false;
                             return;
                         }
 
                         // トークンID列挙
-                        this.loadingMessage = `トークン一覧を取得中... (0/${info.totalSupply})`;
+                        this.loadingMessage = this.t('loading_tokens') + ` (0/${info.totalSupply})`;
                         const contract = NFTHelper.getContract(this.contractAddress);
                         const batchSize = 20;
                         const tokenIds = [];
@@ -508,7 +515,7 @@
                             results.forEach(r => {
                                 if (r.status === 'fulfilled') tokenIds.push(r.value.toString());
                             });
-                            this.loadingMessage = `トークン一覧を取得中... (${Math.min(i + batchSize, info.totalSupply)}/${info.totalSupply})`;
+                            this.loadingMessage = this.t('loading_tokens') + ` (${Math.min(i + batchSize, info.totalSupply)}/${info.totalSupply})`;
                         }
 
                         // プレースホルダーカードを先に表示
@@ -518,7 +525,7 @@
                             image: null,
                         }));
 
-                        this.showStatus(`${tokenIds.length}件のトークンを取得しました。メタデータを読み込み中...`, 'info');
+                        this.showStatus(tokenIds.length + this.t('tokens_found_loading_meta'), 'info');
                         this.loading = false;
 
                         // メタデータを非同期で取得（カードを順次更新、レート制限対策）
@@ -540,7 +547,7 @@
                             await delay(1500);
                         }
 
-                        this.showStatus(`${tokenIds.length}件のトークンを表示中`, 'success');
+                        this.showStatus(tokenIds.length + this.t('tokens_displaying'), 'success');
                     } catch (error) {
                         console.error('Error:', error);
                         this.showStatus(`エラー: ${error.message}`, 'error');
