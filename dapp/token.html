@@ -1252,7 +1252,7 @@
 
           animationLinkUrl(nft) {
             if (this.is3dMime(nft.animation_mime_type)) {
-              return 'viewer/?src=' + encodeURIComponent(nft.animation_url);
+              return '../viewer/?src=' + encodeURIComponent(nft.animation_url);
             }
             return nft.animation_url;
           },
