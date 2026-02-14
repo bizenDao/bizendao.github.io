@@ -514,6 +514,9 @@
             <p v-else>{{ t('no_metamask') }}</p>
           </div>
 
+          <!-- ロール確認中 -->
+          <div v-else-if="roleLoading" class="loading-center"><span class="loading-spinner"></span></div>
+
           <!-- 権限なし -->
           <div v-else-if="userType !== 'admin' && userType !== 'creator'" class="access-denied">
             <p>{{ t('admin_only') }} ({{ userType }})</p>
@@ -687,6 +690,7 @@
             metamaskAvailable: typeof window.ethereum !== 'undefined',
             address: null,
             userType: null,
+            roleLoading: false,
             donorAddress: '',
             donorNickname: null,
             amount: null,
@@ -845,6 +849,7 @@
           },
 
           async checkRole() {
+            this.roleLoading = true;
             try {
               const web3 = new Web3(window.ethereum);
               const contract = new web3.eth.Contract(ABI.Manager, CONFIG.contracts.manager.address);
@@ -853,6 +858,7 @@
               console.error('checkRole error:', e);
               this.userType = 'user';
             }
+            this.roleLoading = false;
           },
 
           async loadProxyHistory() {

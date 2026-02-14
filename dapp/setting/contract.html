@@ -106,6 +106,8 @@
             <p v-else>{{ t('no_metamask') }}</p>
           </div>
 
+          <div v-else-if="loading" class="loading-center"><span class="loading-spinner"></span></div>
+
           <div v-else-if="userType !== 'admin'" class="access-denied">
             <p>{{ t('admin_only') }} ({{ userType }})</p>
             <p class="wallet-info-small">{{ shortAddress }}</p>
