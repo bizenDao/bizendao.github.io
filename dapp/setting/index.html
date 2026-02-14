@@ -842,6 +842,8 @@
               const web3 = new Web3(window.ethereum);
 
               // Step 1: Proxy Donation
+              const gasParams = await Wallet.getGasParams();
+
               if (hasDonate) {
                 const donateContract = new web3.eth.Contract(ABI.Donate, CONFIG.contracts.donation.address);
                 const valueWei = web3.utils.toWei(String(this.amount), 'ether');
@@ -849,7 +851,7 @@
                   this.donorAddress,
                   this.detail || '',
                   this.gasCashbackWei
-                ).send({ from: this.address, value: valueWei });
+                ).send({ from: this.address, value: valueWei, ...gasParams });
                 results.push(`Donation ${this.amount} POL — <a href="${CONFIG.chain.explorer}/tx/${donateTx.transactionHash}" target="_blank" style="color:inherit;text-decoration:underline;">tx</a>`);
               }
 
@@ -860,7 +862,7 @@
                   this.address,
                   this.donorAddress,
                   this.selectedNft.tokenId
-                ).send({ from: this.address });
+                ).send({ from: this.address, ...gasParams });
                 results.push(`NFT "${this.selectedNft.name}" sent — <a href="${CONFIG.chain.explorer}/tx/${nftTx.transactionHash}" target="_blank" style="color:inherit;text-decoration:underline;">tx</a>`);
 
                 // Remove from list

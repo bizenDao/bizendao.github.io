@@ -1153,8 +1153,9 @@
                 [{ "inputs": [{"name":"from","type":"address"},{"name":"to","type":"address"},{"name":"tokenId","type":"uint256"}], "name": "transferFrom", "outputs": [], "stateMutability": "nonpayable", "type": "function" }],
                 this.contractAddress
               );
+              const gasParams = await Wallet.getGasParams();
               await contract.methods.transferFrom(this.connectedAddress, this.sendTo, this.tokenId || 1)
-                .send({ from: this.connectedAddress });
+                .send({ from: this.connectedAddress, ...gasParams });
               this.txMessage = this.t('tx_sent');
               this.txClass = 'tx-success';
               this.showSendModal = false;
@@ -1180,8 +1181,9 @@
                 this.contractAddress
               );
               const DEAD = '0x000000000000000000000000000000000000dEaD';
+              const gasParams2 = await Wallet.getGasParams();
               await contract.methods.transferFrom(this.connectedAddress, DEAD, this.tokenId || 1)
-                .send({ from: this.connectedAddress });
+                .send({ from: this.connectedAddress, ...gasParams2 });
               this.txMessage = this.t('tx_burned');
               this.txClass = 'tx-success';
               this.fetchOwner(this.tokenId || 1);

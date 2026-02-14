@@ -93,7 +93,8 @@ const Manager = {
   async sendTx(methodName, args) {
     const contract = await this.getWriteContract();
     const from = Wallet.getAddress();
-    return contract.methods[methodName](...args).send({ from });
+    const gasParams = await Wallet.getGasParams();
+    return contract.methods[methodName](...args).send({ from, ...gasParams });
   },
 
   // Admin

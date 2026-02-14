@@ -135,6 +135,25 @@ const Wallet = {
     }
   },
 
+  // Polygon用ガスパラメータ（最低25 Gwei）
+  async getGasParams() {
+    try {
+      const web3 = new Web3(window.ethereum);
+      const gasPrice = await web3.eth.getGasPrice();
+      const minTip = web3.utils.toWei('30', 'gwei'); // 25 Gwei minimum, use 30 for safety
+      const tip = BigInt(gasPrice) > BigInt(minTip) ? gasPrice.toString() : minTip;
+      return {
+        maxPriorityFeePerGas: tip,
+        maxFeePerGas: (BigInt(tip) * 2n).toString(),
+      };
+    } catch (e) {
+      return {
+        maxPriorityFeePerGas: web3.utils.toWei('30', 'gwei'),
+        maxFeePerGas: web3.utils.toWei('60', 'gwei'),
+      };
+    }
+  },
+
   // コールバック登録
   onAccountChange(cb) { this._callbacks.account.push(cb); },
   onChainChange(cb) { this._callbacks.chain.push(cb); },
