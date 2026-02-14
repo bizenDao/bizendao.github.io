@@ -8,13 +8,7 @@ const CONFIG = {
   chain: {
     id: 137,
     name: 'Polygon Mainnet',
-    rpc: 'https://polygon.drpc.org',
-    rpcFallbacks: [
-      'https://polygon.drpc.org',
-      'https://polygon-bor-rpc.publicnode.com',
-      'https://polygon.llamarpc.com',
-      'https://polygon-rpc.com',
-    ],
+    rpc: 'https://polygon-rpc.com',
     explorer: 'https://polygonscan.com',
     currency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
   },
