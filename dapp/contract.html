@@ -469,7 +469,10 @@
                     statusMessage: '',
                     statusClass: '',
                     menuOpen: false,
-                    artists: CONFIG.contracts.nfts,
+                    artists: [
+                        ...CONFIG.contracts.nfts,
+                        ...(CONFIG.contracts.sbt ? [{ address: CONFIG.contracts.sbt.address, name: 'SBT', nameEn: 'SBT', key: 'sbt' }] : []),
+                    ],
                     CONFIG: CONFIG,
                     mintable: false,
                     walletAddress: null,
