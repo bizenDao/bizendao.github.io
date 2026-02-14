@@ -46,8 +46,42 @@ const Manager = {
     }
   },
 
+  // ── Cache layer ──
+  _cache: {},
+  _cacheTTL: 5 * 60 * 1000, // 5 minutes
+
+  _getCache(key) {
+    const entry = this._cache[key];
+    if (entry && Date.now() - entry.ts < this._cacheTTL) return entry.data;
+    // Also check sessionStorage
+    try {
+      const stored = sessionStorage.getItem('mgr_' + key);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Date.now() - parsed.ts < this._cacheTTL) {
+          this._cache[key] = parsed;
+          return parsed.data;
+        }
+      }
+    } catch (e) {}
+    return null;
+  },
+
+  _setCache(key, data) {
+    const entry = { data, ts: Date.now() };
+    this._cache[key] = entry;
+    try { sessionStorage.setItem('mgr_' + key, JSON.stringify(entry)); } catch (e) {}
+  },
+
+  _clearCache(key) {
+    delete this._cache[key];
+    try { sessionStorage.removeItem('mgr_' + key); } catch (e) {}
+  },
+
   // コントラクト一覧 → [{address, name, type, visible}]
   async getAllContracts() {
+    const cached = this._getCache('contracts');
+    if (cached) return cached;
     try {
       const contract = this.getReadContract();
       const result = await contract.methods.getAllContracts().call();
@@ -60,15 +94,25 @@ const Manager = {
           visible: result[3][i],
         });
       }
+      this._setCache('contracts', list);
       return list;
     } catch (e) {
       console.error('getAllContracts error:', e);
-      return [];
+      // Fallback to config
+      const fallback = [
+        ...CONFIG.contracts.nfts.map(n => ({ address: n.address, name: n.name, type: 'nft', visible: true })),
+      ];
+      if (CONFIG.contracts.sbt?.address) {
+        fallback.push({ address: CONFIG.contracts.sbt.address, name: 'SBT', type: 'sbt', visible: true });
+      }
+      return fallback;
     }
   },
 
   // 作家一覧 → [{address, name, type, visible}]
   async getAllCreators() {
+    const cached = this._getCache('creators');
+    if (cached) return cached;
     try {
       const contract = this.getReadContract();
       const result = await contract.methods.getAllCreators().call();
@@ -81,6 +125,7 @@ const Manager = {
           visible: result[3][i],
         });
       }
+      this._setCache('creators', list);
       return list;
     } catch (e) {
       console.error('getAllCreators error:', e);
@@ -101,12 +146,12 @@ const Manager = {
   async setAdmin(address) { return this.sendTx('setAdmin', [address]); },
   async delAdmin(address) { return this.sendTx('delAdmin', [address]); },
 
-  // Creator
-  async setCreator(address, name, type) { return this.sendTx('setCreator', [address, name, type]); },
-  async setCreatorInfo(address, name, type) { return this.sendTx('setCreatorInfo', [address, name, type]); },
-  async delCreator(address) { return this.sendTx('delCreator', [address]); },
-  async hiddenCreator(address) { return this.sendTx('hiddenCreator', [address]); },
-  async publicCreator(address) { return this.sendTx('publicCreator', [address]); },
+  // Creator (cache cleared after write)
+  async setCreator(address, name, type) { const r = await this.sendTx('setCreator', [address, name, type]); this._clearCache('creators'); return r; },
+  async setCreatorInfo(address, name, type) { const r = await this.sendTx('setCreatorInfo', [address, name, type]); this._clearCache('creators'); return r; },
+  async delCreator(address) { const r = await this.sendTx('delCreator', [address]); this._clearCache('creators'); return r; },
+  async hiddenCreator(address) { const r = await this.sendTx('hiddenCreator', [address]); this._clearCache('creators'); return r; },
+  async publicCreator(address) { const r = await this.sendTx('publicCreator', [address]); this._clearCache('creators'); return r; },
 
   // ── Utility: コントラクト一覧をリッチ情報付きで取得 ──
   // Returns [{address, name, type, visible, symbol, contractName}]
@@ -162,10 +207,10 @@ const Manager = {
     return lang === 'en' ? (parsed.en || parsed.ja || name) : (parsed.ja || parsed.en || name);
   },
 
-  // Contract
-  async setContract(address, name, type) { return this.sendTx('setContract', [address, name, type]); },
-  async setContractInfo(address, name, type) { return this.sendTx('setContractInfo', [address, name, type]); },
-  async deleteContract(address) { return this.sendTx('deleteContract', [address]); },
-  async hiddenContract(address) { return this.sendTx('hiddenContract', [address]); },
-  async publicContract(address) { return this.sendTx('publicContract', [address]); },
+  // Contract (cache cleared after write)
+  async setContract(address, name, type) { const r = await this.sendTx('setContract', [address, name, type]); this._clearCache('contracts'); return r; },
+  async setContractInfo(address, name, type) { const r = await this.sendTx('setContractInfo', [address, name, type]); this._clearCache('contracts'); return r; },
+  async deleteContract(address) { const r = await this.sendTx('deleteContract', [address]); this._clearCache('contracts'); return r; },
+  async hiddenContract(address) { const r = await this.sendTx('hiddenContract', [address]); this._clearCache('contracts'); return r; },
+  async publicContract(address) { const r = await this.sendTx('publicContract', [address]); this._clearCache('contracts'); return r; },
 };

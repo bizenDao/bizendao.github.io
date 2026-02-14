@@ -325,7 +325,7 @@
               <select v-else v-model="selectedContract" class="form-select" @change="onContractChange">
                 <option :value="null" disabled>-- {{ t('mint_select_contract') }} --</option>
                 <option v-for="c in mintableContracts" :key="c.address" :value="c.address">
-                  [{{ c.type }}] {{ lang === 'en' ? (c.nameEn || c.name) : c.name }} ({{ c.symbol }})
+                  [{{ c.type }}] {{ lang === 'en' ? (c.nameEn || c.name) : c.name }}
                 </option>
               </select>
               <div v-if="selectedContract" class="contract-info">{{ selectedContract }}</div>
@@ -466,22 +466,16 @@
             this.contractsLoading = true;
             try {
               const allContracts = await Manager.getAllContracts();
-              const web3 = NFTHelper.getWeb3();
               const list = [];
 
               for (const c of allContracts) {
                 if (!c.visible) continue;
                 const parsed = Manager.parseName(c.name);
-                let symbol = '?';
-                try {
-                  const contract = new web3.eth.Contract(ABI.ERC721, c.address);
-                  symbol = await contract.methods.symbol().call();
-                } catch (e) {}
                 list.push({
                   address: c.address,
                   name: parsed.ja || c.name,
                   nameEn: parsed.en || c.name,
-                  symbol,
+                  symbol: '',
                   type: c.type.toUpperCase(),
                 });
               }
