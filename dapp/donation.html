@@ -527,7 +527,18 @@
           <!-- 寄付フォーム -->
           <div v-else class="donate-form">
             <wallet-header :address="address" :nickname="nickname" :nickname-loading="nicknameLoading"
-              :user-type="userType" :balance="balance"></wallet-header>
+              :user-type="userType"></wallet-header>
+
+            <div class="balance-row">
+              <div class="balance-card">
+                <div class="balance-value">{{ balance }} <small>POL</small></div>
+                <div class="balance-label">{{ t('mint_pol_balance') }}</div>
+              </div>
+              <div class="balance-card">
+                <div class="balance-value">{{ donatePoints }} <small>pt</small></div>
+                <div class="balance-label">{{ t('mint_donate_points') }}</div>
+              </div>
+            </div>
 
             <!-- 金額プリセット -->
             <div class="form-section">
@@ -604,6 +615,7 @@
             nicknameLoading: false,
             userType: 'user',
             balance: '0',
+            donatePoints: '--',
             amount: null,
             detail: '',
             txHash: null,
@@ -702,6 +714,13 @@
             const web3 = NFTHelper.getWeb3();
             const bal = await web3.eth.getBalance(this.address);
             this.balance = parseFloat(web3.utils.fromWei(bal, 'ether')).toFixed(4);
+
+            // ポイント
+            try {
+              const contract = new web3.eth.Contract(ABI.Donate, CONFIG.contracts.donation.address);
+              const pt = await contract.methods.latestPoint(this.address).call();
+              this.donatePoints = web3.utils.fromWei(pt, 'ether');
+            } catch (e) { this.donatePoints = '0'; }
 
             // 寄付履歴
             this.loadHistory();

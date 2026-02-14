@@ -538,6 +538,18 @@
             <!-- コレクション表示 -->
             <template v-else>
 
+              <!-- 残高 -->
+              <div class="balance-row">
+                <div class="balance-card">
+                  <div class="balance-value">{{ polBalance }} <small>POL</small></div>
+                  <div class="balance-label">{{ t('mint_pol_balance') }}</div>
+                </div>
+                <div class="balance-card">
+                  <div class="balance-value">{{ donatePoints }} <small>pt</small></div>
+                  <div class="balance-label">{{ t('mint_donate_points') }}</div>
+                </div>
+              </div>
+
               <!-- サマリー -->
               <div class="summary">
                 <div class="summary-card">
@@ -619,6 +631,8 @@
             // View mode: 'self' (MetaMask) or 'view' (URL param, read-only)
             viewMode: null,
             userType: null,
+            polBalance: '--',
+            donatePoints: '--',
           };
         },
 
@@ -751,6 +765,18 @@
             // ニックネーム取得（非同期、表示をブロックしない）
             this.nicknameLoading = true;
             NFTHelper.getNickname(this.address).then(nick => { this.nickname = nick; }).finally(() => { this.nicknameLoading = false; });
+
+            // POL残高 + ポイント（非同期）
+            try {
+              const web3 = NFTHelper.getWeb3();
+              web3.eth.getBalance(this.address).then(bal => {
+                this.polBalance = parseFloat(web3.utils.fromWei(bal, 'ether')).toFixed(4);
+              });
+              const dc = new web3.eth.Contract(ABI.Donate, CONFIG.contracts.donation.address);
+              dc.methods.latestPoint(this.address).call().then(pt => {
+                this.donatePoints = web3.utils.fromWei(pt, 'ether');
+              }).catch(() => { this.donatePoints = '0'; });
+            } catch (e) { /* ignore */ }
 
             // 権限チェック
             if (!this.isViewMode) {

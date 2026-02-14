@@ -1,6 +1,6 @@
 // =================================================
 // wallet-header.js — 共通ウォレットヘッダーコンポーネント
-// config.js, wallet.js, nft.js, i18n.js 必須
+// config.js, wallet.js, i18n.js 必須
 // =================================================
 
 const WalletHeader = {
@@ -14,10 +14,6 @@ const WalletHeader = {
           <span v-if="viewMode" class="wh-badge wh-badge-view">{{ t('view_mode') }}</span>
           <a v-if="userType === 'admin'" :href="settingLink" class="wh-role wh-role-admin">admin</a>
           <a v-else-if="userType === 'creator'" :href="settingLink" class="wh-role wh-role-creator">creator</a>
-          <span class="wh-balances">
-            <span class="wh-balance">{{ displayPol }} POL</span>
-            <span class="wh-balance wh-point">{{ displayPoint }} pt</span>
-          </span>
         </div>
       </div>
     </div>
@@ -28,17 +24,8 @@ const WalletHeader = {
     nickname: { type: String, default: null },
     nicknameLoading: { type: Boolean, default: false },
     userType: { type: String, default: 'user' },
-    balance: { type: String, default: null },
-    point: { type: String, default: null },
     viewMode: { type: Boolean, default: false },
     settingBase: { type: String, default: 'setting/index.html' },
-  },
-
-  data() {
-    return {
-      autoPol: null,
-      autoPoint: null,
-    };
   },
 
   computed: {
@@ -49,40 +36,10 @@ const WalletHeader = {
     settingLink() {
       return this.settingBase;
     },
-    displayPol() {
-      const v = this.balance ?? this.autoPol;
-      return v != null ? v : '--';
-    },
-    displayPoint() {
-      const v = this.point ?? this.autoPoint;
-      return v != null ? v : '--';
-    },
-  },
-
-  watch: {
-    address: {
-      immediate: true,
-      handler(addr) { if (addr) this.fetchBalances(addr); },
-    },
   },
 
   methods: {
     t(key) { return window.i18n ? window.i18n.t(key) : key; },
-    async fetchBalances(addr) {
-      try {
-        if (typeof web3 !== 'undefined' && this.balance == null) {
-          const wei = await web3.eth.getBalance(addr);
-          this.autoPol = parseFloat(web3.utils.fromWei(wei, 'ether')).toFixed(4);
-        }
-      } catch (e) { /* ignore */ }
-      try {
-        if (typeof web3 !== 'undefined' && typeof CONFIG !== 'undefined' && typeof ABI !== 'undefined' && this.point == null) {
-          const contract = new web3.eth.Contract(ABI.Donate, CONFIG.contracts.donation.address);
-          const pt = await contract.methods.latestPoint(addr).call();
-          this.autoPoint = web3.utils.fromWei(pt, 'ether');
-        }
-      } catch (e) { /* ignore */ }
-    },
     copyEoa() {
       if (!this.address) return;
       navigator.clipboard.writeText(this.address).then(() => {
@@ -129,23 +86,6 @@ const WalletHeader = {
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
-    }
-
-    .wh-balances {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .wh-balance {
-      font-size: 13px;
-      opacity: 0.7;
-      font-family: monospace;
-    }
-
-    .wh-point {
-      color: #ffcc66;
-      opacity: 0.85;
     }
 
     .wh-badge {
@@ -210,6 +150,46 @@ const WalletHeader = {
     @keyframes wh-fade {
       0%, 70% { opacity: 1; }
       100% { opacity: 0; }
+    }
+
+    /* 共通 balance-row / balance-card スタイル */
+    .balance-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .balance-card {
+      padding: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .balance-value {
+      font-size: 24px;
+      font-weight: 700;
+      font-family: monospace;
+      margin-bottom: 4px;
+    }
+
+    .balance-value small {
+      font-size: 14px;
+      font-weight: 400;
+      opacity: 0.7;
+    }
+
+    .balance-label {
+      font-size: 12px;
+      opacity: 0.5;
+    }
+
+    @media (max-width: 480px) {
+      .balance-row {
+        grid-template-columns: 1fr;
+      }
     }
   `;
   document.head.appendChild(style);
