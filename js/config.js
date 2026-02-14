@@ -147,4 +147,11 @@ ABI.Manager = [
 ];
 
 // フルABI（ERC721 + Enumerable を結合）
+ABI.ERC721Mint = [
+  { "inputs": [{ "name": "to", "type": "address" }, { "name": "metaUrl", "type": "string" }], "name": "mint", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+  { "constant": true, "inputs": [], "name": "owner", "outputs": [{ "name": "", "type": "address" }], "type": "function" },
+  { "constant": true, "inputs": [], "name": "creator", "outputs": [{ "name": "", "type": "address" }], "type": "function" },
+  { "constant": true, "inputs": [], "name": "creatorOnly", "outputs": [{ "name": "", "type": "bool" }], "type": "function" },
+];
+
 ABI.ERC721Full = [...ABI.ERC721, ...ABI.ERC721Enumerable];

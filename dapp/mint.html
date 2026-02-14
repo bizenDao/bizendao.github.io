@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BizenDAO - Mint</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js" crossorigin="anonymous"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/cache.js"></script>
+    <script src="../js/nft.js"></script>
+    <script src="../js/wallet.js"></script>
+    <script src="../js/manager.js"></script>
+    <script src="../js/i18n.js"></script>
+    <script src="../js/lang-toggle.js"></script>
+
+    <style>
+      main { padding-top: 100px; min-height: 100vh; }
+
+      .mint-page {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 5px 20px;
+      }
+
+      .page-title {
+        text-align: center;
+        font-size: 32px;
+        margin-bottom: 12px;
+        font-family: "Times New Roman", "Hiragino Mincho ProN", serif;
+        letter-spacing: 0.1em;
+      }
+
+      .page-subtitle {
+        text-align: center;
+        font-size: 15px;
+        opacity: 0.7;
+        margin-bottom: 40px;
+      }
+
+      .btn {
+        padding: 12px 24px;
+        border: 1px solid rgba(255,255,255,0.3);
+        background: transparent;
+        color: #f6f6f6;
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.5); }
+      .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+      .btn-connect {
+        display: block; width: 100%; padding: 16px; font-size: 16px;
+        background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.4);
+        margin-bottom: 24px;
+      }
+
+      .mint-form {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 12px;
+        padding: 28px;
+        margin-bottom: 32px;
+      }
+
+      .form-group { margin-bottom: 20px; }
+
+      .form-label {
+        font-size: 14px;
+        opacity: 0.8;
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      .form-input, .form-select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid rgba(255,255,255,0.2);
+        background: rgba(255,255,255,0.05);
+        color: #f6f6f6;
+        border-radius: 8px;
+        font-size: 14px;
+        box-sizing: border-box;
+      }
+
+      .form-input:focus, .form-select:focus {
+        outline: none;
+        border-color: rgba(255,255,255,0.4);
+        background: rgba(255,255,255,0.08);
+      }
+
+      .form-select {
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        padding-right: 36px;
+        cursor: pointer;
+      }
+
+      .form-select option { background: #1a1a2e; color: #f6f6f6; }
+
+      .form-input.mono { font-family: monospace; }
+
+      .wallet-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        padding: 12px 16px;
+        background: rgba(255,255,255,0.03);
+        border-radius: 8px;
+      }
+
+      .wallet-address { font-family: monospace; font-size: 14px; }
+      .wallet-role { font-size: 13px; opacity: 0.7; }
+
+      .role-admin { color: #ff6b6b; }
+      .role-creator { color: #ffaa33; }
+
+      /* Mint to */
+      .mint-to-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .mint-to-row .form-input { flex: 1; }
+
+      .btn-self {
+        white-space: nowrap;
+        padding: 12px 16px;
+        font-size: 13px;
+      }
+
+      /* Preview */
+      .metadata-preview {
+        margin-top: 16px;
+        padding: 16px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 8px;
+      }
+
+      .metadata-preview img {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+      }
+
+      .metadata-preview .meta-name {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .metadata-preview .meta-desc {
+        font-size: 13px;
+        opacity: 0.6;
+        line-height: 1.5;
+      }
+
+      .meta-loading {
+        font-size: 13px;
+        opacity: 0.5;
+      }
+
+      /* Mint button */
+      .btn-mint {
+        display: block; width: 100%; padding: 18px; font-size: 18px; font-weight: 600;
+        background: rgba(74,124,89,0.15);
+        border-color: rgba(74,124,89,0.4);
+        color: #6fcf8a;
+        letter-spacing: 0.05em;
+        margin-top: 8px;
+      }
+
+      .btn-mint:hover:not(:disabled) {
+        background: rgba(74,124,89,0.25);
+        border-color: rgba(74,124,89,0.6);
+        box-shadow: 0 0 12px rgba(74,124,89,0.2);
+      }
+
+      /* Result */
+      .result-card {
+        padding: 24px; border-radius: 12px; margin-bottom: 24px; text-align: center;
+      }
+
+      .result-success {
+        background: rgba(0,255,100,0.08); border: 1px solid rgba(0,255,100,0.25);
+      }
+
+      .result-success h3 { color: #66ff99; font-size: 20px; margin-bottom: 12px; }
+
+      .result-tx {
+        font-family: monospace; font-size: 13px; opacity: 0.7;
+        word-break: break-all; margin-bottom: 12px;
+      }
+
+      .result-link { color: #6bb6ff; text-decoration: none; font-size: 14px; }
+      .result-link:hover { text-decoration: underline; }
+
+      .error-message {
+        padding: 16px 20px;
+        background: rgba(255,0,0,0.1); border: 1px solid rgba(255,0,0,0.3);
+        border-radius: 8px; color: #ff6666; margin-bottom: 20px; font-size: 14px;
+      }
+
+      .access-denied {
+        text-align: center; padding: 40px; opacity: 0.6;
+      }
+
+      .loading-spinner {
+        display: inline-block; width: 20px; height: 20px;
+        border: 2px solid rgba(255,255,255,0.3); border-radius: 50%;
+        border-top-color: #fff; animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      .contract-info {
+        margin-top: 8px;
+        font-size: 12px;
+        opacity: 0.4;
+        font-family: monospace;
+      }
+
+      .nickname-spinner {
+        display: inline-block; width: 14px; height: 14px;
+        border: 2px solid rgba(255,255,255,0.2); border-top-color: #fff;
+        border-radius: 50%; animation: spin 0.6s linear infinite;
+        vertical-align: middle; margin-left: 4px;
+      }
+
+      .recipient-card {
+        margin-top: 8px;
+        padding: 10px 14px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 8px;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .recipient-card .avatar {
+        width: 32px; height: 32px; border-radius: 50%;
+        background: linear-gradient(135deg, rgba(107,182,255,0.3), rgba(255,200,50,0.3));
+        display: flex; align-items: center; justify-content: center;
+        font-size: 14px; flex-shrink: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <header class="site-header">
+        <div class="container header-inner">
+          <a href="../ja/index.html" class="logo"><img src="../img/349F5603-389E-48C6-81C9-1515A338A59B.png" :alt="t('logo_alt')"></a>
+          <div class="header-right">
+            <span class="lang-switch"><a class="lang-btn" data-lang="en" href="#">EN</a> / <a class="lang-btn" data-lang="ja" href="#">JP</a></span>
+            <button class="nav-toggle" type="button" :aria-label="t('toggle_menu')" @click="toggleMenu">
+              <span></span><span></span>
+            </button>
+          </div>
+        </div>
+        <div class="nav-overlay" :class="{ 'is-open': menuOpen }" @click="closeMenu"></div>
+        <aside class="nav-drawer" :class="{ 'is-open': menuOpen }" :aria-label="t('site_menu')">
+          <ul class="drawer-nav">
+            <li><a href="#" data-nav="top">{{ t('nav_top') }}</a></li>
+            <li><a href="#" data-nav="artists">{{ t('nav_artists') }}</a></li>
+            <li><a href="#" data-nav="company">{{ t('nav_company') }}</a></li>
+            <li><a href="#" data-nav="discord">{{ t('nav_discord') }}</a></li>
+            <li><a href="#" data-nav="meta">{{ t('nav_meta') }}</a></li>
+            <li><a href="#" data-dapp="./donation.html">{{ t('nav_donate') }}</a></li>
+            <li><a href="#" data-dapp="./account.html">{{ t('nav_mypage') }}</a></li>
+          </ul>
+        </aside>
+      </header>
+
+      <main>
+        <div class="mint-page">
+          <h1 class="page-title">Mint NFT</h1>
+          <p class="page-subtitle">{{ t('mint_subtitle') }}</p>
+
+          <!-- Error -->
+          <div v-if="error" class="error-message">{{ error }}</div>
+
+          <!-- Tx Result -->
+          <div v-if="txHash" class="result-card result-success">
+            <h3>{{ t('mint_success') }}</h3>
+            <div class="result-tx">tx: {{ txHash }}</div>
+            <a :href="CONFIG.chain.explorer + '/tx/' + txHash" target="_blank" class="result-link">
+              {{ t('view_on_polygonscan') }} ↗
+            </a>
+          </div>
+
+          <!-- Not connected -->
+          <div v-if="!connected">
+            <button v-if="metamaskAvailable" class="btn btn-connect" @click="connectWallet" :disabled="connecting">
+              <span v-if="connecting">{{ t('connecting') }}</span>
+              <span v-else>{{ t('connect_wallet') }}</span>
+            </button>
+            <div v-else style="text-align:center; opacity:0.6;">{{ t('no_metamask') }}</div>
+          </div>
+
+          <!-- No permission -->
+          <div v-else-if="userType !== 'admin' && userType !== 'creator'" class="access-denied">
+            <p>{{ t('mint_no_permission') }}</p>
+            <p style="font-family:monospace; font-size:13px;">{{ shortAddress }} ({{ userType }})</p>
+          </div>
+
+          <!-- Mint Form -->
+          <div v-else class="mint-form">
+            <div class="wallet-row">
+              <span class="wallet-address">{{ nickname || shortAddress }} <span v-if="nicknameLoading" class="nickname-spinner"></span></span>
+              <span class="wallet-role" :class="'role-' + userType">{{ userType }}</span>
+            </div>
+
+            <!-- Contract Select -->
+            <div class="form-group">
+              <label class="form-label">1. {{ t('mint_select_contract') }}</label>
+              <div v-if="contractsLoading" class="meta-loading"><span class="loading-spinner"></span> Loading contracts...</div>
+              <select v-else v-model="selectedContract" class="form-select" @change="onContractChange">
+                <option :value="null" disabled>-- {{ t('mint_select_contract') }} --</option>
+                <option v-for="c in mintableContracts" :key="c.address" :value="c.address">
+                  {{ c.name }} ({{ c.symbol }})
+                </option>
+              </select>
+              <div v-if="selectedContract" class="contract-info">{{ selectedContract }}</div>
+            </div>
+
+            <!-- Token URI -->
+            <div class="form-group">
+              <label class="form-label">2. Token URI (metadata JSON URL)</label>
+              <input type="text" v-model="tokenUri" class="form-input mono"
+                     placeholder="ipfs://... or https://..." @input="debounceFetchMeta" />
+
+              <!-- Metadata Preview -->
+              <div v-if="metaLoading" class="metadata-preview">
+                <span class="meta-loading"><span class="loading-spinner"></span> {{ t('mint_loading_meta') }}</span>
+              </div>
+              <div v-else-if="metadata" class="metadata-preview">
+                <img v-if="metadata.image" :src="resolveIpfs(metadata.image)" @error="$event.target.style.display='none'" />
+                <div class="meta-name">{{ metadata.name || 'Unnamed' }}</div>
+                <div class="meta-desc">{{ metadata.description || '' }}</div>
+              </div>
+            </div>
+
+            <!-- Mint To -->
+            <div class="form-group">
+              <label class="form-label">3. {{ t('mint_to') }}</label>
+              <div class="mint-to-row">
+                <input type="text" v-model="mintTo" class="form-input mono" placeholder="0x..." @input="lookupMintToNick" />
+                <button class="btn btn-self" @click="mintTo = address; lookupMintToNick()">{{ t('mint_to_self') }}</button>
+              </div>
+              <div v-if="mintTo && /^0x[0-9a-fA-F]{40}$/.test(mintTo)" class="recipient-card">
+                <div class="avatar">{{ mintToNickname ? mintToNickname.charAt(0).toUpperCase() : '?' }}</div>
+                <span v-if="mintToNickLoading"><span class="nickname-spinner"></span></span>
+                <span v-else>{{ mintToNickname || mintTo.slice(0,6) + '...' + mintTo.slice(-4) }}</span>
+              </div>
+            </div>
+
+            <!-- Mint Button -->
+            <button class="btn btn-mint" @click="executeMint" :disabled="!canMint || minting">
+              <span v-if="minting"><span class="loading-spinner"></span> {{ t('mint_minting') }}</span>
+              <span v-else>{{ t('mint_button') }}</span>
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const { createApp } = Vue;
+
+      createApp({
+        data() {
+          return {
+            menuOpen: false,
+            connected: false,
+            connecting: false,
+            address: null,
+            nickname: null,
+            nicknameLoading: false,
+            userType: null,
+            CONFIG: CONFIG,
+            // Contract
+            mintableContracts: [],
+            contractsLoading: false,
+            selectedContract: null,
+            // Mint params
+            tokenUri: '',
+            mintTo: '',
+            mintToNickname: null,
+            mintToNickLoading: false,
+            // Metadata preview
+            metadata: null,
+            metaLoading: false,
+            metaDebounce: null,
+            // Tx
+            minting: false,
+            txHash: null,
+            error: null,
+          };
+        },
+
+        computed: {
+          metamaskAvailable() { return Wallet.isAvailable(); },
+          shortAddress() { return Wallet.shortAddress(this.address); },
+          canMint() {
+            return this.selectedContract
+              && this.tokenUri.trim()
+              && this.mintTo
+              && /^0x[0-9a-fA-F]{40}$/.test(this.mintTo);
+          },
+        },
+
+        async mounted() {
+          const result = await Wallet.reconnect();
+          if (result) {
+            this.address = result.address;
+            this.connected = true;
+            await Wallet.ensurePolygon();
+            await this.init();
+          }
+          if (window.i18n) { window.i18n.apply(); }
+          document.querySelectorAll('a[data-dapp]').forEach(a => {
+            if (window.i18n) a.href = window.i18n.dappLink(a.getAttribute('data-dapp'));
+          });
+        },
+
+        methods: {
+          t(key) { return window.i18n ? window.i18n.t(key) : key; },
+
+          toggleMenu() { this.menuOpen = !this.menuOpen; document.body.style.overflow = this.menuOpen ? 'hidden' : ''; },
+          closeMenu() { this.menuOpen = false; document.body.style.overflow = ''; },
+
+          async connectWallet() {
+            this.connecting = true;
+            this.error = null;
+            try {
+              const { address } = await Wallet.connect();
+              await Wallet.ensurePolygon();
+              this.address = address;
+              this.connected = true;
+              await this.init();
+            } catch (e) { this.error = e.message; }
+            this.connecting = false;
+          },
+
+          async init() {
+            this.userType = await Manager.checkUser();
+            this.nicknameLoading = true;
+            NFTHelper.getNickname(this.address).then(n => { this.nickname = n; }).finally(() => { this.nicknameLoading = false; });
+
+            if (this.userType === 'admin' || this.userType === 'creator') {
+              await this.loadMintableContracts();
+            }
+          },
+
+          async loadMintableContracts() {
+            this.contractsLoading = true;
+            try {
+              const contracts = await Manager.getAllContracts();
+              const web3 = NFTHelper.getWeb3();
+              const mintable = [];
+
+              for (const c of contracts) {
+                try {
+                  const contract = new web3.eth.Contract(
+                    [...ABI.ERC721, ...ABI.ERC721Mint],
+                    c.address
+                  );
+                  // Check if this address can mint
+                  let canMint = false;
+                  try {
+                    const creatorOnly = await contract.methods.creatorOnly().call();
+                    if (!creatorOnly) {
+                      canMint = true;
+                    } else {
+                      const creator = await contract.methods.creator().call();
+                      const owner = await contract.methods.owner().call();
+                      canMint = (creator.toLowerCase() === this.address.toLowerCase())
+                             || (owner.toLowerCase() === this.address.toLowerCase());
+                    }
+                  } catch (e) {
+                    // If creatorOnly doesn't exist, admin can mint
+                    if (this.userType === 'admin') canMint = true;
+                  }
+
+                  if (canMint) {
+                    const name = await contract.methods.name().call();
+                    const symbol = await contract.methods.symbol().call();
+                    mintable.push({ address: c.address, name, symbol });
+                  }
+                } catch (e) {
+                  console.warn('Skip contract', c.address, e.message);
+                }
+              }
+              this.mintableContracts = mintable;
+            } catch (e) {
+              console.error('loadMintableContracts error:', e);
+              this.error = 'Failed to load contracts';
+            }
+            this.contractsLoading = false;
+          },
+
+          onContractChange() {
+            this.txHash = null;
+            this.error = null;
+          },
+
+          // Metadata preview
+          debounceFetchMeta() {
+            clearTimeout(this.metaDebounce);
+            this.metadata = null;
+            if (!this.tokenUri.trim()) return;
+            this.metaDebounce = setTimeout(() => this.fetchMetadata(), 800);
+          },
+
+          async fetchMetadata() {
+            const uri = this.tokenUri.trim();
+            if (!uri) return;
+            this.metaLoading = true;
+            try {
+              const url = this.resolveIpfs(uri);
+              const res = await fetch(url);
+              this.metadata = await res.json();
+            } catch (e) {
+              this.metadata = null;
+              console.warn('metadata fetch failed:', e);
+            }
+            this.metaLoading = false;
+          },
+
+          resolveIpfs(uri) {
+            if (uri && uri.startsWith('ipfs://')) {
+              return 'https://ipfs.io/ipfs/' + uri.slice(7);
+            }
+            return uri;
+          },
+
+          // Recipient nickname
+          lookupMintToNick() {
+            this.mintToNickname = null;
+            if (!/^0x[0-9a-fA-F]{40}$/.test(this.mintTo)) return;
+            this.mintToNickLoading = true;
+            NFTHelper.getNickname(this.mintTo)
+              .then(n => { this.mintToNickname = n; })
+              .finally(() => { this.mintToNickLoading = false; });
+          },
+
+          // Execute mint
+          async executeMint() {
+            if (!this.canMint) return;
+            const name = this.mintToNickname || this.mintTo.slice(0,6) + '...' + this.mintTo.slice(-4);
+            if (!confirm(`Mint to ${name}?\n\nContract: ${this.selectedContract}\nTokenURI: ${this.tokenUri}`)) return;
+
+            this.minting = true;
+            this.error = null;
+            this.txHash = null;
+
+            try {
+              const web3 = new Web3(window.ethereum);
+              const contract = new web3.eth.Contract(ABI.ERC721Mint, this.selectedContract);
+              const gasParams = await Wallet.getGasParams();
+
+              const tx = await contract.methods
+                .mint(this.mintTo, this.tokenUri.trim())
+                .send({ from: this.address, ...gasParams });
+
+              this.txHash = tx.transactionHash;
+              this.tokenUri = '';
+              this.metadata = null;
+            } catch (e) {
+              if (e.code === 4001 || (e.message && e.message.includes('denied'))) {
+                this.error = this.t('tx_cancelled');
+              } else {
+                this.error = e.message || 'Mint failed';
+              }
+              console.error('mint error:', e);
+            }
+            this.minting = false;
+          },
+        },
+      }).mount('#app');
+    </script>
+  </body>
+</html>

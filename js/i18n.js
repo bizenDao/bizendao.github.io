@@ -179,6 +179,17 @@
       tx_cancelled: 'キャンセルされました',
       donate_failed: '寄付に失敗しました',
 
+      // Mint
+      mint_subtitle: 'NFTをミントして新しいトークンを発行します',
+      mint_select_contract: 'コントラクトを選択',
+      mint_to: 'ミント先アドレス',
+      mint_to_self: '自分宛て',
+      mint_loading_meta: 'メタデータ読み込み中...',
+      mint_button: 'Mint',
+      mint_minting: 'ミント中...',
+      mint_success: 'ミント完了',
+      mint_no_permission: 'Admin または Creator 権限が必要です',
+
       // Loading
       loading_nft: 'NFTを検索中...',
       loading_membership: 'メンバーシップを確認中...',
@@ -353,6 +364,17 @@
       tx_burned: 'Burn complete',
       tx_cancelled: 'Cancelled',
       donate_failed: 'Donation failed',
+
+      // Mint
+      mint_subtitle: 'Mint new NFT tokens to any address',
+      mint_select_contract: 'Select Contract',
+      mint_to: 'Mint To',
+      mint_to_self: 'Self',
+      mint_loading_meta: 'Loading metadata...',
+      mint_button: 'Mint',
+      mint_minting: 'Minting...',
+      mint_success: 'Mint Complete',
+      mint_no_permission: 'Admin or Creator permission required',
 
       // Loading
       loading_nft: 'Searching NFTs...',
