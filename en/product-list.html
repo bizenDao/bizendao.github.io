@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
 
 <head>
     <meta charset="utf-8" />
-    <title>BizenDAO｜商品一覧</title>
+    <title>BizenDAO｜Product List</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../css/style2.css" />
 </head>
@@ -12,17 +12,17 @@
     <!-- Header：TOPと同じ想定 -->
     <header class="site-header product-header">
         <div class="container header-inner">
-            <a href="index.html" class="logo"><img src="../img/349F5603-389E-48C6-81C9-1515A338A59B.png" alt="ロゴ"> </a>
+            <a href="index.html" class="logo"><img src="../img/349F5603-389E-48C6-81C9-1515A338A59B.png" alt="Logo"> </a>
 
             <!-- 検索 -->
             <div class="plist-search-wrap">
                 <span class="plist-search-icon">🔍</span>
-                <input id="keywordInput" type="search" class="plist-search-input" placeholder="キーワードで検索（作家名・タイトルなど）" />
+                <input id="keywordInput" type="search" class="plist-search-input" placeholder="Search by keyword (artist name, title, etc.)" />
             </div>
 
             <div class="header-right">
                 <button class="lang-toggle" type="button">EN/JP</button>
-                <button class="nav-toggle" type="button" aria-label="メニューを開閉" aria-expanded="false">
+                <button class="nav-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">
                     <span></span><span></span>
                 </button>
             </div>
@@ -31,15 +31,15 @@
 
     <!-- Drawer（右から） -->
     <div class="nav-overlay" hidden></div>
-    <aside class="nav-drawer" aria-label="サイトメニュー" aria-hidden="true">
+    <aside class="nav-drawer" aria-label="Site menu" aria-hidden="true">
         <ul class="drawer-nav">
-            <li><a href="index.html">トップページ</a></li>
-            <li><a href="/product-list.html">商品一覧</a></li>
-            <li><a href="/artist-list.html">作家紹介</a></li>
-            <li><a href="/index.html#company">会社概要</a></li>
-            <li><a href="/index.html#discord">Discordリンク</a></li>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="/product-list.html">Products</a></li>
+            <li><a href="/artist-list.html">Artists</a></li>
+            <li><a href="/index.html#company">About Us</a></li>
+            <li><a href="/index.html#discord">Discord</a></li>
             <li><a href="/meta.html">Meta</a></li>
-            <li><a href="/index.html#donation">寄付</a></li>
+            <li><a href="/index.html#donation">Donation</a></li>
         </ul>
     </aside>
 
@@ -47,16 +47,16 @@
         <div class="plist-page-inner">
 
             <section class="plist-hero">
-                <h1 class="plist-title">商品一覧</h1>
+                <h1 class="plist-title">Products</h1>
             </section>
 
             <!-- フィルター -->
-            <section class="plist-filters" aria-label="商品フィルター">
+            <section class="plist-filters" aria-label="Product filters">
                 <div class="plist-filter-row">
                     <button class="filter-chip filter-chip--artist is-active" data-artist="all">ALL</button>
-                    <button class="filter-chip filter-chip--artist" data-artist="mori-toshiaki">森 敏彰</button>
-                    <button class="filter-chip filter-chip--artist" data-artist="fujita-syo">藤田 祥</button>
-                    <button class="filter-chip filter-chip--artist" data-artist="mori-taiga">森 大雅</button>
+                    <button class="filter-chip filter-chip--artist" data-artist="mori-toshiaki">Toshiaki Mori</button>
+                    <button class="filter-chip filter-chip--artist" data-artist="fujita-syo">Syo Fujita</button>
+                    <button class="filter-chip filter-chip--artist" data-artist="mori-taiga">Taiga Mori</button>
                 </div>
 
                 <div class="plist-filter-row">
@@ -65,15 +65,15 @@
                 </div>
 
                 <div class="plist-filter-row plist-filter-row--select">
-                    <label for="categorySelect" class="plist-select-label">カテゴリー</label>
+                    <label for="categorySelect" class="plist-select-label">Category</label>
                     <div class="plist-select-wrap">
                         <select id="categorySelect" class="plist-select">
-                            <option value="all">すべて</option>
-                            <option value="flower-vase">花器 / 花入</option>
-                            <option value="tea-bowl">茶碗 / 湯呑</option>
-                            <option value="cup">カップ</option>
-                            <option value="plate">皿 / プレート</option>
-                            <option value="object">オブジェ / その他</option>
+                            <option value="all">All</option>
+                            <option value="flower-vase">Flower Vase</option>
+                            <option value="tea-bowl">Tea Bowl / Yunomi</option>
+                            <option value="cup">Cup</option>
+                            <option value="plate">Plate</option>
+                            <option value="object">Object / Other</option>
                         </select>
                         <span class="plist-select-arrow">▼</span>
                     </div>
@@ -81,9 +81,9 @@
             </section>
 
             <!-- 商品グリッド（JSON→生成） -->
-            <section class="plist-products" aria-label="商品一覧">
+            <section class="plist-products" aria-label="Product list">
                 <div id="productGrid" class="product-list-grid"></div>
-                <p class="plist-empty" hidden>条件に合う商品がありません。</p>
+                <p class="plist-empty" hidden>No products match your criteria.</p>
             </section>
 
         </div>
@@ -93,16 +93,16 @@
         <div class="container footer-inner">
             <nav class="footer-nav">
                 <ul>
-                    <li><a href="/index.html">トップページ</a></li>
-                    <li><a href="/product-list.html">商品一覧</a></li>
-                    <li><a href="/artist-list.html">作家紹介</a></li>
-                    <li><a href="./index.html#company">会社概要</a></li>
-                    <li><a href=".index.html#discord">Discordリンク</a></li>
+                    <li><a href="/index.html">Home</a></li>
+                    <li><a href="/product-list.html">Products</a></li>
+                    <li><a href="/artist-list.html">Artists</a></li>
+                    <li><a href="./index.html#company">About Us</a></li>
+                    <li><a href=".index.html#discord">Discord</a></li>
                     <li><a href="./meta.html">Meta</a></li>
-                    <li><a href=".index.html#donation">寄付</a></li>
+                    <li><a href=".index.html#donation">Donation</a></li>
                 </ul>
             </nav>
-            <div class="footer-logo"><a href="#top" class="logo"><img src="../img/349F5603-389E-48C6-81C9-1515A338A59B.png" alt="ロゴ"> </a></div>
+            <div class="footer-logo"><a href="#top" class="logo"><img src="../img/349F5603-389E-48C6-81C9-1515A338A59B.png" alt="Logo"> </a></div>
         </div>
     </footer>
 
