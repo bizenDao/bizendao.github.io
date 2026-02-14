@@ -69,7 +69,7 @@
 
           <div v-if="!connected" class="connect-prompt">
             <button v-if="metamaskAvailable" class="btn btn-connect" @click="connectWallet" :disabled="connecting">
-              {{ connecting ? '{{ t('connecting') }}' : '{{ t('connect_wallet') }}' }}
+              {{ connecting ? t('connecting') : t('connect_wallet') }}
             </button>
             <p v-else>{{ t('no_metamask') }}</p>
           </div>
