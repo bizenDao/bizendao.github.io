@@ -4,13 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BizenDAO - EOA登録</title>
-    <link rel="stylesheet" href="../../css/style.css" />
+    <link rel="stylesheet" href="../css/style.css" />
     <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js" crossorigin="anonymous"></script>
-    <script src="../../js/config.js"></script>
-    <script src="../../js/cache.js"></script>
-    <script src="../../js/nft.js"></script>
-    <script src="../../js/wallet.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/cache.js"></script>
+    <script src="../js/nft.js"></script>
+    <script src="../js/wallet.js"></script>
+    <script src="../js/i18n.js"></script>
+    <script src="../js/lang-toggle.js"></script>
 
     <style>
       main {
@@ -177,7 +179,7 @@
     <div id="app">
       <header class="site-header">
         <div class="container header-inner">
-          <a href="../../ja/index.html" class="logo"><img src="../../img/349F5603-389E-48C6-81C9-1515A338A59B.png" alt="ロゴ"></a>
+          <a href="../ja/index.html" class="logo"><img src="../img/349F5603-389E-48C6-81C9-1515A338A59B.png" alt="ロゴ"></a>
         </div>
       </header>
 
@@ -205,7 +207,7 @@
             <div v-if="registered" class="success-card">
               <h3 data-i18n="register_done">✅ 登録が完了しました</h3>
               <p style="opacity:0.7;" data-i18n="register_linked">ウォレットとDiscordが紐付けられました。</p>
-              <a href="../../ja/index.html" class="btn" style="margin-top:12px;" data-i18n="back_to_top">トップへ戻る</a>
+              <a href="../ja/index.html" class="btn" style="margin-top:12px;" data-i18n="back_to_top">トップへ戻る</a>
             </div>
 
             <!-- 登録フォーム -->
@@ -257,7 +259,7 @@
         computed: {
           metamaskAvailable() { return Wallet.isAvailable(); },
           lang() { return window.i18n ? window.i18n.lang() : 'ja'; },
-          contentBase() { return window.i18n ? window.i18n.contentBase() : '../../ja'; },
+          contentBase() { return window.i18n ? window.i18n.contentBase() : '../ja'; },
         },
         async mounted() {
           // URLパラメータから取得: /regist/?discord=xxx&secret=yyy
@@ -338,7 +340,5 @@
         },
       }).mount('#app');
     </script>
-  <script src="../../js/i18n.js"></script>
-  <script src="../../js/lang-toggle.js"></script>
 </body>
 </html>

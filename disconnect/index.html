@@ -4,13 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BizenDAO - ウォレット解除</title>
-    <link rel="stylesheet" href="../../css/style.css" />
+    <link rel="stylesheet" href="../css/style.css" />
     <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js" crossorigin="anonymous"></script>
-    <script src="../../js/config.js"></script>
-    <script src="../../js/cache.js"></script>
-    <script src="../../js/nft.js"></script>
-    <script src="../../js/wallet.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/cache.js"></script>
+    <script src="../js/nft.js"></script>
+    <script src="../js/wallet.js"></script>
+    <script src="../js/i18n.js"></script>
+    <script src="../js/lang-toggle.js"></script>
 
     <style>
       main {
@@ -182,7 +184,7 @@
     <div id="app">
       <header class="site-header">
         <div class="container header-inner">
-          <a href="../../ja/index.html" class="logo"><img src="../../img/349F5603-389E-48C6-81C9-1515A338A59B.png" alt="ロゴ"></a>
+          <a href="../ja/index.html" class="logo"><img src="../img/349F5603-389E-48C6-81C9-1515A338A59B.png" alt="ロゴ"></a>
           <div class="header-right">
             <span class="lang-switch"><a class="lang-btn" data-lang="en" href="#">EN</a> / <a class="lang-btn" data-lang="ja" href="#">JP</a></span>
             <button class="nav-toggle" type="button" aria-label="メニューを開閉" @click="toggleMenu">
@@ -312,7 +314,7 @@
         computed: {
           metamaskAvailable() { return Wallet.isAvailable(); },
           lang() { return window.i18n ? window.i18n.lang() : 'ja'; },
-          contentBase() { return window.i18n ? window.i18n.contentBase() : '../../ja'; },
+          contentBase() { return window.i18n ? window.i18n.contentBase() : '../ja'; },
         },
         async mounted() {
           const r = await Wallet.reconnect();
@@ -397,7 +399,5 @@
         },
       }).mount('#app');
     </script>
-  <script src="../../js/i18n.js"></script>
-  <script src="../../js/lang-toggle.js"></script>
 </body>
 </html>
