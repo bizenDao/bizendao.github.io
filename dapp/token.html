@@ -214,17 +214,28 @@
         border-color: rgba(255, 255, 255, 0.5);
       }
 
-      .nft-token-id {
-        font-size: 16px;
-        opacity: 0.7;
-        margin: 0;
-        font-family: monospace;
+      .nft-meta-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 8px 0 12px;
+        flex-wrap: wrap;
       }
-
-      .nft-owner {
-        font-size: 14px;
+      .nft-meta-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nft-meta-right {
+        font-size: 13px;
         opacity: 0.7;
-        margin: 6px 0 0;
+        font-family: monospace;
+        white-space: nowrap;
+      }
+      .nft-token-id {
+        font-size: 15px;
+        opacity: 0.7;
         font-family: monospace;
       }
 
@@ -744,15 +755,20 @@
             <div v-for="nft in nfts" :key="nft.tokenId" class="nft-display">
               <div class="nft-header">
                 <h2 class="nft-title">{{ nft.name || 'Unnamed NFT' }}</h2>
-                <a v-if="currentArtist"
-                   :href="'contract.html?ca=' + contractAddress + '&lang=' + lang"
-                   class="artist-btn active">
-                  {{ lang === 'en' && currentArtist.nameEn ? currentArtist.nameEn : currentArtist.name }}
-                </a>
-                <p class="nft-token-id">Token ID: #{{ nft.tokenId }}</p>
-                <p v-if="ownerAddress" class="nft-owner">
-                  Owner: <a :href="'account.html?address=' + ownerAddress + '&lang=' + lang" class="contract-link">{{ ownerDisplayName || shortAddr(ownerAddress) }}</a> <span v-if="ownerNicknameLoading" class="nickname-spinner"></span>
-                </p>
+                <div class="nft-meta-row">
+                  <div class="nft-meta-left">
+                    <a v-if="currentArtist"
+                       :href="'contract.html?ca=' + contractAddress + '&lang=' + lang"
+                       class="artist-btn active">
+                      {{ lang === 'en' && currentArtist.nameEn ? currentArtist.nameEn : currentArtist.name }}
+                    </a>
+                    <span class="nft-token-id">#{{ nft.tokenId }}</span>
+                  </div>
+                  <div v-if="ownerAddress" class="nft-meta-right">
+                    Owner: <a :href="'account.html?address=' + ownerAddress + '&lang=' + lang" class="contract-link">{{ ownerDisplayName || shortAddr(ownerAddress) }}</a>
+                    <span v-if="ownerNicknameLoading" class="nickname-spinner"></span>
+                  </div>
+                </div>
 
                 <!-- オーナー操作ボタン -->
                 <div v-if="isOwner" class="owner-actions">
