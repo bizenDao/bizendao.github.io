@@ -913,13 +913,7 @@
         stateMutability: "view",
         type: "function",
       }];
-      const BURNABLE_ABI_NOARG = [{
-        inputs: [],
-        name: "burnable",
-        outputs: [{ name: "", type: "bool" }],
-        stateMutability: "view",
-        type: "function",
-      }];
+      // (removed: no-arg burnable ABI)
 
       // ERC1155 ABI (必要最小限)
       const ERC1155_ABI = [
@@ -1056,16 +1050,11 @@
               // Owner取得
               this.fetchOwner(this.tokenId || 1);
 
-              // Burnable check (tokenId単位 → fallback: 引数なし)
+              // Burnable check (tokenId単位)
               try {
-                const bc1 = new this.web3.eth.Contract(BURNABLE_ABI_TOKEN, this.contractAddress);
-                this.burnable = await bc1.methods.burnable(this.tokenId).call();
-              } catch (e) {
-                try {
-                  const bc2 = new this.web3.eth.Contract(BURNABLE_ABI_NOARG, this.contractAddress);
-                  this.burnable = await bc2.methods.burnable().call();
-                } catch (e2) { this.burnable = false; }
-              }
+                const bc = new this.web3.eth.Contract(BURNABLE_ABI_TOKEN, this.contractAddress);
+                this.burnable = await bc.methods.burnable(this.tokenId).call();
+              } catch (e) { this.burnable = false; }
 
               // TBA取得（NFT読み込み成功後）
               this.loadTba(this.tokenId || 1);
