@@ -228,11 +228,32 @@
         gap: 10px;
       }
       .nft-meta-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         font-size: 13px;
         opacity: 0.7;
         font-family: monospace;
         white-space: nowrap;
       }
+      .icon-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        color: #f6f6f6;
+        cursor: pointer;
+        transition: all 0.2s;
+        opacity: 1;
+      }
+      .icon-btn:hover { background: rgba(255, 255, 255, 0.15); }
+      .icon-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+      .icon-btn.icon-send:hover { border-color: rgba(100, 180, 255, 0.5); color: #6bb6ff; }
+      .icon-btn.icon-burn:hover { border-color: rgba(255, 100, 80, 0.5); color: #ff6450; }
       .nft-token-id {
         font-size: 15px;
         opacity: 0.7;
@@ -767,13 +788,13 @@
                   <div v-if="ownerAddress" class="nft-meta-right">
                     Owner: <a :href="'account.html?address=' + ownerAddress + '&lang=' + lang" class="contract-link">{{ ownerDisplayName || shortAddr(ownerAddress) }}</a>
                     <span v-if="ownerNicknameLoading" class="nickname-spinner"></span>
+                    <button v-if="isOwner && !isSbt" class="icon-btn icon-send" @click="showSendModal = true" :disabled="sendingTx" :title="t('send')">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
+                    </button>
+                    <button v-if="isOwner && (burnable || userType === 'admin' || userType === 'creator')" class="icon-btn icon-burn" @click="confirmBurn" :disabled="sendingTx" :title="t('burn')">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12c2-2.96 0-7-1-8 0 3.038-1.773 4.741-3 6-1.226 1.26-2 3.24-2 5a6 6 0 1 0 12 0c0-1.532-1.056-3.94-2-5-1.786 3-2.791 3-4 2z"/></svg>
+                    </button>
                   </div>
-                </div>
-
-                <!-- オーナー操作ボタン -->
-                <div v-if="isOwner" class="owner-actions">
-                  <button v-if="!isSbt" class="btn btn-send" @click="showSendModal = true" :disabled="sendingTx">{{ t('send') }}</button>
-                  <button v-if="burnable || userType === 'admin' || userType === 'creator'" class="btn btn-burn" @click="confirmBurn" :disabled="sendingTx">{{ t('burn') }}</button>
                 </div>
                 <div v-if="txMessage" :class="['tx-message', txClass]">{{ txMessage }}</div>
 
