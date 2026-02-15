@@ -1003,7 +1003,7 @@
             // ユーザー情報取得
             this.nicknameLoading = true;
             Manager.checkUser(result.address).then(ut => { this.userType = ut; }).catch(() => {});
-            Manager.getNickname(result.address).then(n => { this.nickname = n; }).catch(() => {}).finally(() => { this.nicknameLoading = false; });
+            NFTHelper.getNickname(result.address).then(n => { this.nickname = n; }).catch(() => {}).finally(() => { this.nicknameLoading = false; });
           }
 
           // ウォレット変更監視
@@ -1012,7 +1012,7 @@
               this.connectedAddress = accs[0] || null;
               if (this.connectedAddress) {
                 Manager.checkUser(this.connectedAddress).then(ut => { this.userType = ut; }).catch(() => {});
-                Manager.getNickname(this.connectedAddress).then(n => { this.nickname = n; }).catch(() => {});
+                NFTHelper.getNickname(this.connectedAddress).then(n => { this.nickname = n; }).catch(() => {});
               } else { this.userType = null; this.nickname = null; }
             });
           }

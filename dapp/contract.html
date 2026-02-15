@@ -504,7 +504,7 @@
                         this.walletAddress = result.address;
                         this.nicknameLoading = true;
                         Manager.checkUser(result.address).then(ut => { this.userType = ut; }).catch(() => {});
-                        Manager.getNickname(result.address).then(n => { this.nickname = n; }).catch(() => {}).finally(() => { this.nicknameLoading = false; });
+                        NFTHelper.getNickname(result.address).then(n => { this.nickname = n; }).catch(() => {}).finally(() => { this.nicknameLoading = false; });
                     }
                 } catch (e) {}
                 this.loadFromUrlParams();
