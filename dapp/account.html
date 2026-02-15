@@ -15,6 +15,7 @@
 
     <!-- BizenDAO 共通モジュール -->
     <script src="../js/config.js"></script>
+    <script src="../js/rpc-monitor.js"></script>
     <script src="../js/cache.js"></script>
     <script src="../js/nft.js"></script>
     <script src="../js/wallet.js"></script>
@@ -590,6 +591,7 @@
               <div v-if="totalNfts === 0 && !loading" class="connect-area" style="padding: 40px 20px;">
                 <p>{{ t('no_nft') }}</p>
                 <a :href="contentBase + '/artist-list.html'" class="btn">{{ t('view_artists') }}</a>
+                <a :href="'contract.html?lang=' + lang" class="btn" style="margin-left:8px;">{{ t('contract_list') }}</a>
               </div>
 
             </template>

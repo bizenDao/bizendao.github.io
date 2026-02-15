@@ -39,6 +39,7 @@
       artists: '作家',
       no_nft: 'まだ備前焼NFTを所有していません。',
       view_artists: '作家紹介を見る',
+      contract_list: 'コントラクト一覧',
       sbt_badge: 'SBT',
       progress: '進捗',
 
@@ -198,6 +199,7 @@
       select_artist: '作家で選ぶ',
       symbol: 'シンボル',
       total_supply: '総発行数',
+      mint: 'Mint',
       loading_contract_info: 'コントラクト情報を取得中...',
       loading_tokens: 'トークン一覧を取得中...',
       no_tokens: 'このコントラクトにはトークンがありません',
@@ -234,6 +236,7 @@
 
       // Mint
       mint_subtitle: 'NFTをミントして新しいトークンを発行します',
+      mint_contract: 'コントラクト',
       mint_select_contract: 'コントラクトを選択',
       mint_to: 'ミント先アドレス',
       mint_to_self: '自分宛て',
@@ -317,6 +320,7 @@
       artists: 'Artists',
       no_nft: 'You don\'t own any Bizen-yaki NFTs yet.',
       view_artists: 'View Artists',
+      contract_list: 'Contracts',
       sbt_badge: 'SBT',
       progress: 'Progress',
 
@@ -476,6 +480,7 @@
       select_artist: 'Select by artist',
       symbol: 'Symbol',
       total_supply: 'Total Supply',
+      mint: 'Mint',
       loading_contract_info: 'Loading contract info...',
       loading_tokens: 'Loading tokens...',
       no_tokens: 'No tokens found in this contract',
@@ -512,6 +517,7 @@
 
       // Mint
       mint_subtitle: 'Mint new NFT tokens to any address',
+      mint_contract: 'Contract',
       mint_select_contract: 'Select Contract',
       mint_to: 'Mint To',
       mint_to_self: 'Self',

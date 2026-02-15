@@ -6,11 +6,17 @@
 const NFTHelper = {
   _web3: null,
 
-  // Web3インスタンス取得（遅延初期化）
+  // Web3インスタンス取得（遅延初期化、ラウンドロビン）
   getWeb3() {
     if (!this._web3) {
-      this._web3 = new Web3(CONFIG.chain.rpc);
+      this._web3 = RPC.createWeb3();
     }
+    return this._web3;
+  },
+
+  // RPC障害時にWeb3を次のエンドポイントでリセット
+  resetWeb3() {
+    this._web3 = RPC.createWeb3();
     return this._web3;
   },
 

@@ -28,11 +28,13 @@
 
     <!-- BizenDAO 共通モジュール -->
     <script src="../js/config.js"></script>
+    <script src="../js/rpc-monitor.js"></script>
     <script src="../js/cache.js"></script>
     <script src="../js/wallet.js"></script>
     <script src="../js/wallet-header.js"></script>
     <script src="../js/i18n.js"></script>
     <script src="../js/lang-toggle.js"></script>
+    <script src="../js/manager.js"></script>
     <script src="../js/nft.js"></script>
 
     <style>
@@ -150,7 +152,7 @@
 
       /* NFT詳細表示 */
       .nft-details {
-        margin-top: 40px;
+        margin-top: 0;
       }
 
       .nft-display {
@@ -186,18 +188,76 @@
         text-decoration: underline;
       }
 
-      .nft-token-id {
-        font-size: 16px;
-        opacity: 0.7;
-        margin: 0;
-        font-family: monospace;
+      .artist-presets {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 8px 0 12px;
+      }
+      .artist-btn {
+        display: inline-block;
+        padding: 6px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.05);
+        color: #f6f6f6;
+        border-radius: 20px;
+        font-size: 12px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+      .artist-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.4);
+      }
+      .artist-btn.active {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
       }
 
-      .nft-owner {
-        font-size: 14px;
+      .nft-meta-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 8px 0 12px;
+        flex-wrap: wrap;
+      }
+      .nft-meta-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nft-meta-left .icon-btn { margin-left: -6px; }
+      .nft-meta-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
         opacity: 0.7;
-        margin: 6px 0 0;
         font-family: monospace;
+        white-space: nowrap;
+      }
+      .icon-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        padding: 0;
+      }
+      .icon-btn:hover { opacity: 0.7; }
+      .icon-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+      .icon-send { color: #4eca6a; }
+      .icon-burn { color: #e85040; }
+      .nft-token-id {
+        font-size: 15px;
+        opacity: 0.7;
+        font-family: monospace;
+        margin-right: 3px;
       }
 
       .nft-layout {
@@ -658,6 +718,14 @@
 
       <main>
         <div class="nft-viewer">
+          <wallet-header v-if="connectedAddress"
+            :address="connectedAddress"
+            :nickname="nickname"
+            :nickname-loading="nicknameLoading"
+            :user-type="userType"
+            view-mode="viewer"
+            setting-base="setting/"
+          ></wallet-header>
           <!-- コントロールパネル -->
           <div v-if="showControlPanel" class="control-panel">
             <div class="input-group">
@@ -707,16 +775,25 @@
             <div v-for="nft in nfts" :key="nft.tokenId" class="nft-display">
               <div class="nft-header">
                 <h2 class="nft-title">{{ nft.name || 'Unnamed NFT' }}</h2>
-                <a :href="'contract.html?ca=' + contractAddress" class="contract-link">Contract Token List</a>
-                <p class="nft-token-id">Token ID: #{{ nft.tokenId }}</p>
-                <p v-if="ownerAddress" class="nft-owner">
-                  Owner: <a :href="'account.html?address=' + ownerAddress + '&lang=' + lang" class="contract-link">{{ ownerDisplayName || shortAddr(ownerAddress) }}</a> <span v-if="ownerNicknameLoading" class="nickname-spinner"></span>
-                </p>
-
-                <!-- オーナー操作ボタン -->
-                <div v-if="isOwner" class="owner-actions">
-                  <button class="btn btn-send" @click="showSendModal = true" :disabled="sendingTx">{{ t('send') }}</button>
-                  <button class="btn btn-burn" @click="confirmBurn" :disabled="sendingTx">{{ t('burn') }}</button>
+                <div class="nft-meta-row">
+                  <div class="nft-meta-left">
+                    <a v-if="currentArtist"
+                       :href="'contract.html?ca=' + contractAddress + '&lang=' + lang"
+                       class="artist-btn active">
+                      {{ lang === 'en' && currentArtist.nameEn ? currentArtist.nameEn : currentArtist.name }}
+                    </a>
+                    <span class="nft-token-id">#{{ nft.tokenId }}</span>
+                    <button v-if="isOwner && !isSbt" class="icon-btn icon-send" @click="showSendModal = true" :disabled="sendingTx" :title="t('send')">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
+                    </button>
+                    <button v-if="isOwner && (burnable || userType === 'admin' || userType === 'creator')" class="icon-btn icon-burn" @click="confirmBurn" :disabled="sendingTx" :title="t('burn')">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12c2-2.96 0-7-1-8 0 3.038-1.773 4.741-3 6-1.226 1.26-2 3.24-2 5a6 6 0 1 0 12 0c0-1.532-1.056-3.94-2-5-1.786 3-2.791 3-4 2z"/></svg>
+                    </button>
+                  </div>
+                  <div v-if="ownerAddress" class="nft-meta-right">
+                    Owner: <a :href="'account.html?address=' + ownerAddress + '&lang=' + lang" class="contract-link">{{ ownerDisplayName || shortAddr(ownerAddress) }}</a>
+                    <span v-if="ownerNicknameLoading" class="nickname-spinner"></span>
+                  </div>
                 </div>
                 <div v-if="txMessage" :class="['tx-message', txClass]">{{ txMessage }}</div>
 
@@ -904,6 +981,16 @@
         },
       ];
 
+      // burnable ABIs — tokenId版とno-arg版を別コントラクトで試す
+      const BURNABLE_ABI_TOKEN = [{
+        inputs: [{ name: "tokenId", type: "uint256" }],
+        name: "burnable",
+        outputs: [{ name: "", type: "bool" }],
+        stateMutability: "view",
+        type: "function",
+      }];
+      // (removed: no-arg burnable ABI)
+
       // ERC1155 ABI (必要最小限)
       const ERC1155_ABI = [
         "function uri(uint256 id) view returns (string)",
@@ -941,6 +1028,10 @@
             sendToLookedUp: false,
             sendingTx: false,
             showSendModal: false,
+            burnable: false,
+            userType: null,
+            nickname: null,
+            nicknameLoading: false,
             txMessage: '',
             txClass: '',
           };
@@ -955,6 +1046,17 @@
           lang() { return window.i18n ? window.i18n.lang() : 'ja'; },
           contentBase() { return window.i18n ? window.i18n.contentBase() : '../ja'; },
           homeUrl() { return this.contentBase + '/index.html'; },
+          currentArtist() {
+            if (!this.contractAddress) return null;
+            const ca = this.contractAddress.toLowerCase();
+            const all = [...CONFIG.contracts.nfts];
+            if (CONFIG.contracts.sbt) all.push({ address: CONFIG.contracts.sbt.address, name: 'SBT', nameEn: 'SBT', key: 'sbt' });
+            return all.find(a => a.address.toLowerCase() === ca) || null;
+          },
+          isSbt() {
+            return CONFIG.contracts.sbt && this.contractAddress &&
+              this.contractAddress.toLowerCase() === CONFIG.contracts.sbt.address.toLowerCase();
+          },
           isOwner() {
             if (!this.connectedAddress || !this.ownerAddress) return false;
             return this.connectedAddress.toLowerCase() === this.ownerAddress.toLowerCase();
@@ -969,12 +1071,22 @@
         async mounted() {
           // ウォレット自動再接続
           const result = await Wallet.reconnect();
-          if (result) this.connectedAddress = result.address;
+          if (result) {
+            this.connectedAddress = result.address;
+            // ユーザー情報取得
+            this.nicknameLoading = true;
+            Manager.checkUser(result.address).then(ut => { this.userType = ut; }).catch(() => {});
+            NFTHelper.getNickname(result.address).then(n => { this.nickname = n; }).catch(() => {}).finally(() => { this.nicknameLoading = false; });
+          }
 
           // ウォレット変更監視
           if (window.ethereum) {
             window.ethereum.on('accountsChanged', (accs) => {
               this.connectedAddress = accs[0] || null;
+              if (this.connectedAddress) {
+                Manager.checkUser(this.connectedAddress).then(ut => { this.userType = ut; }).catch(() => {});
+                NFTHelper.getNickname(this.connectedAddress).then(n => { this.nickname = n; }).catch(() => {});
+              } else { this.userType = null; this.nickname = null; }
             });
           }
 
@@ -1033,6 +1145,12 @@
 
               // Owner取得
               this.fetchOwner(this.tokenId || 1);
+
+              // Burnable check (tokenId単位)
+              try {
+                const bc = new this.web3.eth.Contract(BURNABLE_ABI_TOKEN, this.contractAddress);
+                this.burnable = await bc.methods.burnable(this.tokenId).call();
+              } catch (e) { this.burnable = false; }
 
               // TBA取得（NFT読み込み成功後）
               this.loadTba(this.tokenId || 1);

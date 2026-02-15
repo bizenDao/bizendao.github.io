@@ -15,8 +15,12 @@
 
     <!-- BizenDAO 共通モジュール -->
     <script src="../js/config.js"></script>
+    <script src="../js/rpc-monitor.js"></script>
     <script src="../js/cache.js"></script>
     <script src="../js/nft.js"></script>
+    <script src="../js/wallet.js"></script>
+    <script src="../js/wallet-header.js"></script>
+    <script src="../js/manager.js"></script>
     <script src="../js/i18n.js"></script>
     <script src="../js/lang-toggle.js"></script>
     
@@ -29,7 +33,7 @@
         .contract-viewer {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 20px 20px;
         }
         
         .viewer-title {
@@ -196,6 +200,25 @@
             letter-spacing: 0.05em;
         }
 
+        .mint-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 20px;
+            background: rgba(107, 182, 255, 0.15);
+            border: 1px solid rgba(107, 182, 255, 0.3);
+            border-radius: 8px;
+            color: #6bb6ff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .mint-link-btn:hover {
+            background: rgba(107, 182, 255, 0.25);
+            border-color: rgba(107, 182, 255, 0.5);
+        }
+
         .info-value {
             font-size: 16px;
             font-weight: 500;
@@ -356,9 +379,14 @@
 
         <main>
             <div class="contract-viewer">
-                <h1 class="viewer-title">{{ t('contract_token_list') }}</h1>
-                <p class="viewer-subtitle">{{ t('contract_token_subtitle') }}</p>
-                
+                <wallet-header v-if="walletAddress"
+                    :address="walletAddress"
+                    :nickname="nickname"
+                    :nickname-loading="nicknameLoading"
+                    :user-type="userType"
+                    view-mode="viewer"
+                    setting-base="setting/"
+                ></wallet-header>
                 <!-- コントロールパネル -->
                 <div class="control-panel">
                     <!-- 作家プリセット -->
@@ -389,10 +417,6 @@
                         <span class="info-value">{{ contractInfo.name }}</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">{{ t('symbol') }}</span>
-                        <span class="info-value">{{ contractInfo.symbol }}</span>
-                    </div>
-                    <div class="info-item">
                         <span class="info-label">{{ t('total_supply') }}</span>
                         <span class="info-value">{{ contractInfo.totalSupply }}</span>
                     </div>
@@ -404,6 +428,10 @@
                                 {{ contractAddress.slice(0, 10) }}...{{ contractAddress.slice(-6) }}
                             </a>
                         </span>
+                    </div>
+                    <div v-if="mintable" class="info-item" style="justify-content: center;">
+                        <a :href="'mint.html?ca=' + contractAddress + (lang !== 'ja' ? '&lang=' + lang : '')" 
+                           class="mint-link-btn">{{ t('mint') }}</a>
                     </div>
                 </div>
                 
@@ -448,15 +476,33 @@
                     statusMessage: '',
                     statusClass: '',
                     menuOpen: false,
-                    artists: CONFIG.contracts.nfts,
+                    artists: [
+                        ...CONFIG.contracts.nfts,
+                        ...(CONFIG.contracts.sbt ? [{ address: CONFIG.contracts.sbt.address, name: 'SBT', nameEn: 'SBT', key: 'sbt' }] : []),
+                    ],
                     CONFIG: CONFIG,
+                    mintable: false,
+                    walletAddress: null,
+                    userType: null,
+                    nickname: null,
+                    nicknameLoading: false,
                 };
             },
             computed: {
               homeUrl() { return (window.i18n ? window.i18n.contentBase() : "../ja") + "/index.html"; },
                 lang() { return window.i18n ? window.i18n.lang() : 'ja'; },
             },
-            mounted() {
+            async mounted() {
+                // Silent wallet reconnect for mintable check
+                try {
+                    const result = await Wallet.reconnect();
+                    if (result) {
+                        this.walletAddress = result.address;
+                        this.nicknameLoading = true;
+                        Manager.checkUser(result.address).then(ut => { this.userType = ut; }).catch(() => {});
+                        NFTHelper.getNickname(result.address).then(n => { this.nickname = n; }).catch(() => {}).finally(() => { this.nicknameLoading = false; });
+                    }
+                } catch (e) {}
                 this.loadFromUrlParams();
                 window.addEventListener('keydown', this.handleEscape);
                 if (window.i18n) window.i18n.apply();
@@ -492,6 +538,14 @@
                         // コントラクト情報
                         const info = await NFTHelper.getContractInfo(this.contractAddress);
                         this.contractInfo = info;
+
+                        // Mintable check
+                        this.mintable = false;
+                        if (this.walletAddress) {
+                            try {
+                                await this.checkMintable();
+                            } catch (e) { console.warn('mintable check:', e); }
+                        }
 
                         if (info.totalSupply === 0) {
                             this.showStatus(this.t('no_tokens'), 'info');
@@ -554,6 +608,35 @@
                     }
                 },
 
+                async checkMintable() {
+                    const web3 = NFTHelper.getWeb3();
+                    const contract = new web3.eth.Contract([...ABI.ERC721, ...ABI.ERC721Mint], this.contractAddress);
+                    const addr = this.walletAddress.toLowerCase();
+
+                    let creatorOnly = false;
+                    try { creatorOnly = await contract.methods._creatorOnly().call(); } catch (e) {}
+
+                    if (!creatorOnly) {
+                        this.mintable = true;
+                        return;
+                    }
+
+                    // creatorOnly: check if user is creator/owner/admin
+                    let creator = null, owner = null;
+                    try { creator = await contract.methods.creator().call(); } catch (e) {}
+                    try { owner = await contract.methods.owner().call(); } catch (e) {}
+
+                    if ((creator && creator.toLowerCase() === addr) || (owner && owner.toLowerCase() === addr)) {
+                        this.mintable = true;
+                        return;
+                    }
+
+                    try {
+                        const userType = await Manager.checkUser();
+                        if (userType === 'admin') this.mintable = true;
+                    } catch (e) {}
+                },
+
                 clearData() {
                     this.contractAddress = '';
                     this.tokenCards = [];
@@ -582,7 +665,7 @@
                 toggleMenu() { this.menuOpen = !this.menuOpen; document.body.style.overflow = this.menuOpen ? 'hidden' : ''; },
                 closeMenu() { this.menuOpen = false; document.body.style.overflow = ''; },
             }
-        }).mount('#app');
+        }).component('wallet-header', WalletHeader).mount('#app');
     </script>
 </body>
 </html>
