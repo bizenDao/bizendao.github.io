@@ -188,6 +188,32 @@
         text-decoration: underline;
       }
 
+      .artist-presets {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 8px 0 12px;
+      }
+      .artist-btn {
+        display: inline-block;
+        padding: 6px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.05);
+        color: #f6f6f6;
+        border-radius: 20px;
+        font-size: 12px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+      .artist-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.4);
+      }
+      .artist-btn.active {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+
       .nft-token-id {
         font-size: 16px;
         opacity: 0.7;
@@ -718,7 +744,13 @@
             <div v-for="nft in nfts" :key="nft.tokenId" class="nft-display">
               <div class="nft-header">
                 <h2 class="nft-title">{{ nft.name || 'Unnamed NFT' }}</h2>
-                <a :href="'contract.html?ca=' + contractAddress" class="contract-link">Contract Token List</a>
+                <div class="artist-presets">
+                  <a v-for="artist in artistList" :key="artist.key"
+                     :href="'contract.html?ca=' + artist.address + '&lang=' + lang"
+                     class="artist-btn" :class="{ active: contractAddress.toLowerCase() === artist.address.toLowerCase() }">
+                    {{ lang === 'en' && artist.nameEn ? artist.nameEn : artist.name }}
+                  </a>
+                </div>
                 <p class="nft-token-id">Token ID: #{{ nft.tokenId }}</p>
                 <p v-if="ownerAddress" class="nft-owner">
                   Owner: <a :href="'account.html?address=' + ownerAddress + '&lang=' + lang" class="contract-link">{{ ownerDisplayName || shortAddr(ownerAddress) }}</a> <span v-if="ownerNicknameLoading" class="nickname-spinner"></span>
@@ -980,6 +1012,11 @@
           lang() { return window.i18n ? window.i18n.lang() : 'ja'; },
           contentBase() { return window.i18n ? window.i18n.contentBase() : '../ja'; },
           homeUrl() { return this.contentBase + '/index.html'; },
+          artistList() {
+            const list = [...CONFIG.contracts.nfts];
+            if (CONFIG.contracts.sbt) list.push({ address: CONFIG.contracts.sbt.address, name: 'SBT', nameEn: 'SBT', key: 'sbt' });
+            return list;
+          },
           isSbt() {
             return CONFIG.contracts.sbt && this.contractAddress &&
               this.contractAddress.toLowerCase() === CONFIG.contracts.sbt.address.toLowerCase();
