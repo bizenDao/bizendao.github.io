@@ -79,7 +79,7 @@ const WalletHeader = {
   style.textContent = `
     .wh-container {
       margin-bottom: 16px;
-      padding: 0 20px;
+      padding: 0;
     }
 
     .wh-row {
