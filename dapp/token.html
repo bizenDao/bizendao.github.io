@@ -717,7 +717,7 @@
                 <!-- オーナー操作ボタン -->
                 <div v-if="isOwner" class="owner-actions">
                   <button v-if="!isSbt" class="btn btn-send" @click="showSendModal = true" :disabled="sendingTx">{{ t('send') }}</button>
-                  <button v-if="burnable" class="btn btn-burn" @click="confirmBurn" :disabled="sendingTx">{{ t('burn') }}</button>
+                  <button v-if="burnable || userType === 'admin' || userType === 'creator'" class="btn btn-burn" @click="confirmBurn" :disabled="sendingTx">{{ t('burn') }}</button>
                 </div>
                 <div v-if="txMessage" :class="['tx-message', txClass]">{{ txMessage }}</div>
 
@@ -905,6 +905,22 @@
         },
       ];
 
+      // burnable ABIs — tokenId版とno-arg版を別コントラクトで試す
+      const BURNABLE_ABI_TOKEN = [{
+        inputs: [{ name: "tokenId", type: "uint256" }],
+        name: "burnable",
+        outputs: [{ name: "", type: "bool" }],
+        stateMutability: "view",
+        type: "function",
+      }];
+      const BURNABLE_ABI_NOARG = [{
+        inputs: [],
+        name: "burnable",
+        outputs: [{ name: "", type: "bool" }],
+        stateMutability: "view",
+        type: "function",
+      }];
+
       // ERC1155 ABI (必要最小限)
       const ERC1155_ABI = [
         "function uri(uint256 id) view returns (string)",
@@ -1040,11 +1056,16 @@
               // Owner取得
               this.fetchOwner(this.tokenId || 1);
 
-              // Burnable check
+              // Burnable check (tokenId単位 → fallback: 引数なし)
               try {
-                await this.contract.methods.burnable().call();
-                this.burnable = true;
-              } catch (e) { this.burnable = false; }
+                const bc1 = new this.web3.eth.Contract(BURNABLE_ABI_TOKEN, this.contractAddress);
+                this.burnable = await bc1.methods.burnable(this.tokenId).call();
+              } catch (e) {
+                try {
+                  const bc2 = new this.web3.eth.Contract(BURNABLE_ABI_NOARG, this.contractAddress);
+                  this.burnable = await bc2.methods.burnable().call();
+                } catch (e2) { this.burnable = false; }
+              }
 
               // TBA取得（NFT読み込み成功後）
               this.loadTba(this.tokenId || 1);
