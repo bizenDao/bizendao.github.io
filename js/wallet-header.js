@@ -78,7 +78,9 @@ const WalletHeader = {
   const style = document.createElement('style');
   style.textContent = `
     .wh-container {
-      margin-bottom: 16px;
+      max-width: 960px;
+      margin: 0 auto 16px;
+      padding: 0 20px;
     }
 
     .wh-row {
