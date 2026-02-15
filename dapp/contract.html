@@ -377,6 +377,15 @@
         </header>
 
         <main>
+            <wallet-header v-if="walletAddress"
+                :address="walletAddress"
+                :nickname="nickname"
+                :nickname-loading="nicknameLoading"
+                :user-type="userType"
+                view-mode="viewer"
+                setting-base="setting/"
+            ></wallet-header>
+
             <div class="contract-viewer">
                 <h1 class="viewer-title">{{ t('contract_token_list') }}</h1>
                 <p class="viewer-subtitle">{{ t('contract_token_subtitle') }}</p>
@@ -477,6 +486,9 @@
                     CONFIG: CONFIG,
                     mintable: false,
                     walletAddress: null,
+                    userType: null,
+                    nickname: null,
+                    nicknameLoading: false,
                 };
             },
             computed: {
@@ -487,7 +499,12 @@
                 // Silent wallet reconnect for mintable check
                 try {
                     const result = await Wallet.reconnect();
-                    if (result) this.walletAddress = result.address;
+                    if (result) {
+                        this.walletAddress = result.address;
+                        this.nicknameLoading = true;
+                        Manager.checkUser(result.address).then(ut => { this.userType = ut; }).catch(() => {});
+                        Manager.getNickname(result.address).then(n => { this.nickname = n; }).catch(() => {}).finally(() => { this.nicknameLoading = false; });
+                    }
                 } catch (e) {}
                 this.loadFromUrlParams();
                 window.addEventListener('keydown', this.handleEscape);
@@ -651,7 +668,7 @@
                 toggleMenu() { this.menuOpen = !this.menuOpen; document.body.style.overflow = this.menuOpen ? 'hidden' : ''; },
                 closeMenu() { this.menuOpen = false; document.body.style.overflow = ''; },
             }
-        }).mount('#app');
+        }).component('wallet-header', WalletHeader).mount('#app');
     </script>
 </body>
 </html>

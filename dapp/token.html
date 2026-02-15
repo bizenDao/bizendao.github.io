@@ -34,6 +34,7 @@
     <script src="../js/wallet-header.js"></script>
     <script src="../js/i18n.js"></script>
     <script src="../js/lang-toggle.js"></script>
+    <script src="../js/manager.js"></script>
     <script src="../js/nft.js"></script>
 
     <style>
@@ -658,6 +659,15 @@
       </header>
 
       <main>
+        <wallet-header v-if="connectedAddress"
+          :address="connectedAddress"
+          :nickname="nickname"
+          :nickname-loading="nicknameLoading"
+          :user-type="userType"
+          view-mode="viewer"
+          setting-base="setting/"
+        ></wallet-header>
+
         <div class="nft-viewer">
           <!-- コントロールパネル -->
           <div v-if="showControlPanel" class="control-panel">
@@ -953,6 +963,9 @@
             sendingTx: false,
             showSendModal: false,
             burnable: false,
+            userType: null,
+            nickname: null,
+            nicknameLoading: false,
             txMessage: '',
             txClass: '',
           };
@@ -985,12 +998,22 @@
         async mounted() {
           // ウォレット自動再接続
           const result = await Wallet.reconnect();
-          if (result) this.connectedAddress = result.address;
+          if (result) {
+            this.connectedAddress = result.address;
+            // ユーザー情報取得
+            this.nicknameLoading = true;
+            Manager.checkUser(result.address).then(ut => { this.userType = ut; }).catch(() => {});
+            Manager.getNickname(result.address).then(n => { this.nickname = n; }).catch(() => {}).finally(() => { this.nicknameLoading = false; });
+          }
 
           // ウォレット変更監視
           if (window.ethereum) {
             window.ethereum.on('accountsChanged', (accs) => {
               this.connectedAddress = accs[0] || null;
+              if (this.connectedAddress) {
+                Manager.checkUser(this.connectedAddress).then(ut => { this.userType = ut; }).catch(() => {});
+                Manager.getNickname(this.connectedAddress).then(n => { this.nickname = n; }).catch(() => {});
+              } else { this.userType = null; this.nickname = null; }
             });
           }
 
