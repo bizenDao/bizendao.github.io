@@ -717,16 +717,15 @@
       </header>
 
       <main>
-        <wallet-header v-if="connectedAddress"
-          :address="connectedAddress"
-          :nickname="nickname"
-          :nickname-loading="nicknameLoading"
-          :user-type="userType"
-          view-mode="viewer"
-          setting-base="setting/"
-        ></wallet-header>
-
         <div class="nft-viewer">
+          <wallet-header v-if="connectedAddress"
+            :address="connectedAddress"
+            :nickname="nickname"
+            :nickname-loading="nicknameLoading"
+            :user-type="userType"
+            view-mode="viewer"
+            setting-base="setting/"
+          ></wallet-header>
           <!-- コントロールパネル -->
           <div v-if="showControlPanel" class="control-panel">
             <div class="input-group">

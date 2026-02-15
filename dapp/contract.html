@@ -378,16 +378,15 @@
         </header>
 
         <main>
-            <wallet-header v-if="walletAddress"
-                :address="walletAddress"
-                :nickname="nickname"
-                :nickname-loading="nicknameLoading"
-                :user-type="userType"
-                view-mode="viewer"
-                setting-base="setting/"
-            ></wallet-header>
-
             <div class="contract-viewer">
+                <wallet-header v-if="walletAddress"
+                    :address="walletAddress"
+                    :nickname="nickname"
+                    :nickname-loading="nicknameLoading"
+                    :user-type="userType"
+                    view-mode="viewer"
+                    setting-base="setting/"
+                ></wallet-header>
                 <!-- コントロールパネル -->
                 <div class="control-panel">
                     <!-- 作家プリセット -->
