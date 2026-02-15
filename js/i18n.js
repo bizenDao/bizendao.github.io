@@ -39,6 +39,7 @@
       artists: '作家',
       no_nft: 'まだ備前焼NFTを所有していません。',
       view_artists: '作家紹介を見る',
+      contract_list: 'コントラクト一覧',
       sbt_badge: 'SBT',
       progress: '進捗',
 
@@ -319,6 +320,7 @@
       artists: 'Artists',
       no_nft: 'You don\'t own any Bizen-yaki NFTs yet.',
       view_artists: 'View Artists',
+      contract_list: 'Contracts',
       sbt_badge: 'SBT',
       progress: 'Progress',
 
