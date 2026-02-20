@@ -253,6 +253,14 @@
     font-size: 14px;
 }
 
+.nft_link a {
+    color: rgba(255, 255, 255, .92);
+    text-decoration: none;
+    letter-spacing: .08em;
+    font-size: 14px;
+   text-align: center;
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 860px) {
     .two-col {
