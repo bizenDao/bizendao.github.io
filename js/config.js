@@ -10,6 +10,7 @@ const CONFIG = {
     name: 'Polygon Mainnet',
     rpc: 'https://polygon-rpc.com',  // primary (kept for backward compat)
     rpcs: [
+      'https://polygon-bor-rpc.publicnode.com',
       'https://polygon-rpc.com',
       'https://polygon-mainnet.g.alchemy.com/v2/xC3e6wo2qP_Qm-nnBjamoTXUkNSh-kbV',
     ],
