@@ -253,9 +253,9 @@
     font-size: 14px;
 }
 
-.nft_link a {
+.nft_link  {
     color: rgba(255, 255, 255, .92);
-    text-decoration: none;
+    text-decoration: underline;
     letter-spacing: .08em;
    text-align: center;
 }
