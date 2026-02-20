@@ -105,6 +105,7 @@ text-align: left;
     margin: 0 auto;
     padding: 0 8px;
     list-style: none;
+   text-align:center;
 }
 
 .list li {
