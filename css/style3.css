@@ -56,7 +56,9 @@
     padding: 78px 0;
    text-align: center;
 }
-
+.desc {
+text-align: left;
+}
 .section-title {
     text-align: center;
     margin: 0 0 22px;
