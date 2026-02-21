@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bizen DAO - Discord Archive</title>
+<link rel="stylesheet" href="../css/style.css" />
 <style>
   :root {
     --bg-primary: #313338;
@@ -28,12 +29,13 @@
     line-height: 1.375;
   }
 
-  .container {
+  .archive-container {
     max-width: 900px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    padding-top: 60px;
   }
 
   .channel-header {
@@ -44,8 +46,8 @@
     align-items: center;
     gap: 8px;
     position: sticky;
-    top: 0;
-    z-index: 100;
+    top: 60px;
+    z-index: 30;
   }
   .channel-header .hash {
     color: var(--text-muted);
@@ -106,7 +108,31 @@
 </style>
 </head>
 <body>
-<div class="container">
+  <!-- ================= Header ================= -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="../ja/index.html" class="logo"><img src="../img/349F5603-389E-48C6-81C9-1515A338A59B.png" alt="ロゴ"></a>
+      <div class="header-right">
+        <button class="nav-toggle" type="button" aria-label="メニューを開閉">
+          <span></span><span></span>
+        </button>
+      </div>
+    </div>
+    <div class="nav-overlay"></div>
+    <aside class="nav-drawer" aria-label="サイトメニュー">
+      <ul class="drawer-nav">
+        <li><a href="../ja/index.html">トップページ</a></li>
+        <li><a href="../ja/artist-list.html">作家紹介</a></li>
+        <li><a href="../ja/index.html#company">会社概要</a></li>
+        <li><a href="../ja/index.html#discord">Discordリンク</a></li>
+        <li><a href="../ja/index.html#meta">作品使用歴作成</a></li>
+        <li><a href="../ja/index.html#donate">寄付ポイント</a></li>
+        <li><a href="../ja/index.html#myaccount">マイページ</a></li>
+      </ul>
+    </aside>
+  </header>
+
+<div class="archive-container">
   <div class="channel-header">
     <span class="hash">#</span>
     <span class="name">Bizen DAO Discord Archive</span>
@@ -127,5 +153,34 @@
     </a>
   </div>
 </div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.querySelector(".nav-toggle");
+  const drawer = document.querySelector(".nav-drawer");
+  const overlay = document.querySelector(".nav-overlay");
+  if (btn && drawer && overlay) {
+    const open = () => {
+      btn.classList.add("active");
+      drawer.classList.add("is-open");
+      overlay.classList.add("is-open");
+      btn.setAttribute("aria-expanded", "true");
+      document.documentElement.style.overflow = "hidden";
+    };
+    const close = () => {
+      btn.classList.remove("active");
+      drawer.classList.remove("is-open");
+      overlay.classList.remove("is-open");
+      btn.setAttribute("aria-expanded", "false");
+      document.documentElement.style.overflow = "";
+    };
+    btn.addEventListener("click", () => {
+      drawer.classList.contains("is-open") ? close() : open();
+    });
+    overlay.addEventListener("click", close);
+    drawer.querySelectorAll("a").forEach(a => a.addEventListener("click", close));
+    document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+  }
+});
+</script>
 </body>
 </html>
