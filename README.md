@@ -161,7 +161,7 @@ http://localhost:8000
 ## 外部リンク
 
 - **Meta**: https://meta.bon-soleil.com/
-- **Discord**: https://discord.gg/Fb3M7HHxs2
+- **Discord**: archve/index.html
 
 ## 開発ガイドライン
 
@@ -186,7 +186,7 @@ http://localhost:8000
 
 ## お問い合わせ
 
-- Discord: [BizenDAOコミュニティ](https://discord.gg/Fb3M7HHxs2)
+- Discord: [BizenDAOコミュニティ](archve/index.html)
 - Email: [連絡先メールアドレス]
 
 ---

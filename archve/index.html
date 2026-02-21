@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bizen DAO - Discord Archive</title>
+<style>
+  :root {
+    --bg-primary: #313338;
+    --bg-secondary: #2b2d31;
+    --bg-tertiary: #1e1f22;
+    --text-normal: #dbdee1;
+    --text-muted: #949ba4;
+    --text-link: #00a8fc;
+    --header-primary: #f2f3f5;
+    --brand-color: #5865f2;
+    --divider: #3f4147;
+    --hover-bg: #2e3035;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-primary);
+    color: var(--text-normal);
+    font-family: 'Helvetica Neue', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+    font-size: 15px;
+    line-height: 1.375;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .channel-header {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--bg-tertiary);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .channel-header .hash {
+    color: var(--text-muted);
+    font-size: 22px;
+    font-weight: 500;
+  }
+  .channel-header .name {
+    color: var(--header-primary);
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .archive-banner {
+    background: var(--bg-tertiary);
+    color: var(--text-muted);
+    text-align: center;
+    padding: 10px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--divider);
+  }
+
+  .channel-list {
+    flex: 1;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .channel-card {
+    display: block;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 20px 24px;
+    text-decoration: none;
+    color: var(--text-normal);
+    transition: background 0.15s;
+    border: 1px solid var(--divider);
+  }
+  .channel-card:hover {
+    background: var(--hover-bg);
+  }
+  .channel-card .card-hash {
+    color: var(--text-muted);
+    font-size: 18px;
+    margin-right: 4px;
+  }
+  .channel-card .card-name {
+    color: var(--header-primary);
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .channel-card .card-desc {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-top: 6px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="channel-header">
+    <span class="hash">#</span>
+    <span class="name">Bizen DAO Discord Archive</span>
+  </div>
+  <div class="archive-banner">
+    Bizen DAO Discord サーバーのアーカイブ一覧です
+  </div>
+  <div class="channel-list">
+    <a href="zatsudan-archive.html" class="channel-card">
+      <span class="card-hash">#</span>
+      <span class="card-name">雑談</span>
+      <div class="card-desc">雑談チャンネルのアーカイブ（2024/02/13 〜 2025/12/11）</div>
+    </a>
+    <a href="announce-archive.html" class="channel-card">
+      <span class="card-hash">#</span>
+      <span class="card-name">announce</span>
+      <div class="card-desc">announceチャンネルのアーカイブ（2024/10/25 〜 2025/12/22）</div>
+    </a>
+  </div>
+</div>
+</body>
+</html>
