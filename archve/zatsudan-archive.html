@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bizen DAO - #雑談 アーカイブ</title>
+<style>
+  :root {
+    --bg-primary: #313338;
+    --bg-secondary: #2b2d31;
+    --bg-tertiary: #1e1f22;
+    --text-normal: #dbdee1;
+    --text-muted: #949ba4;
+    --text-link: #00a8fc;
+    --header-primary: #f2f3f5;
+    --brand-color: #5865f2;
+    --mention-bg: rgba(88,101,242,0.3);
+    --divider: #3f4147;
+    --hover-bg: #2e3035;
+    --timestamp: #949ba4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-primary);
+    color: var(--text-normal);
+    font-family: 'Helvetica Neue', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+    font-size: 15px;
+    line-height: 1.375;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .channel-header {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--bg-tertiary);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .channel-header .hash {
+    color: var(--text-muted);
+    font-size: 22px;
+    font-weight: 500;
+  }
+  .channel-header .name {
+    color: var(--header-primary);
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .channel-header .topic {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-left: 8px;
+    padding-left: 12px;
+    border-left: 1px solid var(--divider);
+  }
+
+  /* Archive banner */
+  .archive-banner {
+    background: var(--bg-tertiary);
+    color: var(--text-muted);
+    text-align: center;
+    padding: 10px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--divider);
+  }
+
+  /* Messages area */
+  .messages {
+    flex: 1;
+    padding: 16px 0;
+  }
+
+  /* Date divider */
+  .date-divider {
+    display: flex;
+    align-items: center;
+    margin: 24px 16px 8px;
+  }
+  .date-divider::before,
+  .date-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--divider);
+  }
+  .date-divider span {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 0 8px;
+    white-space: nowrap;
+  }
+
+  /* Message */
+  .message {
+    padding: 2px 48px 2px 72px;
+    position: relative;
+    min-height: 44px;
+    margin-top: 16px;
+  }
+  .message:hover {
+    background: var(--hover-bg);
+  }
+  .message .avatar {
+    position: absolute;
+    left: 16px;
+    top: 2px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .message .msg-header {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+  .message .author {
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .message .author:hover {
+    text-decoration: underline;
+  }
+  .message .timestamp {
+    color: var(--timestamp);
+    font-size: 12px;
+    font-weight: 400;
+  }
+  .message .content {
+    color: var(--text-normal);
+    word-wrap: break-word;
+    white-space: pre-wrap;
+  }
+  .message .content a {
+    color: var(--text-link);
+    text-decoration: none;
+  }
+  .message .content a:hover {
+    text-decoration: underline;
+  }
+  .message .content .mention {
+    background: var(--mention-bg);
+    color: #c9cdfb;
+    padding: 0 2px;
+    border-radius: 3px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .message .content .mention:hover {
+    background: var(--brand-color);
+    color: #fff;
+  }
+  .message .content .hashtag {
+    color: var(--text-link);
+  }
+  .message .content .channel-link {
+    background: var(--mention-bg);
+    color: #c9cdfb;
+    padding: 0 2px;
+    border-radius: 3px;
+  }
+
+  /* Actual images */
+  .msg-image {
+    max-width: 400px;
+    max-height: 300px;
+    border-radius: 8px;
+    margin: 8px 0;
+    cursor: pointer;
+    display: block;
+  }
+  .msg-image:hover {
+    opacity: 0.9;
+  }
+  /* Link embed */
+  .embed {
+    border-left: 4px solid var(--divider);
+    background: var(--bg-secondary);
+    border-radius: 0 4px 4px 0;
+    padding: 8px 12px;
+    margin: 4px 0;
+    max-width: 520px;
+  }
+  .embed .embed-title {
+    color: var(--text-link);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .embed .embed-desc {
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  /* Avatar colors */
+  .avatar-1 { background: #5865f2; }
+  .avatar-2 { background: #57f287; }
+  .avatar-3 { background: #fee75c; color: #313338 !important; }
+  .avatar-4 { background: #eb459e; }
+  .avatar-5 { background: #ed4245; }
+  .avatar-6 { background: #f47b67; }
+  .avatar-7 { background: #e8a84b; }
+  .avatar-8 { background: #45ddc0; }
+  .avatar-9 { background: #9b59b6; }
+  .avatar-10 { background: #3498db; }
+  .avatar-11 { background: #e67e22; }
+  .avatar-12 { background: #1abc9c; }
+  .avatar-13 { background: #e74c3c; }
+  .avatar-14 { background: #2ecc71; }
+  .avatar-15 { background: #f39c12; }
+
+  /* Footer */
+  .archive-footer {
+    background: var(--bg-tertiary);
+    color: var(--text-muted);
+    text-align: center;
+    padding: 16px;
+    font-size: 12px;
+    border-top: 1px solid var(--divider);
+  }
+
+  @media (max-width: 600px) {
+    .message { padding: 2px 12px 2px 56px; }
+    .message .avatar { left: 8px; width: 36px; height: 36px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="channel-header">
+    <span class="hash">#</span>
+    <span class="name">雑談</span>
+    <span class="topic">Bizen DAO コミュニティの雑談チャンネル</span>
+  </div>
+
+  <div class="archive-banner">
+    このページは Bizen DAO Discord サーバーの #雑談 チャンネルのアーカイブです（2024/02/13 〜 2025/12/11）
+  </div>
+
+  <div class="messages">
+
+    <!-- 2024/02/13 -->
+    <div class="date-divider"><span>2024年2月13日</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-1">G</div>
+      <div class="msg-header">
+        <span class="author" style="color:#f47b67">goodsun</span>
+        <span class="timestamp">2024/02/13 14:05</span>
+      </div>
+      <div class="content"><a href="https://www.instagram.com/p/C1Rn8gEyy8G/?utm_source=ig_web_copy_link" target="_blank" rel="noopener">https://www.instagram.com/p/C1Rn8gEyy8G/</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-2">B</div>
+      <div class="msg-header">
+        <span class="author" style="color:#e8a84b">bonsoleil2019</span>
+        <span class="timestamp">2024/02/13</span>
+      </div>
+      <div class="content">色々と現実味を帯びて来ました。
+<a href="https://opensea.io/ja/assets/matic/0x98191ea4c24b6252bd5472c5a143fa783fb1c1bb/4" target="_blank" rel="noopener">https://opensea.io/ja/assets/matic/...</a>
+<span class="hashtag">#備前焼</span> <span class="hashtag">#bizenNFT</span></div>
+    </div>
+
+    <!-- 2024/05/14 -->
+    <div class="date-divider"><span>2024年5月14日</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-4">U</div>
+      <div class="msg-header">
+        <span class="author" style="color:#eb459e">usagi&#x1f430;</span>
+        <span class="timestamp">2024/05/14 22:34</span>
+      </div>
+      <div class="content">この前の迫力ある釜焼き？はめっちゃ感動しました&#x1f525;
+<img class="msg-image" src="./img/zatsudan-archive_01.webp" alt="窯焚きの様子" loading="lazy">
+<img class="msg-image" src="./img/zatsudan-archive_02.webp" alt="窯の外観と忌部神社のお札" loading="lazy"></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2024/05/14 23:56</span>
+      </div>
+      <div class="content">真っ赤に焼けていて凄いですね&#x2757;&#xfe0f;
+熱さと熱気が写真からも伝わります&#x1f60d;
+作陶の様子を見ると、どれだけ手間をかけて作っているか、実感できますよね。
+
+ちなみに、釜は、窯の文字が正しいです&#x1f609;</div>
+    </div>
+
+    <!-- 2024/05/15 -->
+    <div class="date-divider"><span>2024年5月15日</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-4">U</div>
+      <div class="msg-header">
+        <span class="author" style="color:#eb459e">usagi&#x1f430;</span>
+        <span class="timestamp">2024/05/15 6:44</span>
+      </div>
+      <div class="content">なんと初歩的なみす&#x1f4a6;窯と釜を間違えるとは&#x1f372;
+
+けどずっと見てれる不思議な空間でした&#x1f606;</div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2024/05/15 22:22</span>
+      </div>
+      <div class="content">炎って見入っちゃいますよね。癒されます&#x2764;&#xfe0f;</div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-4">U</div>
+      <div class="msg-header">
+        <span class="author" style="color:#eb459e">usagi&#x1f430;</span>
+        <span class="timestamp">2024/05/15 22:24</span>
+      </div>
+      <div class="content">はい！職人の技も見入ってしまいました！
+
+私は作品は詳しくないけどこの作る過程はずっと見てられてファンになる方も多いのかなって思いました！
+各１/F揺らぎも見ていられますが、炭を落とす工程、手捌き、温度を見る感覚、薪を入れる職人技、全てが魅了されて圧巻でした&#x1f604;
+
+追伸
+おかげでバックパックしていた私は夕暮れ時で宿がなく大阪方面に行きたかったのですが岡山市まで逆走してフランス人のバックパッカーと一緒に泊まらせてもらいました&#x1f6b6;&#x1f606;</div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2024/05/15 22:34</span>
+      </div>
+      <div class="content">そんなに長い時間ずっと見ていらっしゃったんですね！
+
+しかし、フランス人の方とは素敵な出逢いですね！備前焼のおかげで国際交流がとても盛んな地域なので、偶然の出逢いも楽しめますね&#x1f609;
+
+Bizen DAOにも海外の方がたくさん交流してくれるようになる事を願っています&#x263a;&#xfe0f;</div>
+    </div>
+
+    <!-- 2024/10/24 -->
+    <div class="date-divider"><span>2024年10月24日</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2024/10/24 23:28</span>
+      </div>
+      <div class="content"><span class="mention">@A.J.</span> <span class="mention">@Chompoo&#x2606;Chihiro</span> <span class="mention">@Hiroshi</span> <span class="mention">@3D&#x306e;iwamura</span> <span class="mention">@taki | Mysten</span>
+
+皆さまお久しぶりです！Niyaです。
+やっとBizenDAOに学生が入り、色々動きだしました！
+ぜひ学生や他メンバーのコメントなどに反応していただいけましたら幸いです&#x1f64f;
+
+出来れば自己紹介などもintroduce yourselfのチャンネルに書いていただけましたら嬉しいです！
+
+BizenDAOのHPもとりあえず出来上がりましたのでご覧ください^_^
+
+<span class="channel-link">&#x1f517;｜official-links</span></div>
+    </div>
+
+    <!-- 2024/10/26 -->
+    <div class="date-divider"><span>2024年10月26日</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-6">F</div>
+      <div class="msg-header">
+        <span class="author" style="color:#f47b67">フジタメグミ</span>
+        <span class="timestamp">2024/10/26 14:35</span>
+      </div>
+      <div class="content">はじめまして！備前焼作家、藤田祥の妻の藤田恵と申します。
+備前焼について皆さんに知ってもらえて嬉しいです＾＾
+藤田祥は伝統的な備前焼はもちろん、土の地層が目に見える「地層」シリーズの作品や白い備前焼を作成しており、そちらの原料なんかも面白いので、ぜひいろいろ聞いてください！
+
+よろしくお願いします！</div>
+    </div>
+
+    <!-- 2024/11/01 -->
+    <div class="date-divider"><span>2024年11月1日</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-8">K</div>
+      <div class="msg-header">
+        <span class="author" style="color:#45ddc0">kipatsu</span>
+        <span class="timestamp">2024/11/01 22:55</span>
+      </div>
+      <div class="content"><span class="mention">@niya</span> アナウンスの戸板学祭イベント、dao内でもイベントとして立てたら良いのではないでしょうか？</div>
+    </div>
+
+    <!-- 2024/11/02 -->
+    <div class="date-divider"><span>2024年11月2日</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2024/11/02 13:29</span>
+      </div>
+      <div class="content">ご提案ありがとうございます&#x1f44d;
+実は来年からはBizenDAOのイベントとしてコンテストを開催し、学生や一般の方がエントリーするような方式にしようとgoodsunと話していました。Discordのスタンプ機能を使って、memberロールを持っている人なら複数投票出来るシステムを考えています。
+ちゃんと準備して運営したいので来年のお楽しみとさせてください&#x1f64f;&#x1f609;
+今年は学校のイベントとして開催したので、直接来場できる方のみをさせていただきます&#x1f64f;</div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2024/11/02 20:11</span>
+      </div>
+      <div class="content">文化祭そのものをオフイベントとしてアップしておくってことですね。
+イベントがどういう形で表示されるのか、Discordに慣れてない方々にも認知していただけるし、良いかもですね&#x1f60a;
+やってみまーす&#x1f44c;
+私も自分でイベント立てるの初めてなので、嬉しいです&#x1f64c;</div>
+    </div>
+
+    <!-- 2024/11/07 - Contest entries -->
+    <div class="date-divider"><span>2024年11月7日 &#x2014; 備前焼盛り付けコンテスト</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-10">M</div>
+      <div class="msg-header">
+        <span class="author" style="color:#3498db">もえな002</span>
+        <span class="timestamp">2024/11/07 13:39</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「秋の彩りプレート」というタイトルを付けてエントリーしました。
+温かみのある色合いの備前焼の上に、秋の食材である紫芋を使ったモンブランをのせた、秋を感じさせる一皿に仕上げました。また、余白を多めに作り備前焼の良さをアピールしました。
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2/7" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../7</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-14">H</div>
+      <div class="msg-header">
+        <span class="author" style="color:#2ecc71">haru034</span>
+        <span class="timestamp">2024/11/07 13:44</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「お月様プレート」というタイトルを付けてエントリーしました。
+この備前焼を見たとき、すぐに月を連想したので、カフェで出されるような月をテーマにしたデザートを作って、その上に乗せました。
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2/4" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../4</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-11">K</div>
+      <div class="msg-header">
+        <span class="author" style="color:#e67e22">Kanan</span>
+        <span class="timestamp">2024/11/07 13:46</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「和のアフタヌーンティー」というタイトルを付けてエントリーしました。
+備前焼の渋い色合いが和菓子の色合いと相性が良く、美しさが出ると思い、4種類の和菓子を選びました。
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2/5" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../5</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-12">H</div>
+      <div class="msg-header">
+        <span class="author" style="color:#1abc9c">hinata003</span>
+        <span class="timestamp">2024/11/07 13:51</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「前菜3種盛り！」というタイトルを付けてエントリーしました。
+人気の前菜を集めて欲張りプレートを作りました、長方形のお皿はお魚のイメージがあったので、カラフルなちらし寿司もいれてみました！
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2/15" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../15</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-13">R</div>
+      <div class="msg-header">
+        <span class="author" style="color:#e74c3c">122 Rina</span>
+        <span class="timestamp">2024/11/07 13:52</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「おいもずくし」というタイトルを付けてエントリーしました。
+備前焼の茶色にさつまいもの紫と黄色が映えそうだと思ったのでさつまいも尽くしのチーズケーキを作り盛り付けました！
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2/8" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../8</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-4">R</div>
+      <div class="msg-header">
+        <span class="author" style="color:#eb459e">りな105</span>
+        <span class="timestamp">2024/11/07 13:54</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「みんなのお気に入り集めました！」というタイトルを付けてエントリーしました。
+どの年代の人も好きな卵焼きとからあげを1皿にまとめました！！
+備前焼に合った料理と好きなもので素敵な1皿にしました。
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2/10" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../10</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-15">M</div>
+      <div class="msg-header">
+        <span class="author" style="color:#f39c12">misa114</span>
+        <span class="timestamp">2024/11/07 14:05</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「和伊折衷」というタイトルを付けてエントリーしました。
+日本とイタリアの折衷料理 日本の貴重な文化財である備前焼にイタリアの名物料理「アクアパッツァ」を加え、日本とイタリアの融合を表現しました。この商品を通して、備前焼はどんな料理にも合うということが伝われば嬉しいです。
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2/20" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../20</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-5">R</div>
+      <div class="msg-header">
+        <span class="author" style="color:#ed4245">rise</span>
+        <span class="timestamp">2024/11/07 14:05</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「ごろっと秋のパンケーキ」というタイトルを付けてエントリーしました。
+パンケーキは家でも簡単に作れることと、誰もが好んでいるスイーツということから、普段使いする備前焼の魅力が引き立つと思い盛り付けました。備前焼の作品名が「サラサラ皿」ということから、こちらの作品名も「ごろごろ」というオノマトペを取り入れたところがポイントです。
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2/21" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../21</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-7">M</div>
+      <div class="msg-header">
+        <span class="author" style="color:#e8a84b">Mai109</span>
+        <span class="timestamp">2024/11/07 14:06</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「秋の味覚3種盛り」というタイトルを付けてエントリーしました。
+銀鮭や筍、かぼちゃを使い秋を表現しました。
+暗めのお皿なので色が映えるように工夫をし、高さつけた盛り付けにして高級感が出るようにしました。
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2/13" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../13</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-2">O</div>
+      <div class="msg-header">
+        <span class="author" style="color:#57f287">おたまじゃくし</span>
+        <span class="timestamp">2024/11/07 14:12</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「食卓を彩る和」というタイトルを付けてエントリーしました。
+お皿が落ち着いた色のため、様々な食材で彩りを与え、和を最大限に活かしました。家庭の食卓を連想させる一皿です。
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2/16" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../16</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-3">清</div>
+      <div class="msg-header">
+        <span class="author" style="color:#fee75c">清夏</span>
+        <span class="timestamp">2024/11/07 14:16</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「海老と蒸し鶏の生春巻き」というタイトルでエントリーしました。
+備前焼の和の要素と、生春巻きのエスニックな感じをあえて組み合わせました。丸い模様が特徴的なので目立たせるようにソースで飾りました。
+3Dも撮影したので是非見てください！リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2/18" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../18</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-10">S</div>
+      <div class="msg-header">
+        <span class="author" style="color:#3498db">sae057</span>
+        <span class="timestamp">2024/11/07 14:19</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「20歳のワインのお供に」というタイトルを付けてエントリーしました。
+今回の備前焼を20歳の誕生日プレゼントということなので、お酒も飲めるようになりそのお供にどうぞというテーマにしました。
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2/14" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../14</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-12">Y</div>
+      <div class="msg-header">
+        <span class="author" style="color:#1abc9c">yuri015</span>
+        <span class="timestamp">2024/11/07 14:22</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「詫び寂し」というタイトルを付けてエントリーしました。
+器の形を生かしつつ焼き色に食べ物の色味を合わせました。
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2/22" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../22</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-14">Y</div>
+      <div class="msg-header">
+        <span class="author" style="color:#2ecc71">ゆい127</span>
+        <span class="timestamp">2024/11/07 14:25</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「秋の真珠」というタイトルを付けてエントリーしました。
+備前焼の形をみて貝殻を連想したので、秋にぴったりのスイートポテトを真珠に見立てて盛り付けてみました。
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2/19" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../19</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-1">Z</div>
+      <div class="msg-header">
+        <span class="author" style="color:#5865f2">z0n004</span>
+        <span class="timestamp">2024/11/07 14:27</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「和の一品」というタイトルを付けてエントリーしました。
+日本の代表する一品、卵焼きをもりつけました。
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2/24" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../24</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-11">Y</div>
+      <div class="msg-header">
+        <span class="author" style="color:#e67e22">ゆうき136</span>
+        <span class="timestamp">2024/11/07 14:49</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「ハロウインとクリスマス」というタイトルを付けてエントリーしました。
+11月なのでハロウインとクリスマスを組み合わせました。かぼちゃでハロウインを、ローストビーフでクリスマスを表現しました
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2/25" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../25</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-8">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#45ddc0">夏楓145</span>
+        <span class="timestamp">2024/11/07 14:56</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「備前焼でローストビーフ丼」というタイトルを付けてエントリーしました。
+丸くて深みのある形がどんぶりに合うと考え、備前焼の豪華なイメージにローストビーフ丼が合うと思い、盛り付けました。
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2/17" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../17</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-7">T</div>
+      <div class="msg-header">
+        <span class="author" style="color:#e8a84b">taiga.mori</span>
+        <span class="timestamp">2024/11/07 15:35</span>
+      </div>
+      <div class="content">ゴロゴロとした感じでいいですね。</div>
+    </div>
+
+    <!-- 2024/11/08 -->
+    <div class="date-divider"><span>2024年11月8日</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-1">3</div>
+      <div class="msg-header">
+        <span class="author" style="color:#5865f2">3Dのiwamura</span>
+        <span class="timestamp">2024/11/08 0:47</span>
+      </div>
+      <div class="content">こんな時間に見てはいけないものをいけないものを見てしまった。
+みなさん3Dスキャン上手いですね。</div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2024/11/08 6:36</span>
+      </div>
+      <div class="content">お褒めの言葉ありがとうございます&#x2764;&#xfe0f;iwamuraさんのご指導のおかげです&#x1f44d;本当に助かりました。
+先日、大丸松坂屋のメタバース事業をやっている部長さんにも3D精度が高いと褒めていただきました&#x2728;
+やっぱり新聞紙の効果が絶大だと思います！</div>
+    </div>
+
+    <!-- 2024/11/11 -->
+    <div class="date-divider"><span>2024年11月11日</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-6">F</div>
+      <div class="msg-header">
+        <span class="author" style="color:#f47b67">フジタメグミ</span>
+        <span class="timestamp">2024/11/11 15:26</span>
+      </div>
+      <div class="content">"紫芋"だからこその上品なパープルカラーが、器の柔らかい色味とよく合いますね！普通のモンブランではこうはならなかったはず…主役を選ばれる時のセンスが光っています。
+添えられたお芋チップスと紅葉のバランスも、見頃を迎えた秋の野山をイメージさせて、とても素敵です。
+コーヒー紅茶はもちろん、洋菓子ですけどお抹茶にも合いそうなプレートですね。</div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-6">F</div>
+      <div class="msg-header">
+        <span class="author" style="color:#f47b67">フジタメグミ</span>
+        <span class="timestamp">2024/11/11 15:27</span>
+      </div>
+      <div class="content">可愛い！とっても可愛くて、思わず娘にも見せました。
+この皿を磨いている時、「灰がつぶつぶとしっかりかかっていて、備前焼の力強さがあるなぁ」と思っていたので、それが「月に見える」と聞いてハッとしました。
+確かにおっしゃる通り、クレーターのある月、そのもの。
+新しい視点を教えていただけて嬉しいです。
+ウサギさんのドーナツも、星型に抜いたさつまいもも総じて秋らしく、楽しげな物語性を感じました。
+これ、3Dで見ると芋の厚みがよく分かっていいですね…写真だけじゃ分からない魅力が伝わりました。</div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-6">F</div>
+      <div class="msg-header">
+        <span class="author" style="color:#f47b67">フジタメグミ</span>
+        <span class="timestamp">2024/11/11 15:42</span>
+      </div>
+      <div class="content">さつまいも尽くしのチーズケーキ、手作りなんですか！？こんなに美味しそうなケーキを自らの手で生み出せるスキル、素晴らしいです。
+カフェのような出来栄えでありながら、可愛らしさ、手作りのぬくもりも感じられて、長方皿の余白の使い方も美しいなと思いました。
+窯の中で灰がかかり、チョコレートのような茶色になっているのをうまく使って、ケーキをばっちり引き立ててくださっていて、嬉しいです。</div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-6">F</div>
+      <div class="msg-header">
+        <span class="author" style="color:#f47b67">フジタメグミ</span>
+        <span class="timestamp">2024/11/11 15:48</span>
+      </div>
+      <div class="content">料亭の一皿のような美しさですね…。赤、黄色、オレンジ、緑、秋のイメージの色って、想像以上に鮮やかで、彩り豊かだなぁと改めて感じました。
+土味のある備前焼が、多種多様な料理を一つにまとめており、華やかでありながらも落ち着きもある、全体のバランスが素晴らしいです。
+こちらも3Dで見て、高さのこだわりをしっかりと見ることができました。
+藤田の器を中心にコメントしましたが、どれも本当に素敵で、キラキラしていますね！皆さんの洗練されたセンスに脱帽です。</div>
+    </div>
+
+    <!-- 2024/12/07 -->
+    <div class="date-divider"><span>2024年12月7日</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-5">R</div>
+      <div class="msg-header">
+        <span class="author" style="color:#ed4245">RYU</span>
+        <span class="timestamp">2024/12/07 7:06</span>
+      </div>
+      <div class="content">素敵ですね！</div>
+    </div>
+
+    <!-- 2025/03/10 -->
+    <div class="date-divider"><span>2025年3月10日</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2025/03/10 15:13</span>
+      </div>
+      <div class="content">MVPの学生の備前研修が昨日終了しました。ろくろで作品作り体験、陶芸家さん4名と備前市備前焼振興課の方への活動報告、窯焚き中に薪をくべる体験など、盛り沢山でした！
+<img class="msg-image" src="./img/zatsudan-archive_03.webp" alt="窯前での学生集合写真" loading="lazy">
+<img class="msg-image" src="./img/zatsudan-archive_04.webp" alt="ろくろで作品作り体験" loading="lazy">
+<img class="msg-image" src="./img/zatsudan-archive_05.webp" alt="食事シーン" loading="lazy">
+<img class="msg-image" src="./img/zatsudan-archive_06.webp" alt="陶芸家への活動報告" loading="lazy">
+<img class="msg-image" src="./img/zatsudan-archive_07.webp" alt="建物前の集合写真" loading="lazy"></div>
+    </div>
+
+    <!-- 2025/11/06 - Contest 2025 -->
+    <div class="date-divider"><span>2025年11月6日 &#x2014; 備前焼盛り付けコンテスト 2025</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-10">M</div>
+      <div class="msg-header">
+        <span class="author" style="color:#3498db">mikusu243043</span>
+        <span class="timestamp">2025/11/06 14:01</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「春彩卵包み寿司」というタイトルを付けてエントリーしました。
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2/33" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../33</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-14">Y</div>
+      <div class="msg-header">
+        <span class="author" style="color:#2ecc71">やまゆ243100</span>
+        <span class="timestamp">2025/11/06 14:02</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「紅茶のシフォン」というタイトルを付けてエントリーしました。
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0x72A02d559435319bD77462690E202a28c2Ba8623/11" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../11</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-4">M</div>
+      <div class="msg-header">
+        <span class="author" style="color:#eb459e">momo 243015</span>
+        <span class="timestamp">2025/11/06 14:04</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「秋麗の香味和え」というタイトルの作品を作りました。秋の旬のさつまいもを使い、備前焼に合う秋らしい雰囲気の作品にしました。
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2/36" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../36</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-1">P</div>
+      <div class="msg-header">
+        <span class="author" style="color:#5865f2">pprpp243048</span>
+        <span class="timestamp">2025/11/06 14:04</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「小さな幸せを集めた彩り前菜プレート」というタイトルを付けてエントリーしました。
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2/37" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../37</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-2">D</div>
+      <div class="msg-header">
+        <span class="author" style="color:#57f287">Deleted User</span>
+        <span class="timestamp">2025/11/06 14:04</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「巻き寿司の彩り」というタイトルを付けてエントリーしました。3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0x6C8b4094809CE7e5Ec1a44F7553Cf51b969C2aEb/10" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../10</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-11">花</div>
+      <div class="msg-header">
+        <span class="author" style="color:#e67e22">花音 243064</span>
+        <span class="timestamp">2025/11/06 14:05</span>
+      </div>
+      <div class="content">大学で実施した備前焼コンテストに参加し、私は【秋の味覚】というタイトルを付けてエントリーしました。
+3Dも撮影したので是非見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0x72A02d559435319bD77462690E202a28c2Ba8623/5" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../5</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-13">A</div>
+      <div class="msg-header">
+        <span class="author" style="color:#e74c3c">anri243103</span>
+        <span class="timestamp">2025/11/06 14:06</span>
+      </div>
+      <div class="content">大学で実施した備前焼盛り付けコンテストに参加し、私は「花咲く生ハムのサラダ」というタイトルを付けてエントリーしました。
+3Dも撮影したのでぜひ見てください。リンクはこちらです。
+<a href="https://bizen.sbs/tokens/0x503Fd31dDe07CFff8606BDe00e6360479C5E9c77/15" target="_blank" rel="noopener">https://bizen.sbs/tokens/.../15</a></div>
+    </div>
+
+    <!-- 2025/11/25 -->
+    <div class="date-divider"><span>2025年11月25日</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-9">世</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">世界線 / Arts</span>
+        <span class="timestamp">2025/11/25 21:05</span>
+      </div>
+      <div class="content">岡山リアルWS&#x2606; 11/25（火）@ 岡山大学 津島キャンパス 共創イノベーションラボ #KIBINOVE 5F開催 &#x27A4; BizenDAO発展に向けたアイデア創出ワークショップ ～ 伝統工芸&#xd7;web3で未来を創る
+<a href="https://oistart.okayama-u.ac.jp/news/news_834/" target="_blank" rel="noopener">https://oistart.okayama-u.ac.jp/news/news_834/</a>
+～ 参加してきました！ <span class="hashtag">#魔法のおちゃわん</span>
+
+唯一無二の炎の藝術これ素敵 !! 千年の悠久の歴史を持つ備前焼は、世界に2つと存在しない作品だから、NFTとは好相性。さらに千年先の子孫に、銘品に添えたホルダーの想いが届けられる BizenDAOに脱帽、清き一票です !!
+※ 地方創生DAO推し活 Vlog <a href="https://www.tiktok.com/@web3arts/video/7576626819202436360" target="_blank" rel="noopener">TikTok</a> あります&#x2606;
+<img class="msg-image" src="./img/zatsudan-archive_08.webp" alt="OI-Start おかやまデジタルイノベーション創出プラットフォーム" loading="lazy"></div>
+    </div>
+
+    <!-- 2025/11/27 -->
+    <div class="date-divider"><span>2025年11月27日</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-9">世</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">世界線 / Arts</span>
+        <span class="timestamp">2025/11/27 19:07</span>
+      </div>
+      <div class="content">【 コミュニティ紹介スペース「ロカネット放送局」】
+日時： 2025年11月29日（土）12:00～（お昼の開催です）
+&#x25ce; スペースurl <a href="https://x.com/i/spaces/1mnxeNrvdVRKX?s=20" target="_blank" rel="noopener">X Spaces</a>
+
+世界線にインタビュー&#x2606; と題する嬉しいご縁をいただき、
+11/29（土）お昼より、BizenDAOや子ども食堂DAOなどAGIweb3世紀の地方創生をテーマに、kurokoginさんのリードで笑いがとれる放談セッションに臨みます。ご都合よろしければ！
+
+北海道～東京～大阪～岡山へと流浪する生涯ジョブホッパー民（私）の生存戦略あわせて、地方創生DAOの可能性さらにマスアダプションの鍵を発見できれば、嬉しく想います。こぎんさん、お導きよろしくお願いいたします。 Call me Arts !!
+
+【 当日のネタ帳： ご都合よろしければ聴いてね 】
+&#x25cb; <a href="https://bizen.sbs/" target="_blank" rel="noopener">BizenDAO</a>
+&#x25cb; <a href="https://oistart.okayama-u.ac.jp/news/news_834/" target="_blank" rel="noopener">11/25開催WS</a>
+&#x25cb; <a href="https://www.tiktok.com/@web3arts/video/7576626819202436360" target="_blank" rel="noopener">関連 Vlog</a>
+&#x25cb; <a href="https://team.expo2025.or.jp/ja/challenge/C10485" target="_blank" rel="noopener">子ども食堂DAO</a>
+&#x25cb; <a href="https://www.sunverdir.com/Policy-recipe" target="_blank" rel="noopener">政策レシピ</a></div>
+    </div>
+
+    <!-- 2025/11/28 -->
+    <div class="date-divider"><span>2025年11月28日</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2025/11/28 11:03</span>
+      </div>
+      <div class="content">素晴らしい企画ですね！BizenDAOの活動も広めていただき、嬉しいです^_^
+残業ながらちょうど移動中の時間でリアルタイム聴講が出来ません。アーカイブなどもしありましたら後日シェアいただけましたら幸いです！&#x1f60a;</div>
+    </div>
+
+    <!-- 2025/11/29 -->
+    <div class="date-divider"><span>2025年11月29日</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-9">世</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">世界線 / Arts</span>
+        <span class="timestamp">2025/11/29 12:29</span>
+      </div>
+      <div class="content"><span class="mention">@niya</span> おつかれ様です。先ほど Artsの機材不具合で貴重な機会を流してしまいました。また機会あればということで、アーカイブ共有できず、ごめんなさい～ m( )m</div>
+    </div>
+
+    <!-- 2025/11/30 -->
+    <div class="date-divider"><span>2025年11月30日</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2025/11/30 7:34</span>
+      </div>
+      <div class="content">あら、災難でしたね&#x1f62d;また次回お願い致します！</div>
+    </div>
+
+  </div><!-- /messages -->
+
+  <div class="archive-footer">
+    Bizen DAO &#x00B7; #雑談 チャンネル アーカイブ &#x00B7; 2024/02/13 &ndash; 2025/11/30 &#x00B7; 全メッセージ数: 40+
+  </div>
+
+</div><!-- /container -->
+
+</body>
+</html>

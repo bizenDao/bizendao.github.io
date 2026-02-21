@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bizen DAO - #announce アーカイブ</title>
+<style>
+  :root {
+    --bg-primary: #313338;
+    --bg-secondary: #2b2d31;
+    --bg-tertiary: #1e1f22;
+    --text-normal: #dbdee1;
+    --text-muted: #949ba4;
+    --text-link: #00a8fc;
+    --header-primary: #f2f3f5;
+    --brand-color: #5865f2;
+    --mention-bg: rgba(88,101,242,0.3);
+    --divider: #3f4147;
+    --hover-bg: #2e3035;
+    --timestamp: #949ba4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-primary);
+    color: var(--text-normal);
+    font-family: 'Helvetica Neue', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+    font-size: 15px;
+    line-height: 1.375;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .channel-header {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--bg-tertiary);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .channel-header .hash {
+    color: var(--text-muted);
+    font-size: 22px;
+    font-weight: 500;
+  }
+  .channel-header .name {
+    color: var(--header-primary);
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .channel-header .topic {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-left: 8px;
+    padding-left: 12px;
+    border-left: 1px solid var(--divider);
+  }
+
+  /* Archive banner */
+  .archive-banner {
+    background: var(--bg-tertiary);
+    color: var(--text-muted);
+    text-align: center;
+    padding: 10px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--divider);
+  }
+
+  /* Messages area */
+  .messages {
+    flex: 1;
+    padding: 16px 0;
+  }
+
+  /* Date divider */
+  .date-divider {
+    display: flex;
+    align-items: center;
+    margin: 24px 16px 8px;
+  }
+  .date-divider::before,
+  .date-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--divider);
+  }
+  .date-divider span {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 0 8px;
+    white-space: nowrap;
+  }
+
+  /* Message */
+  .message {
+    padding: 2px 48px 2px 72px;
+    position: relative;
+    min-height: 44px;
+    margin-top: 16px;
+  }
+  .message:hover {
+    background: var(--hover-bg);
+  }
+  .message .avatar {
+    position: absolute;
+    left: 16px;
+    top: 2px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .message .msg-header {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+  .message .author {
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .message .author:hover {
+    text-decoration: underline;
+  }
+  .message .timestamp {
+    color: var(--timestamp);
+    font-size: 12px;
+    font-weight: 400;
+  }
+  .message .content {
+    color: var(--text-normal);
+    word-wrap: break-word;
+    white-space: pre-wrap;
+  }
+  .message .content a {
+    color: var(--text-link);
+    text-decoration: none;
+  }
+  .message .content a:hover {
+    text-decoration: underline;
+  }
+  .message .content .mention {
+    background: var(--mention-bg);
+    color: #c9cdfb;
+    padding: 0 2px;
+    border-radius: 3px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .message .content .mention:hover {
+    background: var(--brand-color);
+    color: #fff;
+  }
+
+  /* Actual images */
+  .msg-image {
+    max-width: 400px;
+    max-height: 300px;
+    border-radius: 8px;
+    margin: 8px 0;
+    cursor: pointer;
+    display: block;
+  }
+  .msg-image:hover {
+    opacity: 0.9;
+  }
+
+  /* Link embed */
+  .embed {
+    border-left: 4px solid var(--divider);
+    background: var(--bg-secondary);
+    border-radius: 0 4px 4px 0;
+    padding: 8px 12px;
+    margin: 4px 0;
+    max-width: 520px;
+  }
+  .embed .embed-title {
+    color: var(--text-link);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .embed .embed-desc {
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  /* Avatar colors */
+  .avatar-1 { background: #5865f2; }
+  .avatar-2 { background: #57f287; }
+  .avatar-3 { background: #fee75c; color: #313338 !important; }
+  .avatar-4 { background: #eb459e; }
+  .avatar-5 { background: #ed4245; }
+  .avatar-6 { background: #f47b67; }
+  .avatar-7 { background: #e8a84b; }
+  .avatar-8 { background: #45ddc0; }
+  .avatar-9 { background: #9b59b6; }
+  .avatar-10 { background: #3498db; }
+
+  /* Footer */
+  .archive-footer {
+    background: var(--bg-tertiary);
+    color: var(--text-muted);
+    text-align: center;
+    padding: 16px;
+    font-size: 12px;
+    border-top: 1px solid var(--divider);
+  }
+
+  @media (max-width: 600px) {
+    .message { padding: 2px 12px 2px 56px; }
+    .message .avatar { left: 8px; width: 36px; height: 36px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="channel-header">
+    <span class="hash">#</span>
+    <span class="name">announce</span>
+    <span class="topic">Bizen DAO &#x304a;&#x77e5;&#x3089;&#x305b;&#x30c1;&#x30e3;&#x30f3;&#x30cd;&#x30eb;</span>
+  </div>
+
+  <div class="archive-banner">
+    &#x3053;&#x306e;&#x30da;&#x30fc;&#x30b8;&#x306f; Bizen DAO Discord &#x30b5;&#x30fc;&#x30d0;&#x30fc;&#x306e; #announce &#x30c1;&#x30e3;&#x30f3;&#x30cd;&#x30eb;&#x306e;&#x30a2;&#x30fc;&#x30ab;&#x30a4;&#x30d6;&#x3067;&#x3059;&#xff08;2024/10/25 &#x301c; 2025/12/22&#xff09;
+  </div>
+
+  <div class="messages">
+
+    <!-- 2024/10/25 -->
+    <div class="date-divider"><span>2024&#x5e74;10&#x6708;25&#x65e5;</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2024/10/25 13:49</span>
+      </div>
+      <div class="content"><span class="mention">@everyone</span>
+&#x4eca;&#x5e74;&#x306e;&#x6238;&#x677f;&#x5973;&#x5b50;&#x77ed;&#x671f;&#x5927;&#x5b66;&#x3067;&#x306e;&#x6587;&#x5316;&#x796d;&#x3067;&#x306f;&#x300e;&#x5099;&#x524d;&#x713c;&#x306e;&#x9b45;&#x529b;&#x3092;&#x6700;&#x5927;&#x9650;&#x5f15;&#x304d;&#x51fa;&#x3059;&#x6599;&#x7406;&#x306e;&#x76db;&#x308a;&#x4ed8;&#x3051;&#x30b3;&#x30f3;&#x30c6;&#x30b9;&#x30c8;&#x300f;&#x3092;&#x6765;&#x5834;&#x8005;&#x306e;&#x65b9;&#x3005;&#x306b;&#x3082;&#x6295;&#x7968;&#x3057;&#x3066;&#x3044;&#x305f;&#x3060;&#x304d;&#x307e;&#x3059;&#xff01; &#x305c;&#x3072;&#x304a;&#x6642;&#x9593;&#x304c;&#x3054;&#x3056;&#x3044;&#x307e;&#x3057;&#x305f;&#x3089;&#x3001;&#x3054;&#x6765;&#x6821;&#x3044;&#x305f;&#x3060;&#x3051;&#x307e;&#x3057;&#x305f;&#x3089;&#x5e78;&#x3044;&#x3067;&#x3059;&#xff01;
+&#x4eca;&#x5e74;&#x306f;&#x4e8b;&#x524d;&#x767b;&#x9332;&#x306a;&#x3069;&#x4e00;&#x5207;&#x3042;&#x308a;&#x307e;&#x305b;&#x3093;&#x306e;&#x3067;&#x3001;&#x3069;&#x306a;&#x305f;&#x3067;&#x3082;&#xff08;&#x3082;&#x3061;&#x308d;&#x3093;&#x7537;&#x6027;&#x3067;&#x3082;&#xff09;&#x5165;&#x5834;&#x81ea;&#x7531;&#x1f44d; &#x3068;&#x306a;&#x3063;&#x3066;&#x304a;&#x308a;&#x307e;&#x3059;&#x3002;
+
+&#x4eca;&#x5e74;&#x306e;&#x30ab;&#x30d5;&#x30a7;&#x30ec;&#x30b9;&#x30c8;&#x30e9;&#x30f3;&#x30bc;&#x30df;2&#x5e74;&#x751f;&#x306e;&#x5b66;&#x751f;&#x9054;&#x306f;&#x300c;NFT&#x4ed8;&#x304d;&#x306e;&#x5099;&#x524d;&#x713c;&#x300d;&#x3092;&#x4e00;&#x4eba;&#x4e00;&#x3064;&#x305a;&#x3064;&#x6240;&#x6301;&#x3057;&#x3066;&#x304a;&#x308a;&#x307e;&#x3059;&#x3002;&#x3053;&#x308c;&#x306b;&#x6599;&#x7406;&#x3092;&#x76db;&#x308a;&#x4ed8;&#x3051;&#x305f;&#x72b6;&#x614b;&#x3067;&#x30b9;&#x30ad;&#x30e3;&#x30cb;&#x30d0;&#x30fc;&#x30b9;&#x3092;&#x4f7f;&#x3063;&#x3066;&#xff13;D&#x3092;&#x64ae;&#x5f71;&#x3057;&#x307e;&#x3057;&#x305f;&#x3002;&#x305d;&#x3057;&#x3066;&#x5f8c;&#x65e5;&#x3001;&#x305d;&#x306e;&#xff13;D&#x753b;&#x50cf;&#x3092;&#x5165;&#x308c;&#x3066;&#x81ea;&#x5206;&#x81ea;&#x8eab;&#x3067;SBT&#x3092;&#x30df;&#x30f3;&#x30c8;&#x3057;&#x307e;&#x3059;&#x3002; &#x6587;&#x5316;&#x796d;&#x3067;&#x306f;&#x5168;&#x3066;&#x3092;3D&#x8868;&#x793a;&#x306f;&#x96e3;&#x3057;&#x3044;&#x306e;&#x3067;&#x5199;&#x771f;&#x3092;&#x63b2;&#x793a;&#x3092;&#x3057;&#x3061;&#x3083;&#x3044;&#x307e;&#x3059;&#x304c;&#x3001;&#x5b66;&#x751f;&#x304c;&#x81ea;&#x5206;&#x306e;NFT&#x3084;SBT&#x3092;&#x6765;&#x5834;&#x8005;&#x306b;ipad&#x7b49;&#x3067;&#x3082;&#x304a;&#x898b;&#x305b;&#x3057;&#x306a;&#x304c;&#x3089;&#x5099;&#x524d;&#x713c;&#x632f;&#x8208;&#x3057;&#x3066;&#x3044;&#x304f;&#x3068;&#x3044;&#x3046;&#x8da3;&#x65e8;&#x3067;&#x5b9f;&#x65bd;&#x3057;&#x307e;&#x3059;&#x3002;
+
+&#x65e5;&#x6642;&#xff1a;11&#x6708;9&#x65e5;&#xff08;&#x571f;&#x66dc;&#xff09;&#x3001;10&#x65e5;&#xff08;&#x65e5;&#x66dc;&#xff09;10&#x6642;&#x304b;&#x3089;14&#x6642;&#x9803;&#x307e;&#x3067;&#x5b9f;&#x65bd;
+
+&#x4f4f;&#x6240;&#xff1a;&#x6e2f;&#x533a;&#x82a6;&#xff12;&#x2212;&#xff12;&#xff11;&#x2212;&#xff11;&#xff17;&#x3000;<a href="https://www.toita.ac.jp/access/" target="_blank" rel="noopener">https://www.toita.ac.jp/access/</a>
+
+&#x958b;&#x50ac;&#x5834;&#x6240;&#xff1a;&#xff12;&#x968e;&#x30ab;&#x30d5;&#x30a7;&#x30c6;&#x30ea;&#x30a2;
+
+&#x307e;&#x305f;&#x3001;&#x79c1;&#x306e;&#x6307;&#x5c0e;&#x3059;&#x308b;&#x30ab;&#x30d5;&#x30a7;&#x30ec;&#x30b9;&#x30c8;&#x30e9;&#x30f3;&#x30bc;&#x30df;&#x306e;1&#x5e74;&#x751f;&#x305f;&#x3061;&#x3082;&#xff19;&#x968e;&#x306e;&#x30b9;&#x30ab;&#x30a4;&#x30eb;&#x30fc;&#x30e0;&#x306b;&#x3066;&#x3001;&#x4eca;&#x5e74;&#x306f;&#x300c;White Flower&#x300d;&#x3068;&#x3044;&#x3046;&#x5e97;&#x540d;&#x3067;&#x3001;&#x767d;&#x96ea;&#x59eb;&#x3092;&#x30b3;&#x30f3;&#x30bb;&#x30d7;&#x30c8;&#x3068;&#x3057;&#x305f;&#x30ab;&#x30d5;&#x30a7;&#x3092;&#x904b;&#x55b6;&#x3057;&#x3066;&#x3044;&#x307e;&#x3059;&#x3002;&#x5b66;&#x751f;&#x305f;&#x3061;&#x304c;&#x5e97;&#x5185;&#x88c5;&#x98fe;&#x304b;&#x3089;&#x30e1;&#x30cb;&#x30e5;&#x30fc;&#x958b;&#x767a;&#x3001;&#x63a5;&#x5ba2;&#x30de;&#x30cb;&#x30e5;&#x30a2;&#x30eb;&#x307e;&#x3067;&#x5168;&#x3066;&#x8003;&#x3048;&#x305f;&#x6a21;&#x64ec;&#x5e97;&#x3068;&#x306a;&#x308a;&#x307e;&#x3059;&#x3002;
+&#x3082;&#x3057;&#x304a;&#x6642;&#x9593;&#x304c;&#x3054;&#x3056;&#x3044;&#x307e;&#x3057;&#x305f;&#x3089;&#x3001;&#x3053;&#x3061;&#x3089;&#x3082;&#x304a;&#x7acb;&#x3061;&#x5bc4;&#x308a;&#x3044;&#x305f;&#x3060;&#x3051;&#x307e;&#x3057;&#x305f;&#x3089;&#x5e78;&#x3044;&#x3067;&#x3059;&#xff01;
+&#x203b;&#x3053;&#x306e;&#x5b66;&#x751f;&#x305f;&#x3061;&#x304c;&#x6b21;&#x5e74;&#x5ea6;2&#x5e74;&#x751f;&#x306b;&#x306a;&#x308b;&#x3068;&#x3001;&#x307e;&#x305f;BizenDAO&#x306e;&#x65b0;&#x30e1;&#x30f3;&#x30d0;&#x30fc;&#x3068;&#x3057;&#x3066;&#x53c2;&#x52a0;&#x3059;&#x308b;&#x3053;&#x3068;&#x306b;&#x306a;&#x308b;&#x4e88;&#x5b9a;&#x3067;&#x3059;&#x3002;
+<img class="msg-image" src="./img/announce-archive_01.webp" alt="&#x6587;&#x5316;&#x796d;&#x544a;&#x77e5;&#x30d5;&#x30e9;&#x30a4;&#x30e4;&#x30fc;" loading="lazy"></div>
+    </div>
+
+    <!-- 2024/11/01 -->
+    <div class="date-divider"><span>2024&#x5e74;11&#x6708;1&#x65e5;</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2024/11/01 22:12</span>
+      </div>
+      <div class="content"><span class="mention">@everyone</span>
+&#x6587;&#x5316;&#x796d;&#x306e;&#x8a73;&#x7d30;&#x304c;&#x516c;&#x958b;&#x3055;&#x308c;&#x307e;&#x3057;&#x305f;&#x306e;&#x3067;&#x3001;&#x304a;&#x77e5;&#x3089;&#x305b;&#x81f4;&#x3057;&#x307e;&#x3059;&#x3002;
+&#x3069;&#x306a;&#x305f;&#x3067;&#x3082;welcome&#x3067;&#x3059;&#x1f609;
+&#x304a;&#x8d8a;&#x3057;&#x306b;&#x306a;&#x3089;&#x308c;&#x305f;&#x6642;&#x306b;&#x306f;&#x79c1;&#x306b;&#x30e1;&#x30f3;&#x30b7;&#x30e7;&#x30f3;&#x3057;&#x3066;&#x304f;&#x3060;&#x3055;&#x3044;&#x1f64f;
+
+<a href="https://www.toita.ac.jp/toitafes2024/" target="_blank" rel="noopener">https://www.toita.ac.jp/toitafes2024/</a>
+<div class="embed">
+  <div class="embed-title">TOITAFes2024&#x301c;SPARKLE&#x301c;&#x7279;&#x8a2d;&#x30da;&#x30fc;&#x30b8; | &#x6238;&#x677f;&#x5973;&#x5b50;&#x77ed;&#x671f;&#x5927;&#x5b66;</div>
+</div></div>
+    </div>
+
+    <!-- 2024/11/10 -->
+    <div class="date-divider"><span>2024&#x5e74;11&#x6708;10&#x65e5;</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-4">C</div>
+      <div class="msg-header">
+        <span class="author" style="color:#eb459e">Chompoo&#x2606;Chihiro</span>
+        <span class="timestamp">2024/11/10 9:25</span>
+      </div>
+      <div class="content">&#x9762;&#x767d;&#x305d;&#x3046;&#x306a;&#x3053;&#x3068;&#x3066;&#x3093;&#x3053;&#x76db;&#x308a;&#x3067;&#x3059;&#x306d;&#xff01;&#x1f606;
+&#x4eca;&#x65e5;&#x4f3a;&#x3044;&#x305f;&#x3044;&#x3068;&#x601d;&#x3044;&#x307e;&#x3059;&#x301c;&#x1f493;</div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-4">C</div>
+      <div class="msg-header">
+        <span class="author" style="color:#eb459e">Chompoo&#x2606;Chihiro</span>
+        <span class="timestamp">2024/11/10 10:27</span>
+      </div>
+      <div class="content">9&#x968e;&#x30ab;&#x30d5;&#x30a7;&#x306b;&#x3066;&#x512a;&#x96c5;&#x306a;&#x30d6;&#x30e9;&#x30f3;&#x30c1;&#x4e2d;&#x3067;&#x3059;&#x1f339;
+&#x306a;&#x3093;&#x3066;&#x7d20;&#x6575;&#x306a;&#x7a7a;&#x9593;&#xff01;&#x2728;
+&#x767d;&#x96ea;&#x59eb;&#x30ab;&#x30d5;&#x30a7;&#x3067;&#x9b54;&#x5973;&#x304c;&#x304a;&#x3082;&#x3066;&#x306a;&#x3057;&#x3092;&#x53d7;&#x3051;&#x3066;&#x3057;&#x307e;&#x3063;&#x3066;&#x307e;&#x3059;&#x1f9d9;&#x200d;&#x2640;&#xfe0f;
+<img class="msg-image" src="./img/announce-archive_02.webp" alt="&#x767d;&#x96ea;&#x59eb;&#x30ab;&#x30d5;&#x30a7;&#x3067;&#x306e;&#x30d6;&#x30e9;&#x30f3;&#x30c1;" loading="lazy"></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2024/11/10 19:35</span>
+      </div>
+      <div class="content">&#x30de;&#x30bc;&#x30f3;&#x30bf;&#x306e;&#x9b54;&#x5973;&#x5148;&#x751f;&#x2764;&#xfe0f;&#x672c;&#x65e5;&#x306f;&#x672c;&#x5b66;&#x307e;&#x3067;&#x304a;&#x8d8a;&#x3057;&#x3044;&#x305f;&#x3060;&#x304d;&#x3042;&#x308a;&#x304c;&#x3068;&#x3046;&#x3054;&#x3056;&#x3044;&#x307e;&#x3057;&#x305f;&#x1f64c;
+&#x30ab;&#x30d5;&#x30a7;&#x306e;&#x5185;&#x88c5;&#x3068;&#x30de;&#x30bc;&#x30f3;&#x30bf;&#x5148;&#x751f;&#x4f3c;&#x5408;&#x3044;&#x307e;&#x3059;&#x306d;&#x301c;&#x1f60d;</div>
+    </div>
+
+    <!-- 2024/11/12 -->
+    <div class="date-divider"><span>2024&#x5e74;11&#x6708;12&#x65e5;</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2024/11/12 22:11</span>
+      </div>
+      <div class="content"><span class="mention">@Chompoo&#x2606;Chihiro</span>
+&#x30b7;&#x30e7;&#x30fc;&#x30c8;&#x52d5;&#x753b;&#x306e;&#x6295;&#x7a3f;&#x3082;&#x3042;&#x308a;&#x304c;&#x3068;&#x3046;&#x3054;&#x3056;&#x3044;&#x307e;&#x3057;&#x305f;&#x1f44d;&#x2728;
+
+<a href="https://youtube.com/shorts/Bv_X3H5rb7U?si=0flCRwqD4kRzwqPZ" target="_blank" rel="noopener">YouTube - &#x30de;&#x30bc;&#x30f3;&#x30bf;&#x306e;&#x9b54;&#x5973;&#x306e;&#x96fb;&#x6ce2;&#x5854; #Shorts</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-4">C</div>
+      <div class="msg-header">
+        <span class="author" style="color:#eb459e">Chompoo&#x2606;Chihiro</span>
+        <span class="timestamp">2024/11/12 22:22</span>
+      </div>
+      <div class="content">&#x300c;&#x5099;&#x524d;&#x713c;&#x306e;&#x9b45;&#x529b;&#x3092;&#x6700;&#x5927;&#x9650;&#x5f15;&#x304d;&#x51fa;&#x3059;&#x6599;&#x7406;&#x306e;&#x76db;&#x308a;&#x4ed8;&#x3051;&#x300d;&#x3001;&#x6295;&#x7968;&#x306b;&#x53c2;&#x52a0;&#x3057;&#x3066;&#x304d;&#x307e;&#x3057;&#x305f;&#xff01;&#x1f64c;
+&#x5b66;&#x751f;&#x3055;&#x3093;&#x305f;&#x3061;&#x306e;&#x72ec;&#x5275;&#x7684;&#x306a;&#x30bb;&#x30f3;&#x30b9;&#x304c;&#x5149;&#x3063;&#x3066;&#x3044;&#x3066;&#x5927;&#x5909;&#x898b;&#x5fdc;&#x3048;&#x3042;&#x308a;&#x307e;&#x3057;&#x305f;&#x3002;
+3D&#x3067;&#x3044;&#x308d;&#x3093;&#x306a;&#x89d2;&#x5ea6;&#x304b;&#x3089;&#x898b;&#x308b;&#x3068;&#x5099;&#x524d;&#x713c;&#x306e;&#x5668;&#x306e;&#x9686;&#x8d77;&#x3084;&#x8cea;&#x611f;&#x3001;&#x9ad8;&#x3055;&#x3092;&#x51fa;&#x3057;&#x305f;&#x76db;&#x308a;&#x4ed8;&#x3051;&#x306e;&#x3053;&#x3060;&#x308f;&#x308a;&#x306a;&#x3069;&#x3001;&#x5199;&#x771f;&#x3060;&#x3051;&#x3067;&#x306f;&#x6c17;&#x3065;&#x304b;&#x306a;&#x304b;&#x3063;&#x305f;&#x9b45;&#x529b;&#x3082;&#x4f1d;&#x308f;&#x3063;&#x3066;&#x304d;&#x307e;&#x3057;&#x305f;&#x2728;
+
+&#x898b;&#x308b;&#x3082;&#x306e;&#x98df;&#x3079;&#x308b;&#x3082;&#x306e;&#x3069;&#x308c;&#x3082;&#x610f;&#x7fa9;&#x6df1;&#x304f;&#x30ec;&#x30d9;&#x30eb;&#x9ad8;&#x304f;&#x3001;&#x9762;&#x767d;&#x3044;&#x4f53;&#x9a13;&#x3044;&#x3063;&#x3071;&#x3044;&#x306e;&#x6587;&#x5316;&#x796d;&#x3001;&#x5b58;&#x5206;&#x306b;&#x697d;&#x3057;&#x307f;&#x307e;&#x3057;&#x305f;&#x301c;&#x2763;&#xfe0f;&#x1f606;
+&#x30d6;&#x30ed;&#x30b0;&#x3067;&#x3082;&#x30ec;&#x30dd;&#x30fc;&#x30c8;&#x3057;&#x3066;&#x3044;&#x307e;&#x3059;&#x3002;
+<a href="https://ameblo.jp/chompoo-chihiro/entry-12874558017.html" target="_blank" rel="noopener">&#x3010;&#x304d;&#x3089;&#x3081;&#x304f;&#x30ac;&#x30fc;&#x30eb;&#x30ba;&#x30d1;&#x30ef;&#x30fc;&#x2606;&#x304a;&#x3044;&#x3057;&#x3044;&#x697d;&#x3057;&#x3044;&#x5b66;&#x5712;&#x5929;&#x56fd;&#xff01;&#x3011;</a>
+<img class="msg-image" src="./img/announce-archive_03.webp" alt="&#x30d6;&#x30ed;&#x30b0;&#x8a18;&#x4e8b;&#x30b5;&#x30e0;&#x30cd;&#x30a4;&#x30eb;" loading="lazy"></div>
+    </div>
+
+    <!-- 2024/11/27 -->
+    <div class="date-divider"><span>2024&#x5e74;11&#x6708;27&#x65e5;</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2024/11/27 11:14</span>
+      </div>
+      <div class="content"><span class="mention">@everyone</span>
+Bizen DAO&#x306e;&#x30e1;&#x30bf;&#x30d0;&#x30fc;&#x30b9;&#x3067;20&#x6b73;&#x306e;&#x96c6;&#x3044;&#x3092;&#x958b;&#x50ac;&#x81f4;&#x3057;&#x307e;&#x3059;&#xff01;
+20&#x6b73;&#x306e;&#x65b9;&#x3082;&#x305d;&#x3046;&#x3067;&#x306a;&#x3044;&#x65b9;&#x3082;&#x3001;&#x304a;&#x6642;&#x9593;&#x304c;&#x5408;&#x3046;&#x65b9;&#x306f;&#x7686;&#x69d8;&#x304a;&#x96c6;&#x307e;&#x308a;&#x304f;&#x3060;&#x3055;&#x3044;&#x203c;&#xfe0f;
+20&#x6b73;&#x306b;&#x306a;&#x3063;&#x305f;Bizen DAO&#x30e1;&#x30f3;&#x30d0;&#x30fc;&#x3092;&#x304a;&#x795d;&#x3044;&#x3057;&#x307e;&#x3057;&#x3087;&#x3046;&#x1f942;&#x2728;
+
+&#x30b9;&#x30de;&#x30db;&#x3084;PC&#x3067;&#x4f1a;&#x5834;&#x306e;&#x30ea;&#x30f3;&#x30af;&#x3092;&#x30af;&#x30ea;&#x30c3;&#x30af;&#x3059;&#x308c;&#x3070;&#x53c2;&#x52a0;&#x3059;&#x308b;&#x4e8b;&#x304c;&#x51fa;&#x6765;&#x307e;&#x3059;&#x3002;&#x30ea;&#x30f3;&#x30af;&#x5148;&#x306f;spatial&#x306e;BizenDAO&#x306e;&#x30b9;&#x30da;&#x30fc;&#x30b9;&#x3067;&#x3059;&#x263a;&#xfe0f;
+
+&#x307e;&#x305a;&#x306f;&#x3053;&#x3061;&#x3089;&#x304b;&#x3089;&#x30a4;&#x30d9;&#x30f3;&#x30c8;&#x8a73;&#x7d30;&#x3092;&#x3054;&#x89a7;&#x304f;&#x3060;&#x3055;&#x3044;&#xff01;
+
+<div class="embed">
+  <div class="embed-title">&#x30e1;&#x30bf;&#x30d0;&#x30fc;&#x30b9;20&#x6b73;&#x306e;&#x96c6;&#x3044;</div>
+  <div class="embed-desc">&#x5f53;&#x65e5;&#x306e;&#x6d41;&#x308c;:
+&#x2460;&#x5b66;&#x751f;&#x305f;&#x3061;&#x306e;3D&#x3092;&#x307f;&#x3066;&#x3082;&#x3089;&#x3044;&#x3001;1&#x4eba;&#x3065;&#x3064;&#x4f5c;&#x5bb6;&#x3055;&#x3093;&#x3078;&#x767a;&#x8868;
+&#x2461;&#x5352;&#x696d;&#x767a;&#x8868;&#x52d5;&#x753b;&#x3092;&#x30e1;&#x30bf;&#x30d0;&#x30fc;&#x30b9;&#x3067;&#x6d41;&#x3057;&#x3066;&#x7686;&#x69d8;&#x306b;&#x89b3;&#x3066;&#x8cb0;&#x3046;
+&#x2462;&#x30e1;&#x30bf;&#x30d0;&#x30fc;&#x30b9;&#x5185;&#x3067;&#x9676;&#x82b8;&#x5bb6;&#x3055;&#x3093;&#x305f;&#x3061;&#x304b;&#x3089;&#x304a;&#x795d;&#x3044;&#x306e;&#x8a00;&#x8449;&#x3092;&#x3082;&#x3089;&#x3046;
+&#x2463;&#x9676;&#x82b8;&#x5bb6;&#x3055;&#x3093;&#x3078;&#x8cea;&#x554f;
+&#x2464;&#x7686;&#x3067;&#x8a18;&#x5ff5;&#x64ae;&#x5f71;&#x3059;&#x308b;</div>
+</div></div>
+    </div>
+
+    <!-- 2025/01/10 -->
+    <div class="date-divider"><span>2025&#x5e74;1&#x6708;10&#x65e5;</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2025/01/10 19:16</span>
+      </div>
+      <div class="content"><span class="mention">@everyone</span>
+&#x672c;&#x65e5;20&#x6b73;&#x306e;&#x96c6;&#x3044;&#x53ca;&#x3073;&#x4eca;&#x5e74;&#x5ea6;&#x306e;&#x7523;&#x5b98;&#x5b66;&#x9023;&#x643a;&#x6388;&#x696d;&#x306e;&#x5831;&#x544a;&#x4f1a;&#x3092;&#x30e1;&#x30bf;&#x30d0;&#x30fc;&#x30b9;&#x306b;&#x3066;&#x884c;&#x3044;&#x307e;&#x3057;&#x305f;&#x3002;
+&#x304a;&#x96c6;&#x307e;&#x308a;&#x3044;&#x305f;&#x3060;&#x3044;&#x305f;&#x7686;&#x69d8;&#x3001;&#x672c;&#x5f53;&#x306b;&#x3042;&#x308a;&#x304c;&#x3068;&#x3046;&#x3054;&#x3056;&#x3044;&#x307e;&#x3057;&#x305f;&#x3002;
+&#x96c6;&#x5408;&#x5199;&#x771f;&#x3084;&#x52d5;&#x753b;&#x3092;&#x5171;&#x6709;&#x3057;&#x307e;&#x3059;&#x306e;&#x3067;&#x3001;&#x672c;&#x65e5;&#x3054;&#x90fd;&#x5408;&#x304c;&#x3064;&#x304b;&#x306a;&#x304b;&#x3063;&#x305f;&#x65b9;&#x3082;&#x3054;&#x89a7;&#x304f;&#x3060;&#x3055;&#x3044;&#xff01;
+<img class="msg-image" src="./img/announce-archive_04.webp" alt="20&#x6b73;&#x306e;&#x96c6;&#x3044; &#x5199;&#x771f;1" loading="lazy">
+<img class="msg-image" src="./img/announce-archive_05.webp" alt="20&#x6b73;&#x306e;&#x96c6;&#x3044; &#x5199;&#x771f;2" loading="lazy">
+<img class="msg-image" src="./img/announce-archive_06.webp" alt="20&#x6b73;&#x306e;&#x96c6;&#x3044; &#x5199;&#x771f;3" loading="lazy">
+<img class="msg-image" src="./img/announce-archive_07.webp" alt="20&#x6b73;&#x306e;&#x96c6;&#x3044; &#x5199;&#x771f;4" loading="lazy">
+<img class="msg-image" src="./img/announce-archive_08.webp" alt="20&#x6b73;&#x306e;&#x96c6;&#x3044; &#x5199;&#x771f;5" loading="lazy">
+<img class="msg-image" src="./img/announce-archive_09.webp" alt="20&#x6b73;&#x306e;&#x96c6;&#x3044; &#x5199;&#x771f;6" loading="lazy">
+<img class="msg-image" src="./img/announce-archive_10.webp" alt="20&#x6b73;&#x306e;&#x96c6;&#x3044; &#x5199;&#x771f;7" loading="lazy">
+<img class="msg-image" src="./img/announce-archive_11.webp" alt="20&#x6b73;&#x306e;&#x96c6;&#x3044; &#x5199;&#x771f;8" loading="lazy"></div>
+    </div>
+
+    <!-- 2025/01/11 -->
+    <div class="date-divider"><span>2025&#x5e74;1&#x6708;11&#x65e5;</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-4">C</div>
+      <div class="msg-header">
+        <span class="author" style="color:#eb459e">Chompoo&#x2606;Chihiro</span>
+        <span class="timestamp">2025/01/11 13:13</span>
+      </div>
+      <div class="content">&#x7d20;&#x6674;&#x3089;&#x3057;&#x304b;&#x3063;&#x305f;&#x3067;&#x3059;&#x1f44f;
+&#x6628;&#x65e5;&#x306f;&#x3042;&#x308a;&#x304c;&#x3068;&#x3046;&#x3054;&#x3056;&#x3044;&#x307e;&#x3057;&#x305f;&#xff01;
+<a href="https://youtu.be/ponVntilYp0?si=Pj7BA3yMR_woJ0QJ" target="_blank" rel="noopener">YouTube - &#x3010;BizenDAO&#x306e;20&#x6b73;&#x306e;&#x96c6;&#x3044;&#x3068;&#x7523;&#x5b98;&#x5b66;&#x9023;&#x643a;&#x6388;&#x696d;&#x306e;&#x5831;&#x544a;&#x4f1a; &#x53c2;&#x52a0;&#x3057;&#x3066;&#x304d;&#x305f;&#xff01;&#x3011;</a>
+&#x7d20;&#x6575;&#x306a;&#x7a7a;&#x9593;&#x306b;&#x306a;&#x3063;&#x3066;&#x3066;&#x611f;&#x52d5;&#x1f496;
+&#x7269;&#x7406;&#x7684;&#x8ddd;&#x96e2;&#x3082;&#x4e16;&#x4ee3;&#x3082;&#x8d85;&#x3048;&#x3066;&#x3001;&#x4f5c;&#x54c1;&#x3092;&#x56f2;&#x3093;&#x3067;&#x5bfe;&#x8a71;&#x3068;&#x4ea4;&#x6d41;&#x304c;&#x751f;&#x307e;&#x308c;&#x308b;&#x96c6;&#x4f1a;&#x5834;&#x3068;&#x3057;&#x3066;&#x306e;&#x3053;&#x3046;&#x3044;&#x3046;&#x30e1;&#x30bf;&#x30d0;&#x30fc;&#x30b9;&#x7a7a;&#x9593;&#x3063;&#x3066;&#x3044;&#x3044;&#x306a;&#x3001;&#x3068;&#x6539;&#x3081;&#x3066;&#x611f;&#x3058;&#x307e;&#x3057;&#x305f;&#x1f917;
+&#x3053;&#x306e;&#x30b9;&#x30da;&#x30fc;&#x30b9;&#x3001;&#x305f;&#x304f;&#x3055;&#x3093;&#x306e;&#x4eba;&#x306b;&#x898b;&#x3066;&#x9802;&#x3051;&#x308b;&#x3068;&#x3044;&#x3044;&#x3067;&#x3059;&#x306d;&#x266b;
+&#x30d6;&#x30ed;&#x30b0;&#x3067;&#x3082;&#x7d39;&#x4ecb;&#x3055;&#x305b;&#x3066;&#x9802;&#x304d;&#x307e;&#x3057;&#x305f;&#x3002;
+<a href="https://ameblo.jp/chompoo-chihiro/entry-12881938837.html" target="_blank" rel="noopener">&#x3010;&#x500b;&#x4eba;&#x3068;&#x7d50;&#x3073;&#x3064;&#x304f;&#x30e2;&#x30ce;&#x3078;&#x306e;&#x60f3;&#x3044;&#x3068;&#x5bfe;&#x8a71;&#x306e;&#x5834;&#x3011;</a>
+<img class="msg-image" src="./img/announce-archive_12.webp" alt="&#x30d6;&#x30ed;&#x30b0;&#x8a18;&#x4e8b;&#x30b5;&#x30e0;&#x30cd;&#x30a4;&#x30eb;" loading="lazy"></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2025/01/11 20:41</span>
+      </div>
+      <div class="content">&#x65e9;&#x901f;&#x3042;&#x308a;&#x304c;&#x3068;&#x3046;&#x3054;&#x3056;&#x3044;&#x307e;&#x3059;&#xff01;&#x9b45;&#x529b;&#x304c;&#x4f1d;&#x308f;&#x308b;&#x52d5;&#x753b;&#x3055;&#x3059;&#x304c;&#x3067;&#x3059;&#x1f44d;</div>
+    </div>
+
+    <!-- 2025/01/22 -->
+    <div class="date-divider"><span>2025&#x5e74;1&#x6708;22&#x65e5;</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2025/01/22 9:42</span>
+      </div>
+      <div class="content"><span class="mention">@everyone</span>
+&#x5099;&#x524d;&#x713c;&#x632f;&#x8208;&#x6388;&#x696d;&#x3084;&#x30e1;&#x30bf;&#x30d0;&#x30fc;&#x30b9;&#x6d3b;&#x7528;&#x306b;&#x3064;&#x3044;&#x3066;&#x3001;&#x5c71;&#x967d;&#x65b0;&#x805e;&#x306b;&#x63b2;&#x8f09;&#x3055;&#x308c;&#x307e;&#x3057;&#x305f;&#x1f44d;&#x2728;&#x1f609;
+&#x6388;&#x696d;&#x306b;&#x3054;&#x5354;&#x529b;&#x3044;&#x305f;&#x3060;&#x3044;&#x305f;&#x7686;&#x69d8;&#x306b;&#x5fa1;&#x793c;&#x7533;&#x3057;&#x4e0a;&#x3052;&#x307e;&#x3059;&#x1f60a;
+<img class="msg-image" src="./img/announce-archive_13.webp" alt="&#x5c71;&#x967d;&#x65b0;&#x805e;&#x8a18;&#x4e8b;" loading="lazy"></div>
+    </div>
+
+    <!-- 2025/05/28 -->
+    <div class="date-divider"><span>2025&#x5e74;5&#x6708;28&#x65e5;</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2025/05/28 15:32</span>
+      </div>
+      <div class="content"><span class="mention">@everyone</span>
+BizenDAO&#x306e;&#x7686;&#x69d8;&#x304a;&#x3072;&#x3055;&#x3057;&#x3076;&#x308a;&#x3067;&#x3059;&#x3002;&#xff12;&#x3064;&#x304a;&#x77e5;&#x3089;&#x305b;&#x304c;&#x3042;&#x308a;&#x307e;&#x3059;&#x3002;
+
+&#x2460;6&#x6708;8&#x65e5;&#x306b;&#x5927;&#x962a;&#x3067;&#x884c;&#x308f;&#x308c;&#x308b;&#x300c;&#x30bd;&#x30fc;&#x30b7;&#x30e3;&#x30eb;&#x30a4;&#x30ce;&#x30d9;&#x30fc;&#x30b7;&#x30e7;&#x30f3;EXPO&#x300d;&#x306b;BizenDAO&#x304c;&#x51fa;&#x5c55;&#x3059;&#x308b;&#x3053;&#x3068;&#x306b;&#x306a;&#x308a;&#x307e;&#x3057;&#x305f;&#x3002;
+&#x5730;&#x65b9;&#x5275;&#x751f;&#x306b;&#x8ca2;&#x732e;&#x3057;&#x3066;&#x3044;&#x308b;&#x5168;&#x56fd;&#x306a;&#x69d8;&#x3005;&#x306a;DAO&#x304c;&#x96c6;&#x307e;&#x308a;&#x307e;&#x3059;&#x306e;&#x3067;&#x3001;&#x305c;&#x3072;&#x904a;&#x3073;&#x306b;&#x6765;&#x3066;&#x304f;&#x3060;&#x3055;&#x3044;&#x1f60a; &#x5099;&#x524d;&#x5e02;&#x306e;&#x884c;&#x653f;&#x69d8;&#x3082;&#x99c6;&#x3051;&#x3064;&#x3051;&#x3066;&#x4e0b;&#x3055;&#x308b;&#x4e88;&#x5b9a;&#x3067;&#x3059;&#x3002;
+&#x3053;&#x306e;&#x51fa;&#x5c55;&#x306b;&#x5411;&#x3051;&#x3001;&#x4e00;&#x822c;&#x306e;&#x65b9;&#x3078;&#x306e;&#x8ca9;&#x58f2;&#x4f53;&#x5236;&#x3092;&#x6574;&#x3048;&#x307e;&#x3057;&#x305f;&#x3002;BizenDAO&#x306e;HP&#x306e;&#x30c8;&#x30c3;&#x30d7;&#x30da;&#x30fc;&#x30b8;&#x306b;&#x3042;&#x308b;New Arrival&#x304b;&#x3089;&#x3001;&#x4f5c;&#x54c1;&#x306e;&#x8cfc;&#x5165;&#x30da;&#x30fc;&#x30b8;&#x306b;&#x98db;&#x3079;&#x308b;&#x3088;&#x3046;&#x306b;&#x306a;&#x308a;&#x307e;&#x3057;&#x305f;&#x306e;&#x3067;&#x305c;&#x3072;&#x3054;&#x89a7;&#x304f;&#x3060;&#x3055;&#x3044;&#xff01;
+
+&#x2461;6&#x6708;3&#x65e5;&#x304b;&#x3089;&#x3044;&#x3088;&#x3044;&#x3088;&#x300c;&#x5099;&#x524d;&#x713c;&#x632f;&#x8208;PBL&#x6388;&#x696d;&#x300d;&#x304c;&#x7523;&#x5b98;&#x5b66;&#x9023;&#x643a;&#x3067;&#x4eca;&#x5e74;&#x3082;&#x958b;&#x59cb;&#x3055;&#x308c;&#x307e;&#x3059;&#x3002;&#x4eca;&#x5e74;&#x3082;&#x79cb;&#x306b;&#x306f;&#x5b66;&#x751f;&#x304c;&#x81ea;&#x5206;&#x306e;&#x6240;&#x6301;&#x3059;&#x308b;NFT&#x4f5c;&#x54c1;&#x306b;&#x6599;&#x7406;&#x3092;&#x76db;&#x308a;&#x4ed8;&#x3051;&#x3066;&#x30b3;&#x30f3;&#x30c6;&#x30b9;&#x30c8;&#x3092;&#x3057;&#x305f;&#x308a;&#x3001;&#xff13;D&#x3092;&#x64ae;&#x5f71;&#x3057;&#x3066;NFT&#x306b;&#x3057;&#x305f;&#x308a;&#x3001;&#x5927;&#x5b66;&#x751f;&#x305f;&#x3061;&#x304c;DAO&#x306b;&#x5165;&#x3063;&#x3066;&#x8272;&#x3005;&#x6311;&#x6226;&#x3057;&#x307e;&#x3059;&#x306e;&#x3067;&#x3001;&#x4ea4;&#x6d41;&#x3044;&#x305f;&#x3060;&#x3051;&#x307e;&#x3057;&#x305f;&#x3089;&#x5e78;&#x3044;&#x3067;&#x3059;&#x1f609; &#xff01;
+<div class="embed">
+  <div class="embed-title">&#x30bd;&#x30fc;&#x30b7;&#x30e3;&#x30eb; Innovation EXPO 2025&#xff08;6&#x6708;8&#x65e5;&#xff09; &#x2500; &#x51fa;&#x5c55;DAO19...</div>
+  <div class="embed-desc">2025&#x5e74;6&#x6708;8&#x65e5;&#xff08;&#x65e5;&#xff09;&#x306b;&#x30de;&#x30a4;&#x30c9;&#x30fc;&#x30e0;&#x304a;&#x304a;&#x3055;&#x304b;&#x3067;&#x958b;&#x50ac;&#x3055;&#x308c;&#x308b;&#x300c;&#x30bd;&#x30fc;&#x30b7;&#x30e3;&#x30eb; Innovation EXPO 2025&#x300d;&#x306b;&#x306f;&#x3001;&#x5168;&#x56fd;&#x304b;&#x3089;19&#x306e;DAO&#x304c;&#x96c6;&#x7d50;&#x3057;&#x307e;&#x3059;&#x3002;</div>
+</div></div>
+    </div>
+
+    <!-- 2025/05/30 -->
+    <div class="date-divider"><span>2025&#x5e74;5&#x6708;30&#x65e5;</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-10">&#x4e16;</div>
+      <div class="msg-header">
+        <span class="author" style="color:#3498db">&#x4e16;&#x754c;&#x7dda; / Arts</span>
+        <span class="timestamp">2025/05/30 4:12</span>
+      </div>
+      <div class="content">&#x30ef;&#x30af;&#x30ef;&#x30af;&#x3057;&#x307e;&#x3059;&#xff01;&#x5fae;&#x529b;&#x306a;&#x304c;&#x3089;&#x30ea;&#x30dd;&#x3057;&#x307e;&#x3057;&#x305f;&#x2606;&#x5f61; <a href="https://x.com/SunVerdir/status/1928165996918919507" target="_blank" rel="noopener">X&#x6295;&#x7a3f;</a></div>
+    </div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2025/05/30 7:41</span>
+      </div>
+      <div class="content">&#x3042;&#x308a;&#x304c;&#x3068;&#x3046;&#x3054;&#x3056;&#x3044;&#x307e;&#x3059;&#xff01;&#x5b09;&#x3057;&#x3044;&#x3067;&#x3059;&#x263a;&#xfe0f;</div>
+    </div>
+
+    <!-- 2025/06/08 -->
+    <div class="date-divider"><span>2025&#x5e74;6&#x6708;8&#x65e5;</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-1">G</div>
+      <div class="msg-header">
+        <span class="author" style="color:#f47b67">goodsun</span>
+        <span class="timestamp">2025/06/08 12:39</span>
+      </div>
+      <div class="content">&#x30bd;&#x30fc;&#x30b7;&#x30e3;&#x30eb;&#x30a4;&#x30ce;&#x30d9;&#x30fc;&#x30b7;&#x30e7;&#x30f3;EXPO &#x51fa;&#x5c55;&#x4e2d;
+<img class="msg-image" src="./img/announce-archive_14.webp" alt="&#x30bd;&#x30fc;&#x30b7;&#x30e3;&#x30eb;&#x30a4;&#x30ce;&#x30d9;&#x30fc;&#x30b7;&#x30e7;&#x30f3;EXPO &#x51fa;&#x5c55;&#x5199;&#x771f;" loading="lazy"></div>
+    </div>
+
+    <!-- 2025/11/06 -->
+    <div class="date-divider"><span>2025&#x5e74;11&#x6708;6&#x65e5;</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-10">&#x4e16;</div>
+      <div class="msg-header">
+        <span class="author" style="color:#3498db">&#x4e16;&#x754c;&#x7dda; / Arts</span>
+        <span class="timestamp">2025/11/06 19:46</span>
+      </div>
+      <div class="content">&#x5ca1;&#x5c71;&#x30ea;&#x30a2;&#x30eb;WS&#x2606;&#x5f61; 11/25(&#x706b;) &#x958b;&#x50ac; &#x27a4; BizenDAO&#x767a;&#x5c55;&#x306b;&#x5411;&#x3051;&#x305f;&#x30a2;&#x30a4;&#x30c7;&#x30a2;&#x5275;&#x51fa;&#x30ef;&#x30fc;&#x30af;&#x30b7;&#x30e7;&#x30c3;&#x30d7; &#xff5e; &#x4f1d;&#x7d71;&#x5de5;&#x82b8;&#xd7;web3&#x3067;&#x672a;&#x6765;&#x3092;&#x5275;&#x308b;&#x3008; <a href="https://oistart.okayama-u.ac.jp/news/news_834/" target="_blank" rel="noopener">OI-Start</a> &#x3009;&#xff5e; Arts&#x3082;&#x30a8;&#x30f3;&#x30c8;&#x30ea;&#x30fc;&#x6e08;&#x307f;&#xff01; &#x3082;&#x3093;&#x3052;&#x30fc;&#x697d;&#x3057;&#x307f;&#x3067;&#x3059; !!</div>
+    </div>
+
+    <!-- 2025/11/09 -->
+    <div class="date-divider"><span>2025&#x5e74;11&#x6708;9&#x65e5;</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2025/11/09 21:18</span>
+      </div>
+      <div class="content"><span class="mention">@everyone</span>
+&#x6628;&#x65e5;&#x3068;&#x4eca;&#x65e5;&#x306e;&#x4e21;&#x65e5;&#x3001;&#x6238;&#x677f;&#x5973;&#x5b50;&#x77ed;&#x5927;&#x306b;&#x3066;2025&#x5e74;&#x5ea6;&#x306e;&#x300c;&#x5099;&#x524d;&#x713c;&#x306e;&#x9b45;&#x529b;&#x3092;&#x6700;&#x5927;&#x9650;&#x5f15;&#x304d;&#x51fa;&#x3059;&#x6599;&#x7406;&#x306e;&#x76db;&#x308a;&#x4ed8;&#x3051;&#x30b3;&#x30f3;&#x30c6;&#x30b9;&#x30c8;&#x300d;&#x3092;&#x6587;&#x5316;&#x796d;&#x306e;&#x6765;&#x5834;&#x8005;&#x69d8;&#x306b;&#x6295;&#x7968;&#x3057;&#x3066;&#x3044;&#x305f;&#x3060;&#x304d;&#x307e;&#x3057;&#x305f;&#x3002;
+&#x7d50;&#x679c;&#x306f;12/11(&#x6728;)14:45&#x304b;&#x3089;&#x5b9f;&#x65bd;&#x3059;&#x308b;&#x6d3b;&#x52d5;&#x5831;&#x544a;&#x4f1a;&#x3067;&#x884c;&#x3044;&#x307e;&#x3059;&#x3002;
+&#x5f8c;&#x65e5;&#x30e1;&#x30bf;&#x30d0;&#x30fc;&#x30b9;&#x30ea;&#x30f3;&#x30af;&#x3092;&#x5171;&#x6709;&#x3057;&#x307e;&#x3059;&#x306e;&#x3067;&#x3001;&#x3054;&#x90fd;&#x5408;&#x304c;&#x5408;&#x3046;&#x65b9;&#x306f;&#x305c;&#x3072;&#x3054;&#x53c2;&#x52a0;&#x304f;&#x3060;&#x3055;&#x3044;&#x1f609;
+<img class="msg-image" src="./img/announce-archive_15.webp" alt="2025&#x5e74;&#x5ea6;&#x76db;&#x308a;&#x4ed8;&#x3051;&#x30b3;&#x30f3;&#x30c6;&#x30b9;&#x30c8;" loading="lazy"></div>
+    </div>
+
+    <!-- 2025/12/09 -->
+    <div class="date-divider"><span>2025&#x5e74;12&#x6708;9&#x65e5;</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2025/12/09 20:30</span>
+      </div>
+      <div class="content"><span class="mention">@everyone</span>
+&#x6238;&#x677f;&#x5973;&#x5b50;&#x77ed;&#x5927;&#x306b;&#x304a;&#x3051;&#x308b;&#x4eca;&#x5e74;&#x5ea6;&#x306e;&#x300c;&#x5099;&#x524d;&#x713c;&#x632f;&#x8208;&#x6d3b;&#x52d5;&#x300d;&#x3092;&#x5b66;&#x751f;&#x304b;&#x3089;&#x3001;&#x5099;&#x524d;&#x5e02;&#x3055;&#x307e;&#x30fb;&#x9676;&#x82b8;&#x5bb6;&#x3055;&#x307e;&#x306a;&#x3069;&#x95a2;&#x4fc2;&#x8005;&#x306e;&#x7686;&#x3055;&#x307e;&#x306b;&#x5831;&#x544a;&#x3059;&#x308b;&#x4f1a;&#x3092;&#x4ee5;&#x4e0b;&#x306e;&#x65e5;&#x7a0b;&#x3067;&#x884c;&#x3044;&#x307e;&#x3059;&#x3002;
+&#x5e73;&#x65e5;&#x663c;&#x3067;&#x6050;&#x7e2e;&#x306b;&#x5b58;&#x3058;&#x307e;&#x3059;&#x304c;&#x3001;&#x3054;&#x90fd;&#x5408;&#x304c;&#x5408;&#x3044;&#x307e;&#x3057;&#x305f;&#x3089;&#x3001;&#x3054;&#x53c2;&#x52a0;&#x3044;&#x305f;&#x3060;&#x3051;&#x307e;&#x3057;&#x305f;&#x3089;&#x5e78;&#x3044;&#x3067;&#x3059;&#x3002;
+
+&#x30e1;&#x30bf;&#x30d0;&#x30fc;&#x30b9;&#x3068;&#x3044;&#x3046;&#x4eee;&#x60f3;&#x7a7a;&#x9593;&#x306b;&#x3066;&#x5b9f;&#x65bd;&#x3057;&#x307e;&#x3059;&#x304c;&#x3001;PC&#x3084;&#x30b9;&#x30de;&#x30db;&#x304b;&#x3089;URL&#x3092;&#x30ef;&#x30f3;&#x30af;&#x30ea;&#x30c3;&#x30af;&#x3067;&#x53c2;&#x52a0;&#x3059;&#x308b;&#x3053;&#x3068;&#x304c;&#x51fa;&#x6765;&#x307e;&#x3059;&#x3002;
+&#x4ee5;&#x4e0b;&#x30ea;&#x30f3;&#x30af;&#x304b;&#x3089;&#x3054;&#x53c2;&#x52a0;&#x304a;&#x9858;&#x3044;&#x81f4;&#x3057;&#x307e;&#x3059;&#x3002;
+
+&#x203b;PC&#x3084;&#x30b9;&#x30de;&#x30db;&#x306f;&#x5145;&#x96fb;&#x5668;&#x306b;&#x3064;&#x306a;&#x3052;&#x305f;&#x72b6;&#x614b;&#x3067;&#x304a;&#x4f7f;&#x3044;&#x306b;&#x306a;&#x308b;&#x3053;&#x3068;&#x3092;&#x304a;&#x52e7;&#x3081;&#x3044;&#x305f;&#x3057;&#x307e;&#x3059;&#x3002;&#x4f7f;&#x7528;&#x4e2d;&#x306e;&#x6d88;&#x8cbb;&#x96fb;&#x529b;&#x304c;&#x5927;&#x304d;&#x3044;&#x305f;&#x3081;&#x3067;&#x3059;&#x3002;
+&#x203b;&#x30b9;&#x30de;&#x30db;&#x306e;&#x5834;&#x5408;&#x306f;&#x300c;Spatial&#x300d;&#x3068;&#x3044;&#x3046;&#x30a2;&#x30d7;&#x30ea;&#x306e;&#x30c0;&#x30a6;&#x30f3;&#x30ed;&#x30fc;&#x30c9;&#x304c;&#x5fc5;&#x8981;&#x3067;&#x3059;&#x304c;&#x3001;&#x64cd;&#x4f5c;&#x306f;&#x3057;&#x3084;&#x3059;&#x3044;&#x3067;&#x3059;&#x3002;&#x3059;&#x3050;&#x843d;&#x3061;&#x308b;&#x5834;&#x5408;&#x306b;&#x306f;&#x30b9;&#x30de;&#x30db;&#x3092;&#x518d;&#x8d77;&#x52d5;&#x3057;&#x3066;&#x307f;&#x3066;&#x304f;&#x3060;&#x3055;&#x3044;&#x3002;
+
+&#x65e5;&#x6642;&#xff1a;12&#x6708;11&#x65e5;&#xff08;&#x6728;&#xff09;14&#xff1a;50&#x304b;&#x3089;16&#xff1a;15
+URL&#xff1a;<a href="https://www.spatial.io/s/BizenDAO-Exhibition-Hall-67348ebad59d6390071ce592?share=8758858207674353631" target="_blank" rel="noopener">Spatial - BizenDAO Exhibition Hall</a>
+&#x203b;&#x3044;&#x3064;&#x3067;&#x3082;&#x30af;&#x30ea;&#x30c3;&#x30af;&#x3059;&#x308c;&#x3070;&#x5165;&#x308c;&#x307e;&#x3059;&#x306e;&#x3067;&#x3001;&#x3054;&#x90fd;&#x5408;&#x306e;&#x60aa;&#x3044;&#x65b9;&#x306f;&#x3001;&#x5225;&#x306e;&#x6642;&#x9593;&#x306b;&#x898b;&#x3066;&#x3044;&#x305f;&#x3060;&#x3051;&#x307e;&#x3057;&#x305f;&#x3089;&#x5e78;&#x3044;&#x3067;&#x3059;&#x3002;
+<img class="msg-image" src="./img/announce-archive_16.webp" alt="Spatial&#x30b9;&#x30af;&#x30ea;&#x30fc;&#x30f3;&#x30b7;&#x30e7;&#x30c3;&#x30c8;" loading="lazy"></div>
+    </div>
+
+    <!-- 2025/12/22 -->
+    <div class="date-divider"><span>2025&#x5e74;12&#x6708;22&#x65e5;</span></div>
+
+    <div class="message">
+      <div class="avatar avatar-9">N</div>
+      <div class="msg-header">
+        <span class="author" style="color:#9b59b6">niya</span>
+        <span class="timestamp">2025/12/22 18:30</span>
+      </div>
+      <div class="content"><span class="mention">@everyone</span>
+20&#x6b73;&#x306e;&#x96c6;&#x3044;&#x53ca;&#x3073;&#x4eca;&#x5e74;&#x5ea6;&#x306e;&#x7523;&#x5b98;&#x5b66;&#x9023;&#x643a;&#x6388;&#x696d;&#x306e;&#x5831;&#x544a;&#x4f1a;&#x3092;12/11&#x306b;&#x30e1;&#x30bf;&#x30d0;&#x30fc;&#x30b9;&#x306b;&#x3066;&#x884c;&#x3044;&#x307e;&#x3057;&#x305f;&#x1f609;
+
+&#x304a;&#x96c6;&#x307e;&#x308a;&#x3044;&#x305f;&#x3060;&#x3044;&#x305f;&#x7686;&#x69d8;&#x3001;&#x672c;&#x5f53;&#x306b;&#x3042;&#x308a;&#x304c;&#x3068;&#x3046;&#x3054;&#x3056;&#x3044;&#x307e;&#x3057;&#x305f;&#x3002;
+
+&#x96c6;&#x5408;&#x5199;&#x771f;&#x3084;&#x5f53;&#x65e5;&#x306e;&#x69d8;&#x5b50;&#x3092;&#x542b;&#x3081;&#x305f;&#x5352;&#x696d;&#x767a;&#x8868;&#x52d5;&#x753b;&#x3092;&#x5171;&#x6709;&#x3057;&#x307e;&#x3059;&#x306e;&#x3067;&#x3001;&#x3054;&#x90fd;&#x5408;&#x304c;&#x3064;&#x304b;&#x306a;&#x304b;&#x3063;&#x305f;&#x65b9;&#x3082;&#x305c;&#x3072;&#x3054;&#x89a7;&#x3044;&#x305f;&#x3060;&#x3051;&#x307e;&#x3057;&#x305f;&#x3089;&#x5e78;&#x3044;&#x3067;&#x3059;&#x203c;&#xfe0f;&#x1f60a;
+
+2025&#x5352;&#x696d;&#x767a;&#x8868;
+<a href="https://youtu.be/Hn9ItN0eyps?si=_zk9jIcT524G8-KL&amp;t=1" target="_blank" rel="noopener">YouTube - &#x5099;&#x524d;&#x713c;PBL&#x5352;&#x696d;&#x767a;&#x88682025&#xff08;&#x6238;&#x677f;&#x5973;&#x5b50;&#x77ed;&#x671f;&#x5927;&#x5b66;&#xff09;</a>
+
+&#x203b;&#x30e1;&#x30bf;&#x30d0;&#x30fc;&#x30b9;&#x306e;&#x30b9;&#x30af;&#x30b7;&#x30e7;&#x5199;&#x771f;&#x306f;&#x3001;&#x3042;&#x307e;&#x308a;&#x826f;&#x3044;&#x89d2;&#x5ea6;&#x3067;&#x64ae;&#x308c;&#x3066;&#x306a;&#x304f;&#x3066;&#x3059;&#x307f;&#x307e;&#x305b;&#x3093;&#x1f64f;&#x3053;&#x308c;&#x4ee5;&#x5916;&#x306f;&#x540d;&#x524d;&#x304c;&#x305f;&#x304f;&#x3055;&#x3093;&#x8868;&#x793a;&#x3055;&#x308c;&#x3066;&#x7686;&#x3055;&#x307e;&#x306e;&#x304a;&#x9854;&#x304c;&#x898b;&#x3048;&#x306a;&#x304f;&#x306a;&#x3063;&#x3066;&#x3057;&#x307e;&#x3063;&#x3066;&#x3044;&#x307e;&#x3057;&#x305f;&#x1f62d;
+<img class="msg-image" src="./img/announce-archive_17.webp" alt="&#x30e1;&#x30bf;&#x30d0;&#x30fc;&#x30b9;&#x5352;&#x696d;&#x767a;&#x8868;&#x30b9;&#x30af;&#x30ea;&#x30fc;&#x30f3;&#x30b7;&#x30e7;&#x30c3;&#x30c8;" loading="lazy"></div>
+    </div>
+
+  </div><!-- /messages -->
+
+  <div class="archive-footer">
+    Bizen DAO &#x00B7; #announce &#x30c1;&#x30e3;&#x30f3;&#x30cd;&#x30eb; &#x30a2;&#x30fc;&#x30ab;&#x30a4;&#x30d6; &#x00B7; 2024/10/25 &ndash; 2025/12/22 &#x00B7; &#x5168;&#x30e1;&#x30c3;&#x30bb;&#x30fc;&#x30b8;&#x6570;: 20+
+  </div>
+
+</div><!-- /container -->
+
+</body>
+</html>
