@@ -428,45 +428,7 @@ a.lang-btn.active {
     font-size: 18px;
 }
 
-/* ========== Video ========== */
 
-.video-section {
-    position: relative;
-    padding: 80px 0;
-    background: #111318;
-}
-
-.video-media {
-    position: relative;
-    max-width: 780px;
-    margin: 0 auto;
-}
-
-.video-media img {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-}
-
-.video-overlay {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at center, rgba(0, 0, 0, 0.1), #000 65%);
-    opacity: 0.4;
-}
-
-.video-inner {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.video-label {
-    font-size: 28px;
-    letter-spacing: 0.18em;
-}
 
 /* ========== Artists Slider (2-up, loop) ========== */
 
