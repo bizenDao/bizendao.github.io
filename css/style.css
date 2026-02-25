@@ -428,7 +428,7 @@ a.lang-btn.active {
     font-size: 18px;
 }
 
-.shop-btn h4 a {
+.shop-btn {
     text-align: center;
     text-decoration:underline;
 }
