@@ -8,11 +8,11 @@ const CONFIG = {
   chain: {
     id: 137,
     name: 'Polygon Mainnet',
-    rpc: 'https://polygon-rpc.com',  // primary (kept for backward compat)
+    rpc: 'https://polygon-bor-rpc.publicnode.com',  // primary (no auth required)
     rpcs: [
       'https://polygon-bor-rpc.publicnode.com',
-      'https://polygon-rpc.com',
-      'https://polygon-mainnet.g.alchemy.com/v2/xC3e6wo2qP_Qm-nnBjamoTXUkNSh-kbV',
+      'https://polygon.drpc.org',
+      'https://1rpc.io/matic',
     ],
     explorer: 'https://polygonscan.com',
     currency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
