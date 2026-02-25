@@ -428,7 +428,10 @@ a.lang-btn.active {
     font-size: 18px;
 }
 
-
+.section-panel h3 a {
+    text-align: center;
+    text-decoration:underline;
+}
 
 /* ========== Artists Slider (2-up, loop) ========== */
 
