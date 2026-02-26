@@ -643,7 +643,7 @@ a.lang-btn.active {
 }
 
 .company-body {
-    max-width: 960px;
+    max-width: 1020px;
     margin-inline: auto;
     font-size: 14px;
     color: #d0d0d0;
@@ -1240,7 +1240,7 @@ a.lang-btn.active {
 }
 
 p {
-    font-size: 1.15em !important;
+    font-size: 1.10em !important;
     line-height: 1.5 !important;
 }
 
