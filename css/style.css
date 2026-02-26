@@ -30,7 +30,7 @@ main {
 }
 
 .container {
-    width: min(1120px, 100% - 40px);
+    width: min(1320px, 100% - 40px);
     margin-inline: auto;
 }
 
