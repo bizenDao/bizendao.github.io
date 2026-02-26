@@ -79,7 +79,7 @@ text-align: left;
 }
 
 .card {
-    width: min(980px, 100%);
+    width: min(1080px, 100%);
     margin: 0 auto;
     background: rgba(0, 0, 0, .12);
     border: 1px solid rgba(255, 255, 255, .12);
@@ -90,8 +90,8 @@ text-align: left;
     display: grid;
     grid-template-columns: 140px 1fr;
     gap: 14px 22px;
-    font-size: 13px;
-    line-height: 1.9;
+    font-size: 1.35em !important;
+    line-height: 1.8 !important;
 }
 
 .profile-grid .year {
@@ -114,8 +114,8 @@ text-align: left;
 .list li {
     padding: 10px 0;
     border-bottom: 1px solid rgba(255, 255, 255, .10);
-    font-size: 13px;
-    line-height: 1.9;
+    font-size: 1.35em !important;
+    line-height: 1.8 !important;
     opacity: .92;
 }
 
