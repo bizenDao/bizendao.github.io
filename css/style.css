@@ -1244,6 +1244,6 @@ a.lang-btn.active {
    ========================= */
 
 p {
-    font-size: 1.5em;   /* 親要素基準で約1.5倍 */
-    line-height: 1.8;
+    font-size: 1.5em !important;
+  line-height: 1.8 !important;
 }
