@@ -1239,11 +1239,24 @@ a.lang-btn.active {
     }
 }
 
-/* =========================
-   pタグのみサイズ調整
-   ========================= */
-
 p {
-    font-size: 1.5em !important;
-  line-height: 1.8 !important;
+    font-size: 1.35em !important;
+    line-height: 1.8 !important;
+}
+
+/* aタグも拡大 */
+a {
+    font-size: 1.35em !important;
+}
+
+/* ただしボタン・ナビ系は崩れ防止で除外 */
+.bizen-btn,
+.outline-btn,
+.outline-btn--large,
+.nav-toggle,
+.lang-btn,
+.drawer-nav a,
+.footer-nav a,
+.shop-btn {
+    font-size: inherit !important;
 }
