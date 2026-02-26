@@ -90,7 +90,7 @@ text-align: left;
     display: grid;
     grid-template-columns: 140px 1fr;
     gap: 14px 22px;
-    font-size: 1.35em !important;
+    font-size: 1.12em !important;
     line-height: 1.8 !important;
 }
 
