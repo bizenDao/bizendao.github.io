@@ -3,7 +3,9 @@
 /* ===========================
    作家紹介ページ（共通）
    =========================== */
-
+body {
+ background: #111318;
+}
 .artist-main {
     background: linear-gradient(180deg, #1c1e22 0%, #2a313b 42%, #6e7d97 100%);
     min-height: 100vh;
@@ -298,12 +300,10 @@ text-align: left;
 
 .minor-page {
     margin: 0 auto;
-    padding: 0 24px 90px;
 }
 
 .minor-hero {
     position: relative;
-    border-radius: 16px;
     overflow: hidden;
     background: #111;
     min-height: min(520px, 70vh);
