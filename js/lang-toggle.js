@@ -14,14 +14,15 @@
   function detectLang() {
     if (/\/ja\//.test(path)) return 'ja';
     if (/\/en\//.test(path)) return 'en';
+    if (/\/fr\//.test(path)) return 'fr';
     var params = new URLSearchParams(search);
     return params.get('lang') || 'ja';
   }
 
   function getUrl(targetLang) {
-    // Content pages: swap /ja/ ↔ /en/
-    if (/\/(ja|en)\//.test(path)) {
-      return path.replace(/\/(ja|en)\//, '/' + targetLang + '/') + search + hash;
+    // Content pages: swap /ja/ ↔ /en/ ↔ /fr/
+    if (/\/(ja|en|fr)\//.test(path)) {
+      return path.replace(/\/(ja|en|fr)\//, '/' + targetLang + '/') + search + hash;
     }
     // Dapp pages: swap ?lang= param
     var params = new URLSearchParams(search);
