@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galerie NFT — BizenDAO</title>
+    <link rel="stylesheet" href="../css/style4.css">
+    <style>
+        .nft-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.5rem;
+            padding: 2rem 0;
+        }
+        .nft-card {
+            background: #fff;
+            border: 1px solid #E2D4BE;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,.07);
+            transition: transform .2s, box-shadow .2s;
+        }
+        .nft-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,.12); }
+        .nft-card img { width: 100%; aspect-ratio: 1; object-fit: cover; background: #F5F0E8; }
+        .nft-card-body { padding: 1rem; }
+        .nft-card-id { font-size: .75rem; color: #78716C; margin-bottom: .3rem; }
+        .nft-card-name { font-weight: 700; font-size: .95rem; color: #92400E; line-height: 1.4; }
+        .nft-card-name-sub { font-size: .82rem; color: #78716C; margin-top: .2rem; }
+        .nft-opensea {
+            display: inline-block; margin-top: .8rem; padding: .35rem .9rem;
+            background: #92400E; color: #fff; border-radius: 999px;
+            font-size: .78rem; text-decoration: none; font-weight: 600;
+        }
+        .nft-opensea:hover { background: #B45309; }
+        .nft-contract { font-size: .78rem; color: #78716C; text-align: center; margin-top: 1rem; word-break: break-all; }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="index.html" class="logo"><img src="../img/349F5603-389E-48C6-81C9-1515A338A59B.png" alt="Logo"></a>
+            <div class="header-right">
+                <span class="lang-switch"><a class="lang-btn" data-lang="fr" href="#">EN</a> / <a class="lang-btn" data-lang="ja" href="#">JP</a> / <a class="lang-btn" data-lang="fr" href="#" class="active">FR</a></span>
+                <button class="nav-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">
+                    <span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="nav-overlay"></div>
+    <aside class="nav-drawer" aria-label="Site Menu">
+        <ul class="drawer-nav">
+            <li><a href="./index.html">Home</a></li>
+            <li><a href="artist-list.html">Artists</a></li>
+            <li><a href="./nft-gallery.html">NFT Gallery</a></li>
+            <li><a href="./index.html#company">About Us</a></li>
+            <li><a href="./index.html#discord">Discord</a></li>
+            <li><a href="https://meta.bon-soleil.com/" target="_blank">Meta</a></li>
+            <li><a href="./index.html#donation">Donation</a></li>
+            <li><a href="../dapp/account.html?lang=fr">My Page</a></li>
+        </ul>
+    </aside>
+
+    <main>
+        <div class="title_set">
+            <h1>Galerie NFT</h1>
+            <p>Poterie de Bizen sur la Blockchain — Polygon</p>
+        </div>
+
+        <div class="container">
+            <div class="nft-grid" id="gallery"></div>
+            <p class="nft-contract">Contract: 0x4D0Abc6272E1288A177EA8E3076d4aFe2DB9C658 (Polygon)</p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container footer-inner">
+            <nav class="footer-nav">
+                <ul>
+                    <li><a href="./index.html">Home</a></li>
+                    <li><a href="./artist-list.html">Artists</a></li>
+                    <li><a href="./index.html#company">About Us</a></li>
+                    <li><a href="./index.html#discord">Discord</a></li>
+                    <li><a href="https://meta.bon-soleil.com/" target="_blank">Meta</a></li>
+                    <li><a href="./index.html#donation">Donation</a></li>
+                    <li><a href="../dapp/account.html?lang=fr">My Page</a></li>
+                </ul>
+            </nav>
+            <div class="footer-logo"><a href="index.html" class="logo"><img src="../img/349F5603-389E-48C6-81C9-1515A338A59B.png" alt="Logo"></a></div>
+        </div>
+    </footer>
+
+    <script src="../js/app.js"></script>
+    <script src="../js/lang-toggle.js"></script>
+    <script>
+    const CA = "0x4D0Abc6272E1288A177EA8E3076d4aFe2DB9C658";
+    const nfts = [
+  {id:2, name:"Flower Vase with Arrow-notch Mouth No.1", nameJa:"矢筈口花入 No.1", image:"https://arweave.net/3ImVNMIKvptPBGHM7LPKYl7GWhhHk-Uj-iTP7NvGsjA"},
+  {id:3, name:"Flower Vase with Arrow-notch Mouth No.2", nameJa:"矢筈口花入 No.2", image:"https://arweave.net/-0TA9ZpEPKwTKeg2rS4hbiSPSaivAf1M0yh-BU8EQcM"}
+];
+    const grid = document.getElementById('gallery');
+    nfts.forEach(n => {
+      const card = document.createElement('div');
+      card.className = 'nft-card';
+      card.innerHTML = `
+        <img src="${n.image}" alt="${n.name}" loading="lazy">
+        <div class="nft-card-body">
+          <div class="nft-card-id">Token #${n.id}</div>
+          <div class="nft-card-name">${n.name}</div>
+          <div class="nft-card-name-sub">${n.nameJa}</div>
+          <a class="nft-opensea" href="../dapp/token.html?ca=${CA}&id=${n.id}&lang=fr" target="_blank">Voir les détails →</a>
+        </div>`;
+      grid.appendChild(card);
+    });
+    </script>
+</body>
+</html>
