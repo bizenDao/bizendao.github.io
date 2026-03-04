@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NFT Gallery — BizenDAO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --amber: #92400E; --amber2: #B45309;
+      --cream: #FAFAF8; --sand: #F5F0E8; --border: #E2D4BE;
+      --text: #1C1917; --muted: #78716C;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans JP', sans-serif; background: var(--cream); color: var(--text); }
+    header { background: var(--amber); color: #fff; padding: 1.5rem; text-align: center; }
+    header h1 { font-family: 'Noto Serif JP', serif; font-size: 1.8rem; letter-spacing: .05em; }
+    header p { margin-top: .4rem; font-size: .9rem; opacity: .85; }
+    .lang-switch { margin-top: .6rem; font-size: .85rem; }
+    .lang-switch a { color: #fff; opacity: .7; text-decoration: none; }
+    .lang-switch a.active { opacity: 1; font-weight: 700; text-decoration: underline; }
+    main { max-width: 1100px; margin: 2rem auto; padding: 0 1rem 3rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,.07); transition: transform .2s, box-shadow .2s; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,.12); }
+    .card img { width: 100%; aspect-ratio: 1; object-fit: cover; background: var(--sand); }
+    .card-body { padding: 1rem; }
+    .card-id { font-size: .75rem; color: var(--muted); margin-bottom: .3rem; }
+    .card-name { font-weight: 700; font-size: 1rem; line-height: 1.4; color: var(--amber); }
+    .card-name-ja { font-size: .85rem; color: var(--muted); margin-top: .2rem; }
+    .card-desc { font-size: .8rem; color: var(--muted); margin-top: .5rem; line-height: 1.5; }
+    .opensea-btn { display: inline-block; margin-top: .8rem; padding: .35rem .9rem;
+                   background: var(--amber); color: #fff; border-radius: 999px;
+                   font-size: .78rem; text-decoration: none; font-weight: 600; }
+    .opensea-btn:hover { background: var(--amber2); }
+    footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .82rem; }
+    @media(max-width:520px) { header h1 { font-size: 1.3rem; } }
+  </style>
+</head>
+<body>
+<header>
+  <h1>🏺 Galerie NFT BizenDAO</h1>
+  <p>Poterie de Bizen sur la Blockchain — Polygon — Polygon</p>
+  <div class="lang-switch">
+    <a href="../ja/nft-gallery.html">JP</a> / <a href="../en/nft-gallery.html">EN</a> / <a href="#" class="active">FR</a>
+  </div>
+</header>
+<main>
+  <div class="grid" id="gallery"></div>
+</main>
+<footer>Contract: 0x3DAC002d33A0c6F1c1684783DDaA78E5f29F14cc (Polygon) · BizenDAO</footer>
+<script>
+const nfts = [
+  {id:1, name:"Coron No.1", nameJa:"コロンNo.1", image:"https://arweave.net/HP1nUdA5K-TkOwiMNukakQrX3Gxp5yqO5HnTWHEL"},
+  {id:2, name:"CYURURIN No.1", nameJa:"チュルリン No.1", image:"https://arweave.net/TUwY5SAMtZSsd_752nZIfTnbAzky1zCBA6AtWNF3"},
+  {id:3, name:"GAKIGAKIGRUGRU", nameJa:"ガキガキグルグル", image:"https://arweave.net/GPpWL5WteFtFHBs3BfNRXgnoa0RD3cBw16Ut1jBw"},
+  {id:4, name:"Sarasara Plate No.1", nameJa:"サラサラ皿 No.1", image:"https://arweave.net/IkG9Wob-BuAEK6DMBvpndSr-UGf0Xv8kVXP3a6Xb"},
+  {id:6, name:"Sarasara Plate No.3", nameJa:"サラサラ皿 No.3", image:"https://arweave.net/HCcjFVOau6321J_FyniAVeLVapyKGPoRHDVsTq5X"},
+  {id:8, name:"Kakukaku Cup & Saucer No.1", nameJa:"カクカクカップ＆ソーサー No.1", image:"https://arweave.net/_pHQIn5AfehkxGZvznW7IpTEZhVOOs-4YBNUzQr6"},
+  {id:9, name:"Sarasara Plate No.4", nameJa:"サラサラ皿 No.4", image:"https://arweave.net/V9FV_koc70WVXBvUdAKUFUf9b-U0htUYod6y_Sxi"},
+  {id:10, name:"Kakukaku Cup & Saucer No.2", nameJa:"カクカクカップ＆ソーサー No.2", image:"https://arweave.net/cKGyg7VdQmuaBDLIKZv6Vsgvw07iYqd-juJbfsvG"},
+  {id:11, name:"Sarasara Plate No.6", nameJa:"サラサラ皿 No.6", image:"https://arweave.net/BiuLpnMvtvM52MZ3SUcPSDJl_HFUTRxAqhpK-KOa"},
+  {id:12, name:"Sarasara Plate No.7", nameJa:"サラサラ皿 No.7", image:"https://arweave.net/r3y537PSFuwmi6P4u2wBYg1yv8coQ1C38aJa3VR3"},
+  {id:14, name:"Toge Toge Tea Bowl No.1", nameJa:"トゲトゲ茶碗 No.1", image:"https://arweave.net/p5Iy5xJr7LDYcNriFQsA4CmIcb_-_l7wtet_yQ0b"},
+  {id:15, name:"Sarasara Plate No.9", nameJa:"サラサラ皿 No.9", image:"https://arweave.net/Wp5qfjlU58zDmviSAwNkpRg20CJNJY-tsUy4PCC4"},
+  {id:16, name:"Sarasara Plate No.10", nameJa:"サラサラ皿 No.10", image:"https://arweave.net/0EuOMiIF-abZVMMrO_Dm8JCbhlAxzKTlA-Fj8Ah_"},
+  {id:17, name:"KakuKaku Shochu Cup No.1", nameJa:"カクカク焼酎呑 No.1", image:"https://arweave.net/YtTyn5Vedwnrspluuy5f15pPYKpBJxO_-x6VWNzrD"},
+  {id:18, name:"KakuKaku Shochu Cup No.2", nameJa:"カクカク焼酎呑 No.2", image:"https://arweave.net/YQeT9LMxHuHhusuxIx9RM32ZhEhcK8GxtmHz3Wfo"},
+];
+
+const grid = document.getElementById('gallery');
+const CA = "0x3DAC002d33A0c6F1c1684783DDaA78E5f29F14cc";
+
+nfts.forEach(n => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <img src="${n.image}" alt="${n.name}" loading="lazy">
+    <div class="card-body">
+      <div class="card-id">Token #${n.id}</div>
+      <div class="card-name">${n.name}</div>
+      <div class="card-name-ja">${n.nameJa}</div>
+      <a class="opensea-btn" href="https://opensea.io/assets/matic/${CA}/${n.id}" target="_blank">Voir sur OpenSea →</a>
+    </div>`;
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>
