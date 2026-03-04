@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <meta charset="utf-8" />
-    <title>BizenDAO｜Product List</title>
+    <title>BizenDAO｜Liste des produits</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../css/style2.css" />
 </head>
@@ -17,7 +17,7 @@
             <!-- 検索 -->
             <div class="plist-search-wrap">
                 <span class="plist-search-icon">🔍</span>
-                <input id="keywordInput" type="search" class="plist-search-input" placeholder="Search by keyword (artist name, title, etc.)" />
+                <input id="keywordInput" type="search" class="plist-search-input" placeholder="Rechercher par mot-clé (nom d'artiste, titre, etc.)" />
             </div>
 
             <div class="header-right">
@@ -33,13 +33,13 @@
     <div class="nav-overlay" hidden></div>
     <aside class="nav-drawer" aria-label="Site menu" aria-hidden="true">
         <ul class="drawer-nav">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="/product-list.html">Products</a></li>
-            <li><a href="/artist-list.html">Artists</a></li>
-            <li><a href="/index.html#company">About Us</a></li>
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="/product-list.html">Produits</a></li>
+            <li><a href="/artist-list.html">Artistes</a></li>
+            <li><a href="/index.html#company">À propos</a></li>
             <li><a href="/index.html#discord">Discord</a></li>
             <li><a href="/meta.html">Meta</a></li>
-            <li><a href="/index.html#donation">Donation</a></li>
+            <li><a href="/index.html#donation">Don</a></li>
         </ul>
     </aside>
 
@@ -47,33 +47,33 @@
         <div class="plist-page-inner">
 
             <section class="plist-hero">
-                <h1 class="plist-title">Products</h1>
+                <h1 class="plist-title">Produits</h1>
             </section>
 
             <!-- フィルター -->
-            <section class="plist-filters" aria-label="Product filters">
+            <section class="plist-filters" aria-label="Filtres produits">
                 <div class="plist-filter-row">
-                    <button class="filter-chip filter-chip--artist is-active" data-artist="all">ALL</button>
+                    <button class="filter-chip filter-chip--artist is-active" data-artist="all">TOUS</button>
                     <button class="filter-chip filter-chip--artist" data-artist="mori-toshiaki">Toshiaki Mori</button>
                     <button class="filter-chip filter-chip--artist" data-artist="fujita-syo">Syo Fujita</button>
                     <button class="filter-chip filter-chip--artist" data-artist="mori-taiga">Taiga Mori</button>
                 </div>
 
                 <div class="plist-filter-row">
-                    <button class="filter-chip filter-chip--kiln is-active" data-kiln="all">ALL Kiln</button>
+                    <button class="filter-chip filter-chip--kiln is-active" data-kiln="all">TOUS les fours</button>
                     <button class="filter-chip filter-chip--kiln" data-kiln="hozan">Hozangama</button>
                 </div>
 
                 <div class="plist-filter-row plist-filter-row--select">
-                    <label for="categorySelect" class="plist-select-label">Category</label>
+                    <label for="categorySelect" class="plist-select-label">Catégorie</label>
                     <div class="plist-select-wrap">
                         <select id="categorySelect" class="plist-select">
-                            <option value="all">All</option>
-                            <option value="flower-vase">Flower Vase</option>
-                            <option value="tea-bowl">Tea Bowl / Yunomi</option>
-                            <option value="cup">Cup</option>
-                            <option value="plate">Plate</option>
-                            <option value="object">Object / Other</option>
+                            <option value="all">Toutes</option>
+                            <option value="flower-vase">Vase à fleurs</option>
+                            <option value="tea-bowl">Bol à thé / Yunomi</option>
+                            <option value="cup">Tasse</option>
+                            <option value="plate">Assiette</option>
+                            <option value="object">Objet / Autre</option>
                         </select>
                         <span class="plist-select-arrow">▼</span>
                     </div>
@@ -81,9 +81,9 @@
             </section>
 
             <!-- 商品グリッド（JSON→生成） -->
-            <section class="plist-products" aria-label="Product list">
+            <section class="plist-products" aria-label="Liste des produits">
                 <div id="productGrid" class="product-list-grid"></div>
-                <p class="plist-empty" hidden>No products match your criteria.</p>
+                <p class="plist-empty" hidden>Aucun produit ne correspond à vos critères.</p>
             </section>
 
         </div>
@@ -93,13 +93,13 @@
         <div class="container footer-inner">
             <nav class="footer-nav">
                 <ul>
-                    <li><a href="/index.html">Home</a></li>
-                    <li><a href="/product-list.html">Products</a></li>
-                    <li><a href="/artist-list.html">Artists</a></li>
-                    <li><a href="./index.html#company">About Us</a></li>
+                    <li><a href="/index.html">Accueil</a></li>
+                    <li><a href="/product-list.html">Produits</a></li>
+                    <li><a href="/artist-list.html">Artistes</a></li>
+                    <li><a href="./index.html#company">À propos</a></li>
                     <li><a href=".index.html#discord">Discord</a></li>
                     <li><a href="./meta.html">Meta</a></li>
-                    <li><a href=".index.html#donation">Donation</a></li>
+                    <li><a href=".index.html#donation">Don</a></li>
                 </ul>
             </nav>
             <div class="footer-logo"><a href="#top" class="logo"><img src="../img/349F5603-389E-48C6-81C9-1515A338A59B.png" alt="Logo"> </a></div>
