@@ -13,18 +13,18 @@
   var hash = window.location.hash;
 
   function detectLang() {
-    if (/\/jp\//.test(path)) return 'jp';
+    if (/\/ja\//.test(path)) return 'ja';
     if (/\/en\//.test(path)) return 'en';
     if (/\/fr\//.test(path)) return 'fr';
     var params = new URLSearchParams(search);
-    return params.get('lang') || 'jp';
+    return params.get('lang') || 'ja';
   }
 
   function getUrl(targetLang) {
-    // Content pages: swap /jp/ ↔ /en/ ↔ /fr/ and append ?lang=XX
-    if (/\/(jp|en|fr)\//.test(path)) {
-      var newPath = path.replace(/\/(jp|en|fr)\//, '/' + targetLang + '/');
-      return newPath + '?lang=' + targetLang + hash;
+    // Content pages: swap /ja/ ↔ /en/ ↔ /fr/ (directory determines language)
+    if (/\/(ja|en|fr)\//.test(path)) {
+      var newPath = path.replace(/\/(ja|en|fr)\//, '/' + targetLang + '/');
+      return newPath + hash;
     }
     // Dapp pages: swap ?lang= param
     var params = new URLSearchParams(search);

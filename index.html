@@ -8,7 +8,7 @@
     (function () {
       // Detect browser language, default to Japanese
       var lang = (navigator.language || navigator.userLanguage || 'ja').toLowerCase();
-      var target = lang.startsWith('ja') ? 'ja' : 'en';
+      var target = lang.startsWith('ja') ? 'ja' : (lang.startsWith('fr') ? 'fr' : 'en');
       window.location.replace(target + '/index.html');
     })();
   </script>
@@ -17,6 +17,6 @@
   </noscript>
 </head>
 <body>
-  <p>Redirecting... <a href="ja/index.html">日本語</a> | <a href="en/index.html">English</a></p>
+  <p>Redirecting... <a href="ja/index.html">日本語</a> | <a href="en/index.html">English</a> | <a href="fr/index.html">Français</a></p>
 </body>
 </html>
