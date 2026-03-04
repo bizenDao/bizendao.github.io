@@ -396,7 +396,7 @@
       banner.innerHTML = `
         <h2>🎉 メタデータ完成！</h2>
         <p>このJSONをArweaveにアップロードして、そのURLをミント時に使ってください。</p>
-        <button class="copy-btn" onclick="copyJSON()">JSONをコピー</button>
+        <button class="copy-btn" onclick="downloadJSON()">JSONをダウンロード</button>
       `;
       log.appendChild(banner);
       banner.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -436,11 +436,15 @@
     return meta;
   }
 
-  function copyJSON() {
+  function downloadJSON() {
     const meta = buildMetadata();
-    navigator.clipboard.writeText(JSON.stringify(meta, null, 2)).then(() => {
-      alert('コピーしました！');
-    });
+    const blob = new Blob([JSON.stringify(meta, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = (answers.name_en || answers.name_ja || 'metadata').replace(/\s+/g, '_') + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   // =========================================================
