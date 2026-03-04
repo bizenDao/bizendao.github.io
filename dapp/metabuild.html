@@ -206,34 +206,40 @@
       required: true,
     },
     {
+      key: "image",
+      ask: "**作品画像のURL**を貼ってください。\nArweaveやIPFSのURLが理想的です。",
+      hint: "例：https://arweave.net/xxxx",
+      required: true,
+    },
+    {
       key: "artist_ja",
       ask: "**作家名（日本語）**を教えてください。",
       hint: "例：森 大雅",
-      required: true,
+      optional: true,
     },
     {
       key: "artist_en",
       ask: "**作家名（英語）**もお願いします。",
       hint: "例：Taiga Mori",
-      required: true,
+      optional: true,
     },
     {
       key: "size",
       ask: "**サイズ**を教えてください。",
       hint: "例：Φ113 × H89 mm",
-      required: true,
+      optional: true,
     },
     {
       key: "year",
       ask: "**制作年**はいつですか？",
       hint: "例：2024",
-      required: true,
+      optional: true,
     },
     {
       key: "category",
       ask: "**カテゴリ**を教えてください。",
       hint: "例：tea bowl / plate / flower vase",
-      required: true,
+      optional: true,
     },
     {
       key: "color",
@@ -243,37 +249,31 @@
     },
     {
       key: "story_en",
-      ask: "作品への**想いやストーリー（英語）**を聞かせてください。\nどんな気持ちで作りましたか？",
+      ask: "作品への**想いやストーリー（英語）**を聞かせてください。",
       hint: "自由に書いてください",
-      required: true,
+      optional: true,
     },
     {
       key: "story_ja",
       ask: "同じ内容を**日本語**でも教えてください。",
       hint: "日本語でのコメント",
-      required: true,
-    },
-    {
-      key: "image",
-      ask: "**作品画像のURL**を貼ってください。\nArweaveやIPFSのURLが理想的です。",
-      hint: "例：https://arweave.net/xxxx",
-      required: true,
+      optional: true,
     },
     {
       key: "animation_url",
-      ask: "**動画URL**はありますか？（ろくろ動画など）\nなければスキップできます。",
+      ask: "**動画URL**はありますか？（ろくろ動画など）",
       hint: "例：https://arweave.net/xxxx",
       optional: true,
     },
     {
       key: "box_photo",
-      ask: "**箱書き写真のURL**はありますか？\nなければスキップできます。",
+      ask: "**箱書き写真のURL**はありますか？",
       hint: "例：https://arweave.net/xxxx",
       optional: true,
     },
     {
       key: "back_photo",
-      ask: "**裏面・側面写真のURL**はありますか？\nなければスキップできます。",
+      ask: "**裏面・側面写真のURL**はありますか？",
       hint: "例：https://arweave.net/xxxx",
       optional: true,
     },
@@ -407,22 +407,31 @@
 
   function buildMetadata() {
     const a = answers;
+
+    // name: 両方あれば「EN　JA」、片方だけでもOK
+    const nameParts = [a.name_en, a.name_ja].filter(Boolean);
     const meta = {
-      name: `${a.name_en}　${a.name_ja}`,
-      description: `${a.story_en}\n\n${a.story_ja}`,
+      name: nameParts.join('　'),
       image: a.image,
-      attributes: [
-        { trait_type: "Artist", value: `${a.artist_en}　${a.artist_ja}` },
-        { trait_type: "Size", value: a.size },
-        { trait_type: "Creation Year", value: a.year },
-        { trait_type: "Category", value: a.category },
-      ]
     };
 
-    if (a.color)      meta.attributes.push({ trait_type: "Color", value: a.color });
+    // description: story両方 / 片方 / なし
+    const descParts = [a.story_en, a.story_ja].filter(Boolean);
+    if (descParts.length) meta.description = descParts.join('\n\n');
+
     if (a.animation_url) meta.animation_url = a.animation_url;
-    if (a.box_photo)  meta.attributes.push({ trait_type: "With box photo", value: a.box_photo });
-    if (a.back_photo) meta.attributes.push({ trait_type: "Back side photo", value: a.back_photo });
+
+    const attrs = [];
+    const artistParts = [a.artist_en, a.artist_ja].filter(Boolean);
+    if (artistParts.length) attrs.push({ trait_type: "Artist",        value: artistParts.join('　') });
+    if (a.size)            attrs.push({ trait_type: "Size",           value: a.size });
+    if (a.year)            attrs.push({ trait_type: "Creation Year",  value: a.year });
+    if (a.category)        attrs.push({ trait_type: "Category",       value: a.category });
+    if (a.color)           attrs.push({ trait_type: "Color",          value: a.color });
+    if (a.box_photo)       attrs.push({ trait_type: "With box photo", value: a.box_photo });
+    if (a.back_photo)      attrs.push({ trait_type: "Back side photo",value: a.back_photo });
+
+    if (attrs.length) meta.attributes = attrs;
 
     return meta;
   }
