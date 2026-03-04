@@ -126,7 +126,7 @@
           <div class="nft-card-id">Token #${n.id}</div>
           <div class="nft-card-name">${n.name}</div>
           <div class="nft-card-name-sub">${n.nameJa}</div>
-          <a class="nft-opensea" href="https://opensea.io/assets/matic/${CA}/${n.id}" target="_blank">OpenSeaで見る →</a>
+          <a class="nft-opensea" href="../dapp/token.html?ca=${CA}&id=${n.id}&lang=ja" target="_blank">詳細を見る →</a>
         </div>`;
       grid.appendChild(card);
     });
