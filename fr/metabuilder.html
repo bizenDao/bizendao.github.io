@@ -211,120 +211,41 @@
     </div>
   </main>
 
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <nav class="footer-nav">
-        <ul>
-          <li><a href="./index.html">Accueil</a></li>
-          <li><a href="./artist-list.html">Artistes</a></li>
-          <li><a href="./index.html#company">À propos</a></li>
-          <li><a href="./index.html#discord">Discord</a></li>
-          <li><a href="../dapp/account.html?lang=fr">Mon compte</a></li>
-        </ul>
-      </nav>
-      <div class="footer-logo">
-        <a href="index.html" class="logo"><img src="../img/349F5603-389E-48C6-81C9-1515A338A59B.png" alt="Logo"></a>
-      </div>
-    </div>
-  </footer>
-
   <div class="input-area" id="inputArea">
-    <textarea id="userInput" placeholder="ここに入力..." rows="1"></textarea>
+    <textarea id="userInput" placeholder="Écrivez ici..." rows="1"></textarea>
     <button class="send-btn" id="sendBtn" onclick="handleSend()">→</button>
   </div>
 
   <script src="../js/app.js"></script>
   <script src="../js/lang-toggle.js"></script>
   <script>
-  // =========================================================
+    const STEPS = [
+    { key: "name_fr",       ask: "Bonjour ! Créons ensemble les métadonnées de votre NFT ✨\n\nD'abord, quel est le **titre de l'œuvre (français)** ?", hint: "ex. : Assiette Sarasara No.1", required: true },
+    { key: "name_en",       ask: "Merci !\nMaintenant le **titre en anglais**, s'il vous plaît.", hint: "ex. : Sarasara Plate No.1", required: true },
+    { key: "image",         ask: "Veuillez coller l'**URL de l'image de l'œuvre**.\nLes URLs Arweave ou IPFS sont idéales.", hint: "ex. : https://arweave.net/xxxx", required: true },
+    { key: "artist_en",     ask: "Quel est le **nom de l'artiste (anglais)** ?", hint: "ex. : Taiga Mori", optional: true },
+    { key: "artist_ja",     ask: "Et le **nom en japonais** ?", hint: "ex. : 森 大雅", optional: true },
+    { key: "size",          ask: "Quelle est la **taille** de l'œuvre ?", hint: "ex. : Φ113 × H89 mm", optional: true },
+    { key: "year",          ask: "En quelle **année** a-t-elle été créée ?", hint: "ex. : 2024", optional: true },
+    { key: "category",      ask: "Quelle est la **catégorie** de l'œuvre ?", hint: "ex. : bol à thé / assiette / vase", optional: true },
+    { key: "color",         ask: "Y a-t-il des **effets de couleur ou de cuisson** particuliers ?", hint: "ex. : Goma, Botamochi", optional: true },
+    { key: "story_fr",      ask: "Partagez l'**histoire ou les pensées derrière cette œuvre (français)**.", hint: "Écrivez librement", optional: true },
+    { key: "story_en",      ask: "La même chose **en anglais**, si vous le souhaitez.", hint: "Write freely", optional: true },
+    { key: "animation_url", ask: "Avez-vous une **URL vidéo** ? (ex. : tournage au tour)", hint: "ex. : https://arweave.net/xxxx", optional: true },
+    { key: "box_photo",     ask: "Avez-vous une **photo de la boîte signée** ?", hint: "ex. : https://arweave.net/xxxx", optional: true },
+    { key: "back_photo",    ask: "Avez-vous une **photo du dos ou du côté** ?", hint: "ex. : https://arweave.net/xxxx", optional: true },
+  ];
+
+  const SKIP_LABEL   = "Passer";
+  const DONE_MSG     = "Tout est noté ! ✨\nGénération des métadonnées…";
+  const DONE_TITLE   = "🎉 Métadonnées complètes !";
+  const DONE_DESC    = "Téléversez ce JSON sur Arweave et utilisez l'URL obtenue lors du mint.";
+  const DOWNLOAD_BTN = "Télécharger le JSON";
+
+// =========================================================
   // 質問ステップ定義
   // =========================================================
-  const STEPS = [
-    {
-      key: "name_ja",
-      ask: "こんにちは！作品のNFTメタデータを一緒に作りましょう✨\n\nまず、**作品名（日本語）**を教えてください。",
-      hint: "例：サラサラ皿 No.1",
-      required: true,
-    },
-    {
-      key: "name_en",
-      ask: "ありがとうございます！\n次に**作品名（英語）**をどうぞ。",
-      hint: "例：Sarasara Plate No.1",
-      required: true,
-    },
-    {
-      key: "image",
-      ask: "**作品画像のURL**を貼ってください。\nArweaveやIPFSのURLが理想的です。",
-      hint: "例：https://arweave.net/xxxx",
-      required: true,
-    },
-    {
-      key: "artist_ja",
-      ask: "**作家名（日本語）**を教えてください。",
-      hint: "例：森 大雅",
-      optional: true,
-    },
-    {
-      key: "artist_en",
-      ask: "**作家名（英語）**もお願いします。",
-      hint: "例：Taiga Mori",
-      optional: true,
-    },
-    {
-      key: "size",
-      ask: "**サイズ**を教えてください。",
-      hint: "例：Φ113 × H89 mm",
-      optional: true,
-    },
-    {
-      key: "year",
-      ask: "**制作年**はいつですか？",
-      hint: "例：2024",
-      optional: true,
-    },
-    {
-      key: "category",
-      ask: "**カテゴリ**を教えてください。",
-      hint: "例：tea bowl / plate / flower vase",
-      optional: true,
-    },
-    {
-      key: "color",
-      ask: "**色・景色（窯変など）**の特徴はありますか？",
-      hint: "例：Goma, Botamochi（胡麻、牡丹餅）",
-      optional: true,
-    },
-    {
-      key: "story_en",
-      ask: "作品への**想いやストーリー（英語）**を聞かせてください。",
-      hint: "自由に書いてください",
-      optional: true,
-    },
-    {
-      key: "story_ja",
-      ask: "同じ内容を**日本語**でも教えてください。",
-      hint: "日本語でのコメント",
-      optional: true,
-    },
-    {
-      key: "animation_url",
-      ask: "**動画URL**はありますか？（ろくろ動画など）",
-      hint: "例：https://arweave.net/xxxx",
-      optional: true,
-    },
-    {
-      key: "box_photo",
-      ask: "**箱書き写真のURL**はありますか？",
-      hint: "例：https://arweave.net/xxxx",
-      optional: true,
-    },
-    {
-      key: "back_photo",
-      ask: "**裏面・側面写真のURL**はありますか？",
-      hint: "例：https://arweave.net/xxxx",
-      optional: true,
-    },
-  ];
+  
 
   // =========================================================
   // 状態
@@ -386,7 +307,7 @@
     if (step.optional) {
       const skip = document.createElement('button');
       skip.className = 'skip-btn';
-      skip.textContent = 'スキップ';
+      skip.textContent = SKIP_LABEL;
       skip.onclick = () => {
         skip.disabled = true;
         answers[step.key] = null;
@@ -425,7 +346,7 @@
   // 結果表示
   // =========================================================
   function showResult() {
-    addBubble('akiko', "全部聞けました！✨\nメタデータを生成します……");
+    addBubble('akiko', DONE_MSG);
 
     setTimeout(() => {
       const meta = buildMetadata();
@@ -441,8 +362,8 @@
       const banner = document.createElement('div');
       banner.className = 'done-banner';
       banner.innerHTML = `
-        <h2>🎉 メタデータ完成！</h2>
-        <p>このJSONをArweaveにアップロードして、そのURLをミント時に使ってください。</p>
+        <h2>${DONE_TITLE}</h2>
+        <p>${DONE_DESC}</p>
         <button class="copy-btn" onclick="downloadJSON()">JSONをダウンロード</button>
       `;
       log.appendChild(banner);
