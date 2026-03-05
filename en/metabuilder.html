@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MetaBuilder — BizenDAO</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    body { background: #1a1208; }
+
+    .mb-wrap {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 80px 16px 120px;
+    }
+
+    .mb-title {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .mb-title h1 { font-size: 1.4rem; color: #E8C87A; margin-bottom: 4px; }
+    .mb-title p  { font-size: .85rem; color: #a09070; }
+
+    /* チャットエリア */
+    .chat-log {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .bubble {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      animation: fadeUp .3s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(8px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    /* 彰子側（左） */
+    .bubble.akiko { justify-content: flex-start; align-items: center; }
+    .bubble.akiko .avatar {
+      width: 70px; height: 70px; border-radius: 50%;
+      background: #92400E;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+      overflow: hidden;
+    }
+    .bubble.akiko .avatar img {
+      width: 100%; height: 100%; object-fit: cover; object-position: top;
+    }
+    .bubble.akiko .text {
+      background: #2d1e0a;
+      border: 1px solid #5a3a1a;
+      color: #f0e0c0;
+      border-radius: 4px 16px 16px 16px;
+      padding: 10px 14px;
+      max-width: 80%;
+      font-size: .9rem;
+      line-height: 1.6;
+    }
+
+    /* ユーザー側（右） */
+    .bubble.user { justify-content: flex-end; }
+    .bubble.user .text {
+      background: #3d2a10;
+      border: 1px solid #7a5a30;
+      color: #fff8ee;
+      border-radius: 16px 4px 16px 16px;
+      padding: 10px 14px;
+      max-width: 80%;
+      font-size: .9rem;
+      line-height: 1.6;
+    }
+
+    /* 入力エリア */
+    .input-area {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: #1a1208;
+      border-top: 1px solid #3a2a10;
+      padding: 12px 16px;
+      display: flex;
+      gap: 8px;
+      max-width: 680px;
+      margin: 0 auto;
+      right: calc(50% - 340px);
+    }
+    @media(max-width: 720px) {
+      .input-area { right: 0; left: 0; max-width: 100%; }
+    }
+
+    .input-area textarea {
+      flex: 1;
+      background: #2a1a08;
+      border: 1px solid #5a3a1a;
+      color: #f0e0c0;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: .9rem;
+      font-family: inherit;
+      resize: none;
+      outline: none;
+      min-height: 44px;
+      max-height: 120px;
+      line-height: 1.5;
+    }
+    .input-area textarea:focus { border-color: #E8C87A; }
+
+    .send-btn {
+      background: #92400E;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 0 18px;
+      font-size: .95rem;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .send-btn:hover { background: #B45309; }
+    .send-btn:disabled { background: #3a2a10; color: #6a5a40; cursor: default; }
+
+    /* メタデータプレビュー */
+    .meta-preview {
+      background: #0d0a04;
+      border: 1px solid #5a3a1a;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: .8rem;
+      color: #b0904a;
+      font-family: monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* スキップボタン */
+    .skip-btn {
+      background: transparent;
+      border: 1px solid #5a3a1a;
+      color: #a09070;
+      border-radius: 999px;
+      padding: 4px 14px;
+      font-size: .78rem;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+    .skip-btn:hover { border-color: #E8C87A; color: #E8C87A; }
+
+    .hint { font-size: .75rem; color: #7a6040; margin-top: 4px; }
+
+    /* 完成バナー */
+    .done-banner {
+      background: linear-gradient(135deg, #3d2a10, #1a0e04);
+      border: 1px solid #E8C87A;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      color: #E8C87A;
+    }
+    .done-banner h2 { margin: 0 0 8px; font-size: 1.1rem; }
+    .done-banner p  { font-size: .85rem; color: #b0904a; margin: 0; }
+
+    .copy-btn {
+      margin-top: 12px;
+      background: #92400E;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 20px;
+      font-size: .85rem;
+      cursor: pointer;
+    }
+    .copy-btn:hover { background: #B45309; }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo"><img src="../img/349F5603-389E-48C6-81C9-1515A338A59B.png" alt="Logo"></a>
+      <div class="header-right">
+        <span class="lang-switch"><a class="lang-btn" data-lang="en" href="#">EN</a> / <a class="lang-btn" data-lang="ja" href="#">JP</a> / <a class="lang-btn" data-lang="fr" href="#">FR</a></span>
+        <button class="nav-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">
+          <span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="nav-overlay"></div>
+  <aside class="nav-drawer" aria-label="Site menu">
+    <ul class="drawer-nav">
+      <li><a href="./index.html">Home</a></li>
+      <li><a href="./artist-list.html">Artists</a></li>
+      <li><a href="./index.html#company">About Us</a></li>
+      <li><a href="./index.html#discord">Discord</a></li>
+      <li><a href="../dapp/account.html?lang=en">My Page</a></li>
+    </ul>
+  </aside>
+
+  <main>
+    <div class="mb-wrap">
+      <div class="mb-title">
+        <h1>🏺 MetaBuilder</h1>
+        <p>Let's build NFT metadata together with Akiko</p>
+      </div>
+      <div class="chat-log" id="chatLog"></div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <nav class="footer-nav">
+        <ul>
+          <li><a href="./index.html">Home</a></li>
+          <li><a href="./artist-list.html">Artists</a></li>
+          <li><a href="./index.html#company">About Us</a></li>
+          <li><a href="./index.html#discord">Discord</a></li>
+          <li><a href="../dapp/account.html?lang=en">My Page</a></li>
+        </ul>
+      </nav>
+      <div class="footer-logo">
+        <a href="index.html" class="logo"><img src="../img/349F5603-389E-48C6-81C9-1515A338A59B.png" alt="Logo"></a>
+      </div>
+    </div>
+  </footer>
+
+  <div class="input-area" id="inputArea">
+    <textarea id="userInput" placeholder="ここに入力..." rows="1"></textarea>
+    <button class="send-btn" id="sendBtn" onclick="handleSend()">→</button>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/lang-toggle.js"></script>
+  <script>
+  // =========================================================
+  // 質問ステップ定義
+  // =========================================================
+  const STEPS = [
+    {
+      key: "name_ja",
+      ask: "こんにちは！作品のNFTメタデータを一緒に作りましょう✨\n\nまず、**作品名（日本語）**を教えてください。",
+      hint: "例：サラサラ皿 No.1",
+      required: true,
+    },
+    {
+      key: "name_en",
+      ask: "ありがとうございます！\n次に**作品名（英語）**をどうぞ。",
+      hint: "例：Sarasara Plate No.1",
+      required: true,
+    },
+    {
+      key: "image",
+      ask: "**作品画像のURL**を貼ってください。\nArweaveやIPFSのURLが理想的です。",
+      hint: "例：https://arweave.net/xxxx",
+      required: true,
+    },
+    {
+      key: "artist_ja",
+      ask: "**作家名（日本語）**を教えてください。",
+      hint: "例：森 大雅",
+      optional: true,
+    },
+    {
+      key: "artist_en",
+      ask: "**作家名（英語）**もお願いします。",
+      hint: "例：Taiga Mori",
+      optional: true,
+    },
+    {
+      key: "size",
+      ask: "**サイズ**を教えてください。",
+      hint: "例：Φ113 × H89 mm",
+      optional: true,
+    },
+    {
+      key: "year",
+      ask: "**制作年**はいつですか？",
+      hint: "例：2024",
+      optional: true,
+    },
+    {
+      key: "category",
+      ask: "**カテゴリ**を教えてください。",
+      hint: "例：tea bowl / plate / flower vase",
+      optional: true,
+    },
+    {
+      key: "color",
+      ask: "**色・景色（窯変など）**の特徴はありますか？",
+      hint: "例：Goma, Botamochi（胡麻、牡丹餅）",
+      optional: true,
+    },
+    {
+      key: "story_en",
+      ask: "作品への**想いやストーリー（英語）**を聞かせてください。",
+      hint: "自由に書いてください",
+      optional: true,
+    },
+    {
+      key: "story_ja",
+      ask: "同じ内容を**日本語**でも教えてください。",
+      hint: "日本語でのコメント",
+      optional: true,
+    },
+    {
+      key: "animation_url",
+      ask: "**動画URL**はありますか？（ろくろ動画など）",
+      hint: "例：https://arweave.net/xxxx",
+      optional: true,
+    },
+    {
+      key: "box_photo",
+      ask: "**箱書き写真のURL**はありますか？",
+      hint: "例：https://arweave.net/xxxx",
+      optional: true,
+    },
+    {
+      key: "back_photo",
+      ask: "**裏面・側面写真のURL**はありますか？",
+      hint: "例：https://arweave.net/xxxx",
+      optional: true,
+    },
+  ];
+
+  // =========================================================
+  // 状態
+  // =========================================================
+  let currentStep = 0;
+  const answers = {};
+
+  // =========================================================
+  // UI ヘルパー
+  // =========================================================
+  function addBubble(who, html) {
+    const log = document.getElementById('chatLog');
+    const div = document.createElement('div');
+    div.className = `bubble ${who}`;
+    if (who === 'akiko') {
+      div.innerHTML = `<div class="avatar"><img src="../img/akiko_avatar.jpg" alt="彰子"></div><div class="text">${mdLite(html)}</div>`;
+    } else {
+      div.innerHTML = `<div class="text">${escHtml(html)}</div>`;
+    }
+    log.appendChild(div);
+    div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    return div;
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  }
+
+  function mdLite(s) {
+    // bold + newline only
+    return s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  }
+
+  function setInputEnabled(enabled) {
+    document.getElementById('userInput').disabled = !enabled;
+    document.getElementById('sendBtn').disabled = !enabled;
+  }
+
+  // =========================================================
+  // 質問を出す
+  // =========================================================
+  function askStep(stepIndex) {
+    if (stepIndex >= STEPS.length) {
+      showResult();
+      return;
+    }
+    const step = STEPS[stepIndex];
+    const bubble = addBubble('akiko', step.ask);
+
+    // ヒントとスキップボタン
+    const extra = document.createElement('div');
+    extra.style.paddingLeft = '80px';
+    if (step.hint) {
+      const hint = document.createElement('div');
+      hint.className = 'hint';
+      hint.textContent = step.hint;
+      extra.appendChild(hint);
+    }
+    if (step.optional) {
+      const skip = document.createElement('button');
+      skip.className = 'skip-btn';
+      skip.textContent = 'スキップ';
+      skip.onclick = () => {
+        skip.disabled = true;
+        answers[step.key] = null;
+        addBubble('user', '（スキップ）');
+        currentStep++;
+        setTimeout(() => askStep(currentStep), 400);
+      };
+      extra.appendChild(skip);
+    }
+    document.getElementById('chatLog').appendChild(extra);
+    extra.scrollIntoView({ behavior: 'smooth', block: 'end' });
+
+    setInputEnabled(true);
+    document.getElementById('userInput').focus();
+  }
+
+  // =========================================================
+  // 送信処理
+  // =========================================================
+  function handleSend() {
+    const input = document.getElementById('userInput');
+    const val = input.value.trim();
+    if (!val) return;
+
+    const step = STEPS[currentStep];
+    answers[step.key] = val;
+    addBubble('user', val);
+    input.value = '';
+    setInputEnabled(false);
+
+    currentStep++;
+    setTimeout(() => askStep(currentStep), 500);
+  }
+
+  // =========================================================
+  // 結果表示
+  // =========================================================
+  function showResult() {
+    addBubble('akiko', "全部聞けました！✨\nメタデータを生成します……");
+
+    setTimeout(() => {
+      const meta = buildMetadata();
+      const json = JSON.stringify(meta, null, 2);
+
+      const log = document.getElementById('chatLog');
+
+      const preview = document.createElement('div');
+      preview.className = 'meta-preview';
+      preview.textContent = json;
+      log.appendChild(preview);
+
+      const banner = document.createElement('div');
+      banner.className = 'done-banner';
+      banner.innerHTML = `
+        <h2>🎉 メタデータ完成！</h2>
+        <p>このJSONをArweaveにアップロードして、そのURLをミント時に使ってください。</p>
+        <button class="copy-btn" onclick="downloadJSON()">JSONをダウンロード</button>
+      `;
+      log.appendChild(banner);
+      banner.scrollIntoView({ behavior: 'smooth', block: 'end' });
+
+      document.getElementById('inputArea').style.display = 'none';
+    }, 800);
+  }
+
+  function buildMetadata() {
+    const a = answers;
+
+    // name: 両方あれば「EN　JA」、片方だけでもOK
+    const nameParts = [a.name_en, a.name_ja].filter(Boolean);
+    const meta = {
+      name: nameParts.join('　'),
+      image: a.image,
+    };
+
+    // description: story両方 / 片方 / なし
+    const descParts = [a.story_en, a.story_ja].filter(Boolean);
+    if (descParts.length) meta.description = descParts.join('\n\n');
+
+    if (a.animation_url) meta.animation_url = a.animation_url;
+
+    const attrs = [];
+    const artistParts = [a.artist_en, a.artist_ja].filter(Boolean);
+    if (artistParts.length) attrs.push({ trait_type: "Artist",        value: artistParts.join('　') });
+    if (a.size)            attrs.push({ trait_type: "Size",           value: a.size });
+    if (a.year)            attrs.push({ trait_type: "Creation Year",  value: a.year });
+    if (a.category)        attrs.push({ trait_type: "Category",       value: a.category });
+    if (a.color)           attrs.push({ trait_type: "Color",          value: a.color });
+    if (a.box_photo)       attrs.push({ trait_type: "With box photo", value: a.box_photo });
+    if (a.back_photo)      attrs.push({ trait_type: "Back side photo",value: a.back_photo });
+
+    if (attrs.length) meta.attributes = attrs;
+
+    return meta;
+  }
+
+  function downloadJSON() {
+    const meta = buildMetadata();
+    const blob = new Blob([JSON.stringify(meta, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = (answers.name_en || answers.name_ja || 'metadata').replace(/\s+/g, '_') + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // =========================================================
+  // Enterキー送信
+  // =========================================================
+  document.getElementById('userInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  });
+
+  // textarea自動リサイズ
+  document.getElementById('userInput').addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
+
+  // =========================================================
+  // 起動
+  // =========================================================
+  setInputEnabled(false);
+  setTimeout(() => askStep(0), 300);
+  </script>
+
+</body>
+</html>
