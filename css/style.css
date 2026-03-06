@@ -24,9 +24,25 @@ a {
     text-decoration: none;
 }
 
+:root {
+    --header-height: 72px;
+}
+
 main {
-    padding-top: 72px;
-    /* fixed header offset */
+    padding-top: var(--header-height);
+}
+html {
+    scroll-padding-top: var(--header-height);
+}
+
+#company,
+#discord,
+#meta,
+#donate,
+#myaccount,
+#artists,
+#products {
+    scroll-margin-top: var(--header-height);
 }
 
 .container {
