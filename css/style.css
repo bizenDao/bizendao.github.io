@@ -24,17 +24,9 @@ a {
     text-decoration: none;
 }
 
-:root {
-    --header-height: 72px;
-}
-
 main {
-    padding-top: var(--header-height);
+    padding-top: 72px;
 }
-html {
-    scroll-padding-top: var(--header-height);
-}
-
 #company,
 #discord,
 #meta,
@@ -42,8 +34,9 @@ html {
 #myaccount,
 #artists,
 #products {
-    scroll-margin-top: var(--header-height);
+    scroll-margin-top: 72px;
 }
+
 
 .container {
     width: min(1320px, 100% - 40px);
