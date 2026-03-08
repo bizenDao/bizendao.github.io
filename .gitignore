@@ -92,6 +92,11 @@ vendor/bundle
 *.avi
 *.wmv
 *.flv
+*.webm
+
+# Video例外（トラッキング対象）
+!0308_hero.mp4
+!0308_hero.webm
 
 # Database
 *.sql
