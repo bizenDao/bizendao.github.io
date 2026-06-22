@@ -47,6 +47,14 @@ const CONFIG = {
       address: '0xFcC45d28E7e51Cff6d8181Bd73023d46daf1fEd2',
     },
 
+    // TBAスキャン専用の追加NFT（旧世代コントラクト。ナビ/通常ポートフォリオには出さず、
+    // TBA保有判定のみに使用）
+    tbaExtraNfts: [
+      { key: 'taiga-mori-v1',    name: '森 大雅', nameEn: 'Taiga Mori',    address: '0x72A02d559435319bD77462690E202a28c2Ba8623' },
+      { key: 'mori-toshiaki-v1', name: '森 敏彰', nameEn: 'Toshiaki Mori', address: '0x71a6aB788f4517086e23C4D8119BCA1f1cd11B94' },
+      { key: 'hozangama-v1',     name: '宝山窯',  nameEn: 'Hozangama',     address: '0x503Fd31dDe07CFff8606BDe00e6360479C5E9c77' },
+    ],
+
     // TBA（ERC-6551 v0.2.0 Token Bound Account）
     tba: {
       registry:       '0x63c8A3536E4A647D48fC0076D442e3243f7e773b',
@@ -66,10 +74,11 @@ const CONFIG = {
     },
   },
 
-  // TBAスキャン対象（NFT全コントラクト + SBT）
+  // TBAスキャン対象（NFT全コントラクト + 旧世代NFT + SBT）
   get tbaTargets() {
     return [
       ...this.contracts.nfts.map(n => ({ ...n, type: 'nft' })),
+      ...this.contracts.tbaExtraNfts.map(n => ({ ...n, type: 'nft' })),
       { key: 'sbt', name: 'BizenDAO SBT', address: this.contracts.sbt.address, type: 'sbt' },
     ];
   },
