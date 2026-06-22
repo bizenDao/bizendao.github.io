@@ -916,9 +916,8 @@
               </div>
             </div>
 
-            <template>
-              <!-- 箱書き（SBT） -->
-              <div v-if="tbaSbtAssets.length > 0" class="tba-subsection">
+            <!-- 箱書き（SBT） -->
+            <div v-if="tbaSbtAssets.length > 0" class="tba-subsection">
                 <h4>{{ t('tba_hakogaki') }}</h4>
                 <div class="tba-grid">
                   <a v-for="asset in tbaSbtAssets" :key="asset.contractAddress + '-' + asset.tokenId"
@@ -952,7 +951,6 @@
                   </a>
                 </div>
               </div>
-            </template>
           </div>
 
           <!-- ローディングオーバーレイ -->
