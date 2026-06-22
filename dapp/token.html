@@ -479,6 +479,24 @@
         opacity: 0.65;
       }
 
+      .tba-mint-link {
+        margin-left: auto;
+        flex-shrink: 0;
+        color: #6fcf8a;
+        font-size: 13px;
+        text-decoration: none;
+        padding: 6px 14px;
+        border: 1px solid rgba(111, 207, 138, 0.4);
+        border-radius: 8px;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+      }
+
+      .tba-mint-link:hover {
+        background: rgba(111, 207, 138, 0.12);
+        border-color: rgba(111, 207, 138, 0.7);
+      }
+
       .copied-toast {
         position: fixed;
         bottom: 24px;
@@ -949,6 +967,9 @@
                 <span class="copyable" @click="copyToClipboard(tbaAddress)" :title="t('copy')">{{ shortAddr(tbaAddress) }}</span>
                 <a :href="polygonscanAddress(tbaAddress)" target="_blank" class="tba-explorer" title="Polygonscan">↗</a>
               </div>
+              <a v-if="tbaAddress" :href="'mint.html?to=' + tbaAddress + '&lang=' + lang" class="tba-mint-link">
+                {{ lang === 'en' ? 'Mint to this TBA +' : 'このTBAにミント +' }}
+              </a>
             </div>
 
             <!-- 箱書き（SBT） -->
