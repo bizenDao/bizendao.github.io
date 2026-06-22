@@ -465,6 +465,40 @@
         text-decoration: underline;
       }
 
+      .tba-address .copyable {
+        color: #6bb6ff;
+        cursor: pointer;
+      }
+
+      .tba-address .copyable:hover {
+        text-decoration: underline;
+      }
+
+      .tba-address .tba-explorer {
+        margin-left: 6px;
+        opacity: 0.65;
+      }
+
+      .copied-toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 8px 20px;
+        background: rgba(111, 207, 138, 0.95);
+        color: #1a1a2e;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        z-index: 9999;
+        animation: toast-fade 1.5s ease forwards;
+      }
+
+      @keyframes toast-fade {
+        0%, 70% { opacity: 1; }
+        100% { opacity: 0; }
+      }
+
       .tba-loading {
         text-align: center;
         padding: 20px;
@@ -912,7 +946,8 @@
             <div class="tba-header">
               <h3>{{ t('tba_title') }}</h3>
               <div v-if="tbaAddress" class="tba-address">
-                <a :href="polygonscanAddress(tbaAddress)" target="_blank">{{ shortAddr(tbaAddress) }}</a>
+                <span class="copyable" @click="copyToClipboard(tbaAddress)" :title="t('copy')">{{ shortAddr(tbaAddress) }}</span>
+                <a :href="polygonscanAddress(tbaAddress)" target="_blank" class="tba-explorer" title="Polygonscan">↗</a>
               </div>
             </div>
 
@@ -1353,6 +1388,17 @@
 
           polygonscanAddress(addr) {
             return CONFIG.chain.explorer + '/address/' + addr;
+          },
+
+          copyToClipboard(text) {
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(() => {
+              const toast = document.createElement('div');
+              toast.className = 'copied-toast';
+              toast.textContent = this.t('copied');
+              document.body.appendChild(toast);
+              setTimeout(() => toast.remove(), 1500);
+            }).catch(() => {});
           },
 
           loadSampleContract() {
