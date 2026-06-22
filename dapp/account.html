@@ -229,6 +229,23 @@
       }
 
       /* サマリー */
+      .tba-banner {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px 18px;
+        margin-bottom: 24px;
+        background: rgba(120, 160, 255, 0.08);
+        border: 1px solid rgba(120, 160, 255, 0.35);
+        border-radius: 10px;
+      }
+      .tba-banner-icon { font-size: 1.3rem; line-height: 1.4; }
+      .tba-banner-body { display: flex; flex-direction: column; gap: 4px; }
+      .tba-banner-title { font-weight: 600; color: #aac4ff; }
+      .tba-banner-line { font-size: 0.9rem; opacity: 0.9; }
+      .tba-banner-line a { color: #8fb4ff; text-decoration: none; }
+      .tba-banner-line a:hover { text-decoration: underline; }
+
       .summary {
         display: flex;
         gap: 16px;
@@ -516,6 +533,24 @@
             <wallet-header :address="address" :nickname="nickname" :nickname-loading="nicknameLoading"
               :user-type="userType" :view-mode="isViewMode"></wallet-header>
 
+            <!-- このアドレス自体がTBAの場合の案内 -->
+            <div v-if="tbaInfo" class="tba-banner">
+              <span class="tba-banner-icon">🔗</span>
+              <div class="tba-banner-body">
+                <div class="tba-banner-title">{{ t('tba_account_notice') }}</div>
+                <div class="tba-banner-line">
+                  {{ t('tba_parent_nft') }}:
+                  <a :href="'token.html?ca=' + tbaInfo.tokenContract + '&id=' + tbaInfo.tokenId + '&lang=' + lang">
+                    {{ tbaInfo.parentName || shortenAddr(tbaInfo.tokenContract) }} #{{ tbaInfo.tokenId }}
+                  </a>
+                </div>
+                <div v-if="tbaInfo.owner" class="tba-banner-line">
+                  {{ t('tba_controller') }}:
+                  <a :href="'account.html?address=' + tbaInfo.owner + '&lang=' + lang">{{ shortenAddr(tbaInfo.owner) }}</a>
+                </div>
+              </div>
+            </div>
+
             <div v-if="viewMode === 'self'" class="balance-row">
               <div class="balance-card">
                 <div class="balance-value">{{ polBalance }} <small>POL</small></div>
@@ -618,6 +653,7 @@
             nicknameLoading: false,
             hasSbt: false,
             artists: [],
+            tbaInfo: null,
             // Progress tracking
             currentStep: 0,
             totalSteps: 0,
@@ -746,7 +782,13 @@
             this.address = null;
             this.hasSbt = false;
             this.artists = [];
+            this.tbaInfo = null;
             this.error = null;
+          },
+
+          shortenAddr(addr) {
+            if (!addr) return '';
+            return addr.slice(0, 6) + '...' + addr.slice(-4);
           },
 
           // ── ポートフォリオ読み込み ──
@@ -758,6 +800,10 @@
 
             // checksum address
             try { this.address = NFTHelper.getWeb3().utils.toChecksumAddress(this.address); } catch(e) {}
+
+            // TBA判定（このアドレス自体がTBAなら親NFT情報を表示。非同期）
+            this.tbaInfo = null;
+            NFTHelper.getTbaInfo(this.address).then(info => { this.tbaInfo = info; }).catch(() => {});
 
             // ニックネーム取得（非同期、表示をブロックしない）
             this.nicknameLoading = true;

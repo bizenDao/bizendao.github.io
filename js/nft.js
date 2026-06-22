@@ -145,6 +145,36 @@ const NFTHelper = {
     }
   },
 
+  // アドレスがTBA（ERC-6551アカウント）なら親NFT情報を返す。EOA/非TBAはnull
+  async getTbaInfo(address) {
+    if (!address) return null;
+    try {
+      const web3 = this.getWeb3();
+      // コードが無い（EOA）なら即null
+      const code = await web3.eth.getCode(address);
+      if (!code || code === '0x') return null;
+
+      const acct = new web3.eth.Contract(ABI.TBAAccount, address);
+      const res = await acct.methods.token().call(); // (chainId, tokenContract, tokenId)
+      const chainId = res[0] || res['0'];
+      const tokenContract = res[1] || res['1'];
+      const tokenId = (res[2] || res['2'] || '').toString();
+      if (!tokenContract || /^0x0+$/.test(tokenContract)) return null;
+
+      // owner()（親NFTの現所有者）と親コントラクト名は取得失敗してもnull許容
+      const owner = await acct.methods.owner().call().catch(() => null);
+      let parentName = '';
+      try {
+        parentName = await this.getContract(tokenContract).methods.name().call();
+      } catch (e) { /* 名前取得不可でも続行 */ }
+
+      return { chainId: chainId.toString(), tokenContract, tokenId, owner, parentName };
+    } catch (e) {
+      // token()が無い = TBAではない
+      return null;
+    }
+  },
+
   // TBAが所有する全アセット（NFT + SBT）を取得
   async getTbaAssets(tbaAddress) {
     const targets = CONFIG.tbaTargets;
