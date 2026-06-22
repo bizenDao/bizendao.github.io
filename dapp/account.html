@@ -551,6 +551,35 @@
               </div>
             </div>
 
+            <!-- TBAが保有するアセット（NFT / SBT） -->
+            <div v-if="tbaInfo && (tbaAssetsLoading || tbaAssets.length > 0)" class="artist-section">
+              <div class="artist-header">
+                <h3 class="artist-name">{{ t('tba_held_assets') }}</h3>
+                <span v-if="!tbaAssetsLoading" class="artist-count">{{ tbaAssets.length }}{{ t('unit_pieces') }}</span>
+              </div>
+              <div v-if="tbaAssetsLoading" class="loading-section">
+                <div class="loading-spinner"></div>
+              </div>
+              <div v-else class="nft-grid">
+                <a v-for="asset in tbaAssets" :key="asset.contractAddress + '-' + asset.tokenId"
+                   :href="'token.html?ca=' + asset.contractAddress + '&id=' + asset.tokenId + '&lang=' + lang"
+                   class="nft-card">
+                  <img
+                    :src="(asset.metadata && asset.metadata.image) || 'https://via.placeholder.com/300x300?text=No+Image'"
+                    :alt="asset.metadata && asset.metadata.name"
+                    class="nft-card-image"
+                    loading="lazy"
+                    @error="handleImageError($event)"
+                  />
+                  <div class="nft-card-body">
+                    <div class="nft-card-name">{{ asset.metadata ? asset.metadata.name : ('#' + asset.tokenId) }}</div>
+                    <div class="nft-card-id">#{{ asset.tokenId }}</div>
+                    <div class="nft-card-tba">{{ asset.type === 'sbt' ? 'SBT' : 'NFT' }}</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
             <div v-if="viewMode === 'self'" class="balance-row">
               <div class="balance-card">
                 <div class="balance-value">{{ polBalance }} <small>POL</small></div>
@@ -622,8 +651,8 @@
                 </div>
               </div>
 
-              <!-- 全くNFTがない場合 -->
-              <div v-if="totalNfts === 0 && !loading" class="connect-area" style="padding: 40px 20px;">
+              <!-- 全くNFTがない場合（TBA保有アセットも無い時のみ） -->
+              <div v-if="totalNfts === 0 && !loading && tbaAssets.length === 0 && !tbaAssetsLoading" class="connect-area" style="padding: 40px 20px;">
                 <p>{{ t('no_nft') }}</p>
                 <a :href="contentBase + '/artist-list.html'" class="btn">{{ t('view_artists') }}</a>
                 <a :href="'contract.html?lang=' + lang" class="btn" style="margin-left:8px;">{{ t('contract_list') }}</a>
@@ -654,6 +683,8 @@
             hasSbt: false,
             artists: [],
             tbaInfo: null,
+            tbaAssets: [],
+            tbaAssetsLoading: false,
             // Progress tracking
             currentStep: 0,
             totalSteps: 0,
@@ -783,6 +814,8 @@
             this.hasSbt = false;
             this.artists = [];
             this.tbaInfo = null;
+            this.tbaAssets = [];
+            this.tbaAssetsLoading = false;
             this.error = null;
           },
 
@@ -801,9 +834,20 @@
             // checksum address
             try { this.address = NFTHelper.getWeb3().utils.toChecksumAddress(this.address); } catch(e) {}
 
-            // TBA判定（このアドレス自体がTBAなら親NFT情報を表示。非同期）
+            // TBA判定（このアドレス自体がTBAなら親NFT情報＋保有アセットを表示。非同期）
             this.tbaInfo = null;
-            NFTHelper.getTbaInfo(this.address).then(info => { this.tbaInfo = info; }).catch(() => {});
+            this.tbaAssets = [];
+            this.tbaAssetsLoading = false;
+            NFTHelper.getTbaInfo(this.address).then(info => {
+              this.tbaInfo = info;
+              if (info) {
+                this.tbaAssetsLoading = true;
+                NFTHelper.getTbaAssets(this.address)
+                  .then(assets => { this.tbaAssets = assets || []; })
+                  .catch(() => { this.tbaAssets = []; })
+                  .finally(() => { this.tbaAssetsLoading = false; });
+              }
+            }).catch(() => {});
 
             // ニックネーム取得（非同期、表示をブロックしない）
             this.nicknameLoading = true;
