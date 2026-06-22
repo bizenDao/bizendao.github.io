@@ -786,7 +786,7 @@
                     <button v-if="isOwner && !isSbt" class="icon-btn icon-send" @click="showSendModal = true" :disabled="sendingTx" :title="t('send')">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
                     </button>
-                    <button v-if="isOwner && (burnable || userType === 'admin' || userType === 'creator')" class="icon-btn icon-burn" @click="confirmBurn" :disabled="sendingTx" :title="t('burn')">
+                    <button v-if="burnable || (isOwner && (userType === 'admin' || userType === 'creator'))" class="icon-btn icon-burn" @click="confirmBurn" :disabled="sendingTx" :title="t('burn')">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12c2-2.96 0-7-1-8 0 3.038-1.773 4.741-3 6-1.226 1.26-2 3.24-2 5a6 6 0 1 0 12 0c0-1.532-1.056-3.94-2-5-1.786 3-2.791 3-4 2z"/></svg>
                     </button>
                   </div>
@@ -1084,7 +1084,8 @@
               if (this.connectedAddress) {
                 Manager.checkUser(this.connectedAddress).then(ut => { this.userType = ut; }).catch(() => {});
                 NFTHelper.getNickname(this.connectedAddress).then(n => { this.nickname = n; }).catch(() => {});
-              } else { this.userType = null; this.nickname = null; }
+                this.checkBurnable();
+              } else { this.userType = null; this.nickname = null; this.burnable = false; }
             });
           }
 
@@ -1144,11 +1145,8 @@
               // Owner取得
               this.fetchOwner(this.tokenId || 1);
 
-              // Burnable check (tokenId単位)
-              try {
-                const bc = new this.web3.eth.Contract(BURNABLE_ABI_TOKEN, this.contractAddress);
-                this.burnable = await bc.methods.burnable(this.tokenId).call();
-              } catch (e) { this.burnable = false; }
+              // Burnable check（msg.sender基準。SBTのburnable(tokenId)はminter時のみtrue/それ以外revert）
+              this.checkBurnable();
 
               // TBA取得（NFT読み込み成功後）
               this.loadTba(this.tokenId || 1);
@@ -1281,6 +1279,16 @@
             this.sendingTx = false;
           },
 
+          // burn可否チェック（接続中ユーザーをmsg.senderとして評価）
+          async checkBurnable() {
+            this.burnable = false;
+            if (!this.connectedAddress || !this.contractAddress) return;
+            try {
+              const bc = new this.web3.eth.Contract(BURNABLE_ABI_TOKEN, this.contractAddress);
+              this.burnable = await bc.methods.burnable(this.tokenId || 1).call({ from: this.connectedAddress });
+            } catch (e) { this.burnable = false; }
+          },
+
           async confirmBurn() {
             if (!confirm(this.t('burn_confirm'))) return;
             this.sendingTx = true;
@@ -1288,16 +1296,28 @@
             this.txClass = 'tx-pending';
             try {
               const web3 = new Web3(window.ethereum);
-              const contract = new web3.eth.Contract(
-                [{ "inputs": [{"name":"from","type":"address"},{"name":"to","type":"address"},{"name":"tokenId","type":"uint256"}], "name": "transferFrom", "outputs": [], "stateMutability": "nonpayable", "type": "function" }],
-                this.contractAddress
-              );
-              const DEAD = '0x000000000000000000000000000000000000dEaD';
               const gasParams2 = await Wallet.getGasParams();
-              await contract.methods.transferFrom(this.connectedAddress, DEAD, this.tokenId || 1)
-                .send({ from: this.connectedAddress, ...gasParams2 });
+              if (this.burnable) {
+                // burnable(tokenId)=true → コントラクトのburn(tokenId)で焼却（SBTはminterのみ可）
+                const contract = new web3.eth.Contract(
+                  [{ "inputs": [{"name":"tokenId","type":"uint256"}], "name": "burn", "outputs": [], "stateMutability": "nonpayable", "type": "function" }],
+                  this.contractAddress
+                );
+                await contract.methods.burn(this.tokenId || 1)
+                  .send({ from: this.connectedAddress, ...gasParams2 });
+              } else {
+                // フォールバック: DEADアドレスへ転送して焼却（owner/admin/creator）
+                const contract = new web3.eth.Contract(
+                  [{ "inputs": [{"name":"from","type":"address"},{"name":"to","type":"address"},{"name":"tokenId","type":"uint256"}], "name": "transferFrom", "outputs": [], "stateMutability": "nonpayable", "type": "function" }],
+                  this.contractAddress
+                );
+                const DEAD = '0x000000000000000000000000000000000000dEaD';
+                await contract.methods.transferFrom(this.connectedAddress, DEAD, this.tokenId || 1)
+                  .send({ from: this.connectedAddress, ...gasParams2 });
+              }
               this.txMessage = this.t('tx_burned');
               this.txClass = 'tx-success';
+              this.burnable = false;
               this.fetchOwner(this.tokenId || 1);
             } catch (e) {
               this.txMessage = e.message?.includes('denied') ? this.t('tx_cancelled') : this.t('error') + ' ' + e.message;
