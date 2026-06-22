@@ -967,7 +967,7 @@
                 <span class="copyable" @click="copyToClipboard(tbaAddress)" :title="t('copy')">{{ shortAddr(tbaAddress) }}</span>
                 <a :href="polygonscanAddress(tbaAddress)" target="_blank" class="tba-explorer" title="Polygonscan">↗</a>
               </div>
-              <a v-if="tbaAddress" :href="'mint.html?to=' + tbaAddress + '&lang=' + lang" class="tba-mint-link">
+              <a v-if="tbaAddress && !isLegacyContract" :href="'mint.html?to=' + tbaAddress + '&lang=' + lang" class="tba-mint-link">
                 {{ lang === 'en' ? 'Mint to this TBA +' : 'このTBAにミント +' }}
               </a>
             </div>
@@ -1110,6 +1110,11 @@
           isSbt() {
             return CONFIG.contracts.sbt && this.contractAddress &&
               this.contractAddress.toLowerCase() === CONFIG.contracts.sbt.address.toLowerCase();
+          },
+          isLegacyContract() {
+            if (!this.contractAddress) return false;
+            const ca = this.contractAddress.toLowerCase();
+            return (CONFIG.contracts.tbaExtraNfts || []).some(n => n.address.toLowerCase() === ca);
           },
           isOwner() {
             if (!this.connectedAddress || !this.ownerAddress) return false;
