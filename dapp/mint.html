@@ -4,18 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BizenDAO - Mint</title>
-    <link rel="stylesheet" href="../css/style.css?v=20260622" />
+    <link rel="stylesheet" href="../css/style.css?v=2026062201" />
     <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js" crossorigin="anonymous"></script>
-    <script src="../js/config.js?v=20260622"></script>
-    <script src="../js/rpc-monitor.js?v=20260622"></script>
-    <script src="../js/cache.js?v=20260622"></script>
-    <script src="../js/nft.js?v=20260622"></script>
-    <script src="../js/wallet.js?v=20260622"></script>
-    <script src="../js/manager.js?v=20260622"></script>
-    <script src="../js/wallet-header.js?v=20260622"></script>
-    <script src="../js/i18n.js?v=20260622"></script>
-    <script src="../js/lang-toggle.js?v=20260622"></script>
+    <script src="../js/config.js?v=2026062201"></script>
+    <script src="../js/rpc-monitor.js?v=2026062201"></script>
+    <script src="../js/cache.js?v=2026062201"></script>
+    <script src="../js/nft.js?v=2026062201"></script>
+    <script src="../js/wallet.js?v=2026062201"></script>
+    <script src="../js/manager.js?v=2026062201"></script>
+    <script src="../js/wallet-header.js?v=2026062201"></script>
+    <script src="../js/i18n.js?v=2026062201"></script>
+    <script src="../js/lang-toggle.js?v=2026062201"></script>
 
     <style>
       main { padding-top: 100px; min-height: 100vh; }
@@ -250,11 +250,29 @@
       .status-error { color: #ff6b6b; font-weight: 600; }
       .status-success { color: #6fcf8a; font-weight: 600; }
 
-      .contract-info {
+      .contract-name {
         margin-top: 8px;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .contract-info {
+        margin-top: 4px;
         font-size: 12px;
         opacity: 0.4;
         font-family: monospace;
+      }
+
+      .sbt-warning {
+        margin: 8px 0;
+        padding: 12px 14px;
+        font-size: 13px;
+        line-height: 1.5;
+        color: #ff6b6b;
+        background: rgba(220, 50, 50, 0.1);
+        border: 1px solid rgba(220, 50, 50, 0.45);
+        border-radius: 8px;
+        font-weight: 600;
       }
 
       .nickname-spinner {
@@ -368,6 +386,7 @@
             <!-- Contract Info (always visible when selected) -->
             <div class="form-group" v-if="selectedContract">
               <label v-if="caFromUrl" class="form-label">1. {{ t('mint_contract') }}</label>
+              <div v-if="contractInfo && contractInfo.name" class="contract-name">{{ contractInfo.name }}</div>
               <div class="contract-info">{{ selectedContract }}</div>
               <div v-if="contractInfoLoading" class="meta-loading" style="margin-top:8px;"><span class="loading-spinner"></span></div>
               <div v-else-if="contractInfo" class="contract-status" :class="{ 'status-ok': contractInfo.mintable, 'status-ng': !contractInfo.mintable }">
@@ -399,6 +418,7 @@
             <!-- Mint To -->
             <div class="form-group">
               <label class="form-label">3. {{ t('mint_to') }}</label>
+              <div v-if="isSbt" class="sbt-warning">{{ t('mint_sbt_warning') }}</div>
               <div class="mint-to-row">
                 <input type="text" v-model="mintTo" class="form-input mono" placeholder="0x..." @input="lookupMintToNick" />
                 <button class="btn btn-self" @click="mintTo = address; lookupMintToNick()">{{ t('mint_to_self') }}</button>
@@ -474,6 +494,10 @@
               && /^0x[0-9a-fA-F]{40}$/.test(this.mintTo)
               && this.contractInfo
               && this.contractInfo.mintable;
+          },
+          isSbt() {
+            return CONFIG.contracts.sbt && this.selectedContract
+              && this.selectedContract.toLowerCase() === CONFIG.contracts.sbt.address.toLowerCase();
           },
         },
 
@@ -576,6 +600,7 @@
               const contract = new web3.eth.Contract([...ABI.ERC721, ...ABI.ERC721Mint], this.selectedContract);
               const info = {};
 
+              try { info.name = await contract.methods.name().call(); } catch (e) { info.name = null; }
               try { info.creatorOnly = await contract.methods._creatorOnly().call(); } catch (e) { info.creatorOnly = false; }
               try { info.creator = await contract.methods.creator().call(); } catch (e) { info.creator = null; }
               try { info.owner = await contract.methods.owner().call(); } catch (e) { info.owner = null; }
